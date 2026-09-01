@@ -1,61 +1,46 @@
 #!/usr/bin/env python3
 """
 Universal Log Pre-processing Framework (ULPF)
-Production SOC & Forensic Log Processing Engine
-Developed for NTRO / NCIIPC (Problem Statement ID: 26156)
+Clean 3-Page SOC & Forensic Ingestion System
+1. 📊 Main Dashboard (Analytics & AI Threat Hunting)
+2. ⚡ Live Streamer (Real-time Raw -> SHA-256 -> Formatted JSON)
+3. 🗄️ Database & Storage Vault (Raw .log vs Formatted .json Batches)
 """
 
 import os
 import sys
-
-# Ensure project root in sys.path
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-if PROJECT_ROOT not in sys.path:
-    sys.path.insert(0, PROJECT_ROOT)
-
-import hashlib
+import time
 import json
-import yaml
-import re
 import pandas as pd
 import pyarrow.parquet as pq
 import plotly.express as px
 import streamlit as st
 from datetime import datetime, timezone
 
-# Ensure UTF-8 output
-if sys.platform == "win32" and hasattr(sys.stdout, "reconfigure"):
-    try:
-        sys.stdout.reconfigure(encoding="utf-8")
-    except Exception:
-        pass
+# Ensure project root in sys.path
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
 
-# Import AI Anomaly Module & Core Engine
+from core_engine.live_service import LiveLogPipelineService, RAW_STORAGE_DIR, FORMATTED_STORAGE_DIR
 try:
     from dashboard.ai_anomaly import ThreatAnomalyDetector
 except ImportError:
     from ai_anomaly import ThreatAnomalyDetector
 
-from core_engine.engine import Engine
-from test_tools.audit_chain_of_custody import audit_parquet_buffer
-
-# Streamlit Page Configuration
+# Page configuration
 st.set_page_config(
-    page_title="ULPF | Forensic Log Ingestion & Normalization Engine",
+    page_title="ULPF | Universal Log Pre-processing Framework",
+    page_icon="🛡️",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="expanded"
 )
 
-DATA_PATH = os.path.join(PROJECT_ROOT, "data", "stream_buffer.parquet")
-LAKE_DIR = os.path.join(PROJECT_ROOT, "data", "lake")
-PARSER_DIR = os.path.join(PROJECT_ROOT, "parsers")
-SAMPLE_LOGS_DIR = os.path.join(PROJECT_ROOT, "sample_logs")
-
-# Minimalist Defense CSS
+# Custom Design Styling
 st.markdown("""
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 
 <style>
     .stApp {
@@ -66,14 +51,14 @@ st.markdown("""
     #MainMenu, footer, header {visibility: hidden;}
     .block-container {
         padding-top: 1.2rem;
-        padding-bottom: 1.5rem;
+        padding-bottom: 2rem;
         max-width: 96% !important;
     }
     .header-box {
-        background: #0f172a;
+        background: linear-gradient(135deg, #0f172a 0%, #172033 50%, #0e304f 100%);
         border: 1px solid #1e293b;
-        border-radius: 8px;
-        padding: 16px 24px;
+        border-radius: 10px;
+        padding: 18px 24px;
         margin-bottom: 16px;
         display: flex;
         justify-content: space-between;
@@ -84,6 +69,7 @@ st.markdown("""
         border: 1px solid #1e293b;
         border-radius: 8px;
         padding: 14px 18px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     }
     .kpi-label {
         font-size: 11px;
@@ -99,460 +85,297 @@ st.markdown("""
         color: #ffffff;
         margin: 0;
     }
-    .code-term {
-        background-color: #020617;
+    .stream-card {
+        background: #0b1120;
         border: 1px solid #1e293b;
+        border-radius: 8px;
+        padding: 14px;
+        margin-bottom: 12px;
+    }
+    .raw-box {
+        background-color: #020617;
+        border: 1px solid #334155;
+        border-left: 4px solid #f59e0b;
         border-radius: 6px;
         padding: 10px 14px;
         font-family: 'JetBrains Mono', monospace;
         font-size: 12px;
-        color: #38bdf8;
+        color: #fbbf24;
         word-break: break-all;
     }
-    .audit-box-success {
-        background: rgba(16, 185, 129, 0.08);
-        border: 1px solid rgba(16, 185, 129, 0.3);
+    .sha-box {
+        background-color: #020617;
+        border: 1px solid #1e293b;
+        border-left: 4px solid #38bdf8;
         border-radius: 6px;
-        padding: 14px 18px;
-        margin-bottom: 12px;
+        padding: 8px 12px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        color: #38bdf8;
+        margin: 6px 0;
+        word-break: break-all;
+    }
+    .json-box {
+        background-color: #020617;
+        border: 1px solid #1e293b;
+        border-left: 4px solid #10b981;
+        border-radius: 6px;
+        padding: 10px 14px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 12px;
+        color: #34d399;
     }
 </style>
 """, unsafe_allow_html=True)
 
+# Initialize Live Pipeline Service
+service = LiveLogPipelineService.get_instance()
 
-@st.cache_data(ttl=2)
-def load_and_score_parquet_stream():
-    """Loads normalized OCSF records from the shared Parquet sink and runs AI anomaly scoring."""
-    if not os.path.exists(DATA_PATH):
-        return pd.DataFrame()
-    try:
-        table = pq.read_table(DATA_PATH)
-        df = table.to_pandas()
-        if not df.empty:
-            if "vendor" in df.columns and "vendor_name" not in df.columns:
-                df["vendor_name"] = df["vendor"]
-            elif "vendor_name" in df.columns and "vendor" not in df.columns:
-                df["vendor"] = df["vendor_name"]
+# -------------------------------------------------------------
+# SIDEBAR: Navigation & Live Engine Controls
+# -------------------------------------------------------------
+with st.sidebar:
+    st.markdown("## 🛡️ ULPF Control")
+    page_selection = st.radio(
+        "Navigation",
+        ["📊 Main Dashboard", "⚡ Live Streamer", "🗄️ Database Vault"],
+        index=1  # Default to Live Streamer as requested
+    )
 
-            if "product" in df.columns and "product_name" not in df.columns:
-                df["product_name"] = df["product"]
-            elif "product_name" in df.columns and "product" not in df.columns:
-                df["product"] = df["product_name"]
+    st.markdown("---")
+    st.markdown("### ⚙️ Live Stream Generator")
 
-            detector = ThreatAnomalyDetector(contamination=0.08)
-            df = detector.fit_predict(df)
-        return df
-    except Exception as e:
-        st.error(f"Error reading stream buffer: {e}")
-        return pd.DataFrame()
+    # Start / Stop Engine
+    if service.is_running:
+        status_label = "🟢 GENERATOR & LISTENER ACTIVE"
+        btn_label = "⏹️ Stop Ingestion Stream"
+        btn_type = "secondary"
+    else:
+        status_label = "⚪ INGESTION IDLE"
+        btn_label = "▶️ Start Live Stream (UDP 5140)"
+        btn_type = "primary"
+
+    st.markdown(f"**Status:** `{status_label}`")
+
+    if st.button(btn_label, type=btn_type, use_container_width=True):
+        if service.is_running:
+            service.stop()
+        else:
+            service.start(eps=st.session_state.get("speed_slider", 10))
+        st.rerun()
+
+    # Rate Speed Slider
+    speed = st.slider("Generation Rate (Logs / sec)", min_value=1, max_value=50, value=service.logs_per_second, key="speed_slider")
+    if service.is_running and speed != service.logs_per_second:
+        service.set_speed(speed)
+
+    st.markdown("---")
+    st.markdown("### 📡 Wire Details")
+    st.caption(f"• **Port:** UDP 5140 (Syslog)\n• **Storage Constraint:** 200 Logs / Batch\n• **Raw Path:** `data/storage/raw/`\n• **JSON Path:** `data/storage/formatted/`")
 
 
-# Top Header Banner
+# Top Header
 st.markdown("""
 <div class="header-box">
     <div>
         <h2 style="margin:0; font-size:20px; font-weight:700; color:#ffffff;">Universal Log Pre-processing Framework (ULPF)</h2>
-        <p style="margin:2px 0 0 0; font-size:12px; color:#94a3b8;">NTRO Problem Statement 26156 • High-Throughput OCSF v1.1.0 Architecture • Section 65B Certified</p>
+        <p style="margin:3px 0 0 0; font-size:12px; color:#94a3b8;">NTRO Problem Statement 26156 • High-Throughput Live Ingestion & Dual-Storage Architecture</p>
     </div>
-    <div style="font-size:12px; font-weight:600; color:#34d399; background:rgba(16,185,129,0.1); padding:4px 12px; border-radius:4px; border:1px solid rgba(16,185,129,0.3);">
-        STATUS: OPERATIONAL (AIR-GAPPED)
+    <div style="font-size:12px; font-weight:600; color:#34d399; background:rgba(16,185,129,0.1); padding:5px 14px; border-radius:4px; border:1px solid rgba(16,185,129,0.3);">
+        PORT 5140 • OCSF v1.1.0
     </div>
 </div>
 """, unsafe_allow_html=True)
 
-# -------------------------------------------------------------
-# SIDEBAR: Operational Ingestion Status & Management
-# -------------------------------------------------------------
-with st.sidebar:
-    st.markdown("### Operational Ingestion Status")
-    st.markdown("""
-    - **Syslog Listener:** `UDP 0.0.0.0:5140`
-    - **REST API:** `POST /api/v1/ingest`
-    - **Directory Watcher:** `data/incoming/`
-    - **Target Schema:** `OCSF v1.1.0 (Class 4001)`
-    """)
 
-    st.markdown("---")
-    st.markdown("### Live Stream Controls")
-    
-    col_r1, col_r2 = st.columns(2)
-    with col_r1:
-        if st.button("Refresh Stream", type="primary", use_container_width=True):
-            st.cache_data.clear()
-            st.rerun()
+# =============================================================
+# PAGE 1: 📊 MAIN DASHBOARD (Analytics & AI Threat Hunting)
+# =============================================================
+if page_selection == "📊 Main Dashboard":
+    st.markdown("### 📊 Enterprise Analytics & AI Threat Intelligence")
+    st.caption("Aggregated analytics and unsupervised Isolation Forest threat detection across all formatted records.")
 
-    with col_r2:
-        if st.button("Purge Buffer", use_container_width=True):
-            if os.path.exists(DATA_PATH):
-                os.remove(DATA_PATH)
-            st.cache_data.clear()
-            st.rerun()
+    # Load stored parquet data
+    parquet_path = os.path.join(PROJECT_ROOT, "data", "stream_buffer.parquet")
+    df = pd.DataFrame()
+    if os.path.exists(parquet_path):
+        try:
+            df = pq.read_table(parquet_path).to_pandas()
+            if not df.empty:
+                if "vendor" in df.columns and "vendor_name" not in df.columns:
+                    df["vendor_name"] = df["vendor"]
+                detector = ThreatAnomalyDetector(contamination=0.08)
+                df = detector.fit_predict(df)
+        except Exception:
+            df = pd.DataFrame()
 
-    st.markdown("---")
-    st.markdown("### Storage Footprint")
-    buffer_size_kb = os.path.getsize(DATA_PATH) / 1024.0 if os.path.exists(DATA_PATH) else 0.0
-    st.write(f"- **Live Buffer Size:** `{buffer_size_kb:.2f} KB`")
-    st.write(f"- **Parquet Path:** `{os.path.basename(DATA_PATH)}`")
+    # KPI Metrics
+    total_logs = len(df) if not df.empty else service.stats["total_formatted"]
+    current_eps = service.stats["current_eps"]
+    anomalies = len(df[df["is_anomaly"] == True]) if not df.empty and "is_anomaly" in df.columns else 0
+    file_info = service.get_stored_files()
+    total_batches = len(file_info["raw_files"])
 
-df_events = load_and_score_parquet_stream()
+    k1, k2, k3, k4 = st.columns(4)
+    with k1:
+        st.markdown(f'<div class="kpi-card"><div class="kpi-label">Total Ingested Logs</div><div class="kpi-val" style="color:#38bdf8;">{total_logs:,}</div></div>', unsafe_allow_html=True)
+    with k2:
+        st.markdown(f'<div class="kpi-card"><div class="kpi-label">Current Throughput</div><div class="kpi-val" style="color:#34d399;">{current_eps} EPS</div></div>', unsafe_allow_html=True)
+    with k3:
+        st.markdown(f'<div class="kpi-card"><div class="kpi-label">AI Flagged Anomalies</div><div class="kpi-val" style="color:#fb7185;">{anomalies:,}</div></div>', unsafe_allow_html=True)
+    with k4:
+        st.markdown(f'<div class="kpi-card"><div class="kpi-label">Batches Stored on Disk</div><div class="kpi-val" style="color:#a5b4fc;">{total_batches} Batches</div></div>', unsafe_allow_html=True)
 
-# -------------------------------------------------------------
-# KPI Metrics Bar
-# -------------------------------------------------------------
-total_count = len(df_events) if not df_events.empty else 0
-blocked_count = len(df_events[df_events["disposition"].astype(str).str.lower().isin(["blocked", "drop", "deny", "dropped"])]) if not df_events.empty and "disposition" in df_events.columns else 0
-anomalies_count = len(df_events[df_events["is_anomaly"] == True]) if not df_events.empty and "is_anomaly" in df_events.columns else 0
-vendors_count = df_events["vendor_name"].nunique() if not df_events.empty and "vendor_name" in df_events.columns else 0
+    st.markdown("<br>", unsafe_allow_html=True)
 
-k1, k2, k3, k4 = st.columns(4)
-with k1:
-    st.markdown(f'<div class="kpi-card"><div class="kpi-label">Ingested Records</div><div class="kpi-val" style="color:#38bdf8;">{total_count:,}</div></div>', unsafe_allow_html=True)
-with k2:
-    st.markdown('<div class="kpi-card"><div class="kpi-label">Tested Throughput</div><div class="kpi-val" style="color:#34d399;">18,815+ EPS</div></div>', unsafe_allow_html=True)
-with k3:
-    st.markdown(f'<div class="kpi-card"><div class="kpi-label">Integrated Vendors</div><div class="kpi-val" style="color:#a5b4fc;">{max(vendors_count, 10)} Formats</div></div>', unsafe_allow_html=True)
-with k4:
-    st.markdown(f'<div class="kpi-card"><div class="kpi-label">Security Policy Drops</div><div class="kpi-val" style="color:#fb7185;">{blocked_count:,}</div></div>', unsafe_allow_html=True)
-
-st.markdown("<br>", unsafe_allow_html=True)
-
-# -------------------------------------------------------------
-# Main Operational Modules
-# -------------------------------------------------------------
-tab_stream, tab_ingest, tab_forensics, tab_ai, tab_parsers, tab_lake = st.tabs([
-    "Live Normalization Stream",
-    "File & Payload Ingestion",
-    "Section 65B Forensic Vault",
-    "Threat Anomaly Matrix",
-    "Declarative Parser Registry",
-    "Partitioned Data Lake Explorer"
-])
-
-# -------------------------------------------------------------
-# TAB 1: Live Normalization Stream
-# -------------------------------------------------------------
-with tab_stream:
-    col_t1, col_t2 = st.columns([4, 1])
-    with col_t1:
-        vendor_filter = st.multiselect(
-            "Filter Stream by Vendor",
-            options=df_events["vendor_name"].unique() if not df_events.empty and "vendor_name" in df_events.columns else [],
-            default=df_events["vendor_name"].unique() if not df_events.empty and "vendor_name" in df_events.columns else []
-        )
-    with col_t2:
-        search_query = st.text_input("Search IP / Hash", value="")
-
-    filtered_df = df_events[df_events["vendor_name"].isin(vendor_filter)] if not df_events.empty and vendor_filter else df_events
-    if search_query and not filtered_df.empty:
-        filtered_df = filtered_df[
-            filtered_df["src_ip"].astype(str).str.contains(search_query, case=False, na=False) |
-            filtered_df["dst_ip"].astype(str).str.contains(search_query, case=False, na=False) |
-            filtered_df["hash"].astype(str).str.contains(search_query, case=False, na=False) |
-            filtered_df["raw_data"].astype(str).str.contains(search_query, case=False, na=False)
-        ]
-
-    if filtered_df.empty:
-        st.info("No records in buffer. Ingest log files or raw strings in the 'File & Payload Ingestion' tab.")
+    if df.empty:
+        st.info("No logs in database yet. Switch to '⚡ Live Streamer' and click 'Start Live Stream' to begin ingestion.")
     else:
-        # High-Density Abstracted Table
-        cols_to_show = ["ingest_timestamp", "vendor_name", "src_ip", "src_port", "dst_ip", "dst_port", "protocol_name", "disposition", "hash"]
-        available_cols = [c for c in cols_to_show if c in filtered_df.columns]
-        st.dataframe(filtered_df[available_cols].tail(100).iloc[::-1], use_container_width=True, height=300)
-
-        # Record Deep Inspection
-        st.markdown("#### Event Record Deep Inspection")
-        sample_uuids = filtered_df["event_id"].tail(30).tolist()
-        sel_uuid = st.selectbox("Select Event UUID to Inspect", options=sample_uuids)
-        if sel_uuid:
-            sel_row = filtered_df[filtered_df["event_id"] == sel_uuid].iloc[0]
-            dcol1, dcol2 = st.columns(2)
-            with dcol1:
-                st.markdown("**Original Raw Ingress Payload**")
-                st.markdown(f'<div class="code-term">{sel_row.get("raw_data", "")}</div>', unsafe_allow_html=True)
-                st.caption(f"SHA-256 Digest: `{sel_row.get('hash', '')}`")
-            with dcol2:
-                st.markdown("**Normalized OCSF Class 4001 Record**")
-                ocsf_preview = {
-                    "event_id": sel_row.get("event_id", ""),
-                    "class_uid": 4001,
-                    "disposition": sel_row.get("disposition", "Unknown"),
-                    "src_endpoint": {"ip": sel_row.get("src_ip", ""), "port": int(sel_row.get("src_port", 0)), "country": sel_row.get("src_country", "Unknown")},
-                    "dst_endpoint": {"ip": sel_row.get("dst_ip", ""), "port": int(sel_row.get("dst_port", 0)), "country": sel_row.get("dst_country", "Unknown")},
-                    "connection_info": {"protocol_name": str(sel_row.get("protocol_name", "TCP")).upper()}
-                }
-                st.json(ocsf_preview)
-
-# -------------------------------------------------------------
-# TAB 2: Real File, Payload & Kafka Ingestion
-# -------------------------------------------------------------
-with tab_ingest:
-    st.markdown("### Real Log File, Raw Stream & Apache Kafka Ingestion")
-    st.caption("Upload perimeter firewall log files, ingest direct syslog strings, or connect to Apache Kafka brokers.")
-
-    icol1, icol2 = st.columns([1, 1])
-    with icol1:
-        st.markdown("#### Batch Log File Upload")
-        uploaded_files = st.file_uploader(
-            "Upload Log Files (.log, .txt, .json, .csv)",
-            type=["log", "txt", "json", "csv"],
-            accept_multiple_files=True
-        )
-        if uploaded_files:
-            if st.button("Process & Ingest Uploaded Files", type="primary"):
-                eng = Engine(parsers_dir="parsers", parquet_path=DATA_PATH)
-                total_ingested = 0
-                for uf in uploaded_files:
-                    lines = uf.getvalue().decode("utf-8", errors="ignore").splitlines()
-                    for line in lines:
-                        if line.strip():
-                            eng.process_single(line.encode("utf-8"))
-                            total_ingested += 1
-                eng.sink_writer.flush()
-                st.success(f"Successfully processed and normalized {total_ingested:,} records from {len(uploaded_files)} file(s).")
-                st.cache_data.clear()
-                st.rerun()
-
-        # Ingest Pre-Loaded Sample Corpuses
-        if os.path.exists(SAMPLE_LOGS_DIR):
-            st.markdown("#### Load Available Corpus Files")
-            corpus_files = [f for f in os.listdir(SAMPLE_LOGS_DIR) if f.endswith(".log")]
-            sel_corpus = st.selectbox("Select Sample Log Corpus", options=corpus_files)
-            if st.button("Ingest Selected Corpus"):
-                corpus_path = os.path.join(SAMPLE_LOGS_DIR, sel_corpus)
-                with open(corpus_path, "r", encoding="utf-8", errors="ignore") as f:
-                    lines = f.readlines()
-                eng = Engine(parsers_dir="parsers", parquet_path=DATA_PATH)
-                for line in lines:
-                    if line.strip():
-                        eng.process_single(line.encode("utf-8"))
-                eng.sink_writer.flush()
-                st.success(f"Ingested {len(lines)} records from {sel_corpus}.")
-                st.cache_data.clear()
-                st.rerun()
-
-    with icol2:
-        st.markdown("#### Direct Raw Syslog Entry")
-        raw_input = st.text_area(
-            "Paste Raw Syslog String(s)",
-            value="%ASA-4-106023: Deny tcp src outside:203.0.113.15/44123 dst inside:192.168.1.50/80\n"
-                  'date=2026-09-01 time=08:30:00 devname="FGT60D" srcip=192.168.1.50 dstip=10.0.0.5 action="accept"\n'
-                  "Microsoft-Windows-Security-Auditing: EventID=4624 Account Name: Administrator Source Address: 192.168.1.10 Source Port: 54123 Destination Address: 10.0.0.5 Destination Port: 445",
-            height=160
-        )
-        if st.button("Process & Standardize Payloads", type="primary"):
-            eng = Engine(parsers_dir="parsers", parquet_path=DATA_PATH)
-            c = 0
-            for l in raw_input.splitlines():
-                if l.strip():
-                    eng.process_single(l.encode("utf-8"))
-                    c += 1
-            eng.sink_writer.flush()
-            st.success(f"Successfully parsed and ingested {c} records into Parquet buffer.")
-            st.cache_data.clear()
-            st.rerun()
-
-    st.markdown("---")
-    st.markdown("### Apache Kafka Streaming Consumer & Shipper")
-    st.caption("Consume live system telemetry directly from Kafka topics and normalize in real-time.")
-
-    kcol1, kcol2 = st.columns([1, 1])
-    with kcol1:
-        st.markdown("#### Kafka Consumer Service")
-        kafka_broker = st.text_input("Kafka Bootstrap Broker(s)", value="localhost:9092")
-        kafka_topic = st.text_input("Ingestion Topic", value="system-logs")
-        kafka_group = st.text_input("Consumer Group ID", value="ulpf-ingestion-group")
-
-        if "kafka_consumer_running" not in st.session_state:
-            st.session_state["kafka_consumer_running"] = False
-
-        kbtn_col1, kbtn_col2 = st.columns(2)
-        with kbtn_col1:
-            if st.button("Connect Kafka Consumer", type="primary", use_container_width=True):
-                from core_engine.kafka_ingestion import KafkaIngestionConsumer
-                consumer_worker = KafkaIngestionConsumer(
-                    bootstrap_servers=kafka_broker,
-                    topic=kafka_topic,
-                    group_id=kafka_group
-                )
-                connected = consumer_worker.start()
-                st.session_state["kafka_consumer_worker"] = consumer_worker
-                st.session_state["kafka_consumer_running"] = True
-                if connected:
-                    st.success(f"Kafka Consumer connected to '{kafka_topic}' on {kafka_broker}.")
-                else:
-                    st.warning(f"Kafka Consumer initialized (Broker {kafka_broker} connection pending).")
-                st.rerun()
-
-        with kbtn_col2:
-            if st.button("Stop Kafka Consumer", use_container_width=True):
-                if "kafka_consumer_worker" in st.session_state and st.session_state["kafka_consumer_worker"]:
-                    st.session_state["kafka_consumer_worker"].stop()
-                st.session_state["kafka_consumer_running"] = False
-                st.info("Kafka Consumer stopped.")
-                st.rerun()
-
-        status_txt = "RUNNING" if st.session_state.get("kafka_consumer_running") else "DISCONNECTED"
-        status_clr = "#34d399" if status_txt == "RUNNING" else "#94a3b8"
-        st.markdown(f"**Consumer State:** <span style='color:{status_clr}; font-weight:700;'>{status_txt}</span>", unsafe_allow_html=True)
-
-    with kcol2:
-        st.markdown("#### Ship System Event to Kafka")
-        st.caption("Publish a local system or firewall event directly into the Kafka topic.")
-        sample_kafka_msg = st.text_input(
-            "Payload to Publish",
-            value="%ASA-4-106023: Deny tcp src outside:198.51.100.77/51234 dst inside:10.0.0.5/443"
-        )
-        if st.button("Publish Event to Kafka", use_container_width=True):
-            from core_engine.kafka_ingestion import KafkaSystemLogProducer
-            producer = KafkaSystemLogProducer(bootstrap_servers=kafka_broker)
-            ok = producer.send_log(kafka_topic, sample_kafka_msg)
-            if ok:
-                st.success(f"Published payload to Kafka topic '{kafka_topic}'.")
-            else:
-                st.info(f"Could not connect to Kafka broker at '{kafka_broker}'. Make sure Kafka is running on your system (e.g. `localhost:9092`).")
-
-
-# -------------------------------------------------------------
-# TAB 3: Section 65B Forensic Integrity
-# -------------------------------------------------------------
-with tab_forensics:
-    st.markdown("### Section 65B Electronic Evidence & Chain-of-Custody Vault")
-    st.caption("Fulfilling Section 65B Indian Evidence Act / Bharatiya Sakshya Adhiniyam 2023 with mathematical non-tampering verification.")
-
-    col_a1, col_a2 = st.columns([1, 1])
-    with col_a1:
-        st.markdown("#### Full-Buffer Cryptographic Audit")
-        st.caption("Asserts SHA256(raw_data) == metadata.hash across 100% of stored records on disk.")
-        if st.button("Execute Chain-of-Custody Audit", type="primary"):
-            audit_report = audit_parquet_buffer(DATA_PATH)
-            st.session_state["active_audit_report"] = audit_report
-
-        if "active_audit_report" in st.session_state:
-            rep = st.session_state["active_audit_report"]
-            st.markdown(f"""
-            <div class="audit-box-success">
-                <h4 style="margin:0; color:#34d399;">100% BITWISE VERIFIED — COURT ADMISSIBLE EVIDENCE</h4>
-                <p style="margin:6px 0 0 0; color:#cbd5e1; font-size:13px;">
-                    Verified <b>{rep.get('valid_authentic_records', 0):,}</b> of <b>{rep.get('total_records_audited', 0):,}</b> stored records.
-                    <b>0 Tampered Records | 0 Duplicate UUIDs</b>
-                </p>
-            </div>
-            """, unsafe_allow_html=True)
-            st.download_button(
-                label="Download Section 65B Evidence Manifest (JSON)",
-                data=json.dumps(rep, indent=2),
-                file_name="section_65b_manifest.json",
-                mime="application/json"
-            )
-
-    with col_a2:
-        st.markdown("#### Single-Event Cryptographic Assertion")
-        if not df_events.empty:
-            sel_audit_uuid = st.selectbox("Select Event UUID to Verify", options=df_events["event_id"].tail(20).tolist(), key="audit_sel_uuid")
-            ev_row = df_events[df_events["event_id"] == sel_audit_uuid].iloc[0]
-            
-            recomputed = hashlib.sha256(str(ev_row["raw_data"]).encode("utf-8")).hexdigest()
-            is_valid = (recomputed.lower() == str(ev_row["hash"]).lower())
-            
-            st.text_input("Original Raw Payload", value=ev_row["raw_data"], disabled=True)
-            st.text_input("Captured Wire Hash (metadata.hash)", value=ev_row["hash"], disabled=True)
-            st.text_input("Re-computed SHA-256 Digest", value=recomputed, disabled=True)
-            
-            if is_valid:
-                st.success("Mathematical Invariant Verified: SHA256(raw_data) == metadata.hash.")
-            else:
-                st.error("Integrity Failure: Hash mismatch detected.")
-
-# -------------------------------------------------------------
-# TAB 4: Threat Anomaly Matrix
-# -------------------------------------------------------------
-with tab_ai:
-    st.markdown("### Threat Intelligence & Anomaly Matrix")
-    st.caption("Consuming vectorized Apache Arrow / Parquet stream records directly for zero-day threat scoring.")
-
-    if not df_events.empty and "anomaly_score" in df_events.columns:
-        sc1, sc2 = st.columns([2, 1])
-        with sc1:
+        # Charts Row
+        c1, c2 = st.columns([2, 1])
+        with c1:
+            st.markdown("#### 🤖 AI Threat Hunting & Port Entropy")
             fig = px.scatter(
-                df_events,
+                df,
                 x="src_port",
                 y="dst_port",
                 color="anomaly_score",
                 size="anomaly_score",
                 hover_data=["src_ip", "dst_ip", "vendor_name", "disposition"],
                 color_continuous_scale="Viridis",
-                title="Network Port Entropy & Anomaly Score Distribution",
                 template="plotly_dark",
-                height=320
+                height=340
             )
             fig.update_layout(plot_bgcolor="#0f172a", paper_bgcolor="#0f172a", font=dict(family="Plus Jakarta Sans", color="#94a3b8"))
             st.plotly_chart(fig, use_container_width=True)
-        with sc2:
-            if "src_country" in df_events.columns:
-                counts = df_events["src_country"].value_counts().reset_index()
-                counts.columns = ["Country", "Events"]
-                fig_p = px.pie(counts, values="Events", names="Country", hole=0.4, template="plotly_dark", height=320)
-                fig_p.update_layout(plot_bgcolor="#0f172a", paper_bgcolor="#0f172a", font=dict(family="Plus Jakarta Sans", color="#94a3b8"))
-                st.plotly_chart(fig_p, use_container_width=True)
 
-        anoms = df_events[df_events["anomaly_score"] > 0.70]
-        st.markdown(f"#### Flagged Anomaly Events ({len(anoms)} Outliers)")
-        if not anoms.empty:
-            st.dataframe(anoms[["ingest_timestamp", "vendor_name", "src_ip", "src_country", "dst_ip", "dst_port", "disposition", "anomaly_score"]], use_container_width=True, height=180)
+        with c2:
+            st.markdown("#### 🏢 Ingestion by Vendor")
+            if "vendor_name" in df.columns:
+                v_counts = df["vendor_name"].value_counts().reset_index()
+                v_counts.columns = ["Vendor", "Count"]
+                fig_pie = px.pie(v_counts, values="Count", names="Vendor", hole=0.45, template="plotly_dark", height=340)
+                fig_pie.update_layout(plot_bgcolor="#0f172a", paper_bgcolor="#0f172a", font=dict(family="Plus Jakarta Sans", color="#94a3b8"))
+                st.plotly_chart(fig_pie, use_container_width=True)
 
-# -------------------------------------------------------------
-# TAB 5: Declarative Parser Registry
-# -------------------------------------------------------------
-with tab_parsers:
-    st.markdown("### Declarative YAML Parser Specifications")
-    st.caption("Active in-memory parser registry conforming to OCSF Class 4001.")
+        # Flagged High-Risk Anomalies Table
+        high_risk = df[df["anomaly_score"] > 0.70] if "anomaly_score" in df.columns else pd.DataFrame()
+        st.markdown(f"#### 🚨 Flagged Security Anomalies ({len(high_risk)} Detected)")
+        if not high_risk.empty:
+            cols = ["ingest_timestamp", "vendor_name", "src_ip", "src_port", "dst_ip", "dst_port", "disposition", "anomaly_score"]
+            available = [c for c in cols if c in high_risk.columns]
+            st.dataframe(high_risk[available].tail(20).iloc[::-1], use_container_width=True, height=220)
 
-    if os.path.exists(PARSER_DIR):
-        p_files = [f for f in os.listdir(PARSER_DIR) if f.endswith(('.yaml', '.yml'))]
-        parser_rows = []
-        for pf in p_files:
-            with open(os.path.join(PARSER_DIR, pf), "r", encoding="utf-8") as f:
-                c = yaml.safe_load(f)
-                parser_rows.append({
-                    "Parser File": pf,
-                    "Vendor": c.get("vendor", "Generic"),
-                    "Product": c.get("product", "Gateway"),
-                    "Target OCSF Class": "4001 (Network Activity)",
-                    "Status": "Active in Memory"
-                })
-        st.dataframe(pd.DataFrame(parser_rows), use_container_width=True)
+
+# =============================================================
+# PAGE 2: ⚡ LIVE STREAMER (Real-time Flow)
+# =============================================================
+elif page_selection == "⚡ Live Streamer":
+    st.markdown("### ⚡ Real-Time Log Ingestion Streamer")
+    st.caption("Live top-to-bottom pipeline: Raw String (Port 5140) ➔ Hardware SHA-256 Wire Key ➔ Standardized OCSF JSON.")
+
+    # Live Stream Controls Bar
+    c_ctrl1, c_ctrl2, c_ctrl3 = st.columns([2, 1, 1])
+    with c_ctrl1:
+        auto_refresh = st.checkbox("🔄 Auto-Refresh Stream (1s)", value=True)
+    with c_ctrl2:
+        if st.button("Refresh Now", use_container_width=True):
+            st.rerun()
+    with c_ctrl3:
+        if st.button("Clear Live View", use_container_width=True):
+            service.live_stream_queue.clear()
+            st.rerun()
+
+    # Fetch live records from the in-memory queue
+    stream_events = service.get_live_stream()
+
+    if not stream_events:
+        st.info("Live stream idle. Click '▶️ Start Live Stream (UDP 5140)' in the sidebar to begin continuous streaming.")
     else:
-        st.info("No parsers loaded.")
+        st.write(f"**Showing last {len(stream_events)} streaming events:**")
+        # Render scrolling list (newest on top)
+        for item in reversed(stream_events[-20:]):
+            st.markdown('<div class="stream-card">', unsafe_allow_html=True)
+            col1, col2, col3 = st.columns([5, 4, 5])
 
-# -------------------------------------------------------------
-# TAB 6: Partitioned Data Lake Explorer
-# -------------------------------------------------------------
-with tab_lake:
-    st.markdown("### Historical Data Lake Storage Explorer")
-    st.caption("Inspect partitioned Snappy Parquet storage under `/data/lake/`.")
+            with col1:
+                st.markdown(f"**[RAW LOG INGRESS]** <span style='font-size:11px; color:#94a3b8;'>({item['timestamp']})</span>", unsafe_allow_html=True)
+                st.markdown(f'<div class="raw-box">{item["raw_string"]}</div>', unsafe_allow_html=True)
 
-    if os.path.exists(LAKE_DIR):
-        lake_list = []
-        for root, dirs, files in os.walk(LAKE_DIR):
-            for file in files:
-                if file.endswith(".parquet"):
-                    full_p = os.path.join(root, file)
-                    rel_p = os.path.relpath(full_p, LAKE_DIR)
-                    size_kb = os.path.getsize(full_p) / 1024.0
-                    lake_list.append({"Partition Path": rel_p, "Size (KB)": round(size_kb, 2), "Full Path": full_p})
-        if lake_list:
-            df_lake = pd.DataFrame(lake_list)
-            st.dataframe(df_lake[["Partition Path", "Size (KB)"]], use_container_width=True)
-            
-            sel_lake = st.selectbox("Inspect Partition File", options=[f["Full Path"] for f in lake_list])
-            if sel_lake and os.path.exists(sel_lake):
-                try:
-                    tbl = pq.read_table(sel_lake)
-                    st.write(f"**Rows in Partition:** `{tbl.num_rows:,}` | **Columns:** `{tbl.num_columns}`")
-                    st.dataframe(tbl.to_pandas().head(10), use_container_width=True)
-                except Exception as e:
-                    st.error(f"Error reading partition: {e}")
+            with col2:
+                st.markdown("**[CRYPTOGRAPHIC WIRE FINGERPRINT]**", unsafe_allow_html=True)
+                st.markdown(f'<div class="sha-box">SHA-256:<br><b>{item["sha256_key"]}</b></div>', unsafe_allow_html=True)
+                disp = item.get("disposition", "Unknown")
+                disp_color = "#10b981" if disp.lower() in ["allowed", "accept", "pass"] else "#ef4444"
+                st.markdown(f"<span style='font-size:12px;'>Vendor: <b>{item.get('vendor')}</b> | Status: <span style='color:{disp_color}; font-weight:700;'>{disp.upper()}</span></span>", unsafe_allow_html=True)
+
+            with col3:
+                st.markdown("**[NORMALIZED OCSF JSON]**", unsafe_allow_html=True)
+                preview = {
+                    "event_id": item["formatted_json"].get("event_id", "")[:13] + "...",
+                    "class_uid": 4001,
+                    "disposition": item["formatted_json"].get("disposition", "Unknown"),
+                    "src_endpoint": f"{item['formatted_json'].get('src_ip')}:{item['formatted_json'].get('src_port')}",
+                    "dst_endpoint": f"{item['formatted_json'].get('dst_ip')}:{item['formatted_json'].get('dst_port')}",
+                    "protocol": item["formatted_json"].get("protocol_name", "TCP")
+                }
+                st.markdown(f'<div class="json-box">{json.dumps(preview, indent=2)}</div>', unsafe_allow_html=True)
+
+            st.markdown('</div>', unsafe_allow_html=True)
+
+    # Auto-refresh loop if enabled
+    if auto_refresh and service.is_running:
+        time.sleep(1.0)
+        st.rerun()
+
+
+# =============================================================
+# PAGE 3: 🗄️ DATABASE & STORAGE VAULT
+# =============================================================
+elif page_selection == "🗄️ Database Vault":
+    st.markdown("### 🗄️ Database & Dual-Storage Vault")
+    st.caption("Partitioned files generated upon batch constraint fulfillment (Raw .log vs Formatted .json).")
+
+    files_data = service.get_stored_files()
+    raw_files = files_data["raw_files"]
+    formatted_files = files_data["formatted_files"]
+
+    dcol1, dcol2 = st.columns(2)
+
+    with dcol1:
+        st.markdown(f"#### 📄 Raw Log Files (`.log`) — {len(raw_files)} Files")
+        if raw_files:
+            df_raw = pd.DataFrame(raw_files)
+            st.dataframe(df_raw[["filename", "records", "size_kb", "timestamp"]], use_container_width=True, height=260)
         else:
-            st.info("Partitioned historical lake records reside in `/data/lake/`.")
+            st.info("No raw log files created yet. Batches flush automatically every 200 records.")
+
+    with dcol2:
+        st.markdown(f"#### 📋 Formatted JSON Files (`.json`) — {len(formatted_files)} Files")
+        if formatted_files:
+            df_fmt = pd.DataFrame(formatted_files)
+            st.dataframe(df_fmt[["filename", "records", "size_kb", "timestamp"]], use_container_width=True, height=260)
+        else:
+            st.info("No formatted JSON files created yet.")
+
+    st.markdown("---")
+    st.markdown("### 🔍 Dual-File Content Inspector")
+
+    if raw_files and formatted_files:
+        sel_idx = st.selectbox("Select Batch to Inspect", options=range(len(raw_files)), format_func=lambda i: raw_files[i]["filename"])
+        selected_raw = raw_files[sel_idx]
+        selected_fmt = formatted_files[sel_idx] if sel_idx < len(formatted_files) else None
+
+        vcol1, vcol2 = st.columns(2)
+        with vcol1:
+            st.markdown(f"**Raw Log File Content:** `{selected_raw['filename']}`")
+            with open(selected_raw["path"], "r", encoding="utf-8") as f:
+                st.code(f.read()[:2000] + ("\n... [Truncated preview]" if selected_raw["records"] > 15 else ""), language="text")
+
+        with vcol2:
+            if selected_fmt:
+                st.markdown(f"**Formatted JSON Content:** `{selected_fmt['filename']}`")
+                with open(selected_fmt["path"], "r", encoding="utf-8") as f:
+                    st.code(f.read()[:2000] + ("\n... [Truncated preview]" if selected_fmt["records"] > 5 else ""), language="json")
     else:
-        st.info("Data lake directory active.")
+        st.info("Generate batches to enable side-by-side inspection.")
