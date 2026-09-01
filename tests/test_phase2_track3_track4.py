@@ -4,13 +4,12 @@ Unit & Integration Tests for Phase 2 (Track 3 & Track 4)
 NTRO Problem ID 26156
 """
 
-import os
-import pytest
 import pandas as pd
 import numpy as np
 from dashboard.ai_anomaly import ThreatAnomalyDetector
-from test_tools.log_generator import generate_attack_log, generate_synthetic_log
+from test_tools.log_generator import generate_attack_log
 from test_tools.benchmark import run_pipeline_benchmark
+
 
 
 def test_ai_anomaly_detector_scoring():
