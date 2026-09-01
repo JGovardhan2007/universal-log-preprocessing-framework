@@ -38,7 +38,10 @@ class ParquetSinkWriter:
             "event_id": str(record.get("event_id", "")),
             "ingest_timestamp": str(meta.get("ingest_timestamp", "")),
             "vendor": str(prod.get("vendor_name", "Generic")),
+            "vendor_name": str(prod.get("vendor_name", "Generic")),
             "product": str(prod.get("name", "Firewall")),
+            "product_name": str(prod.get("name", "Firewall")),
+
             "disposition": str(record.get("disposition", "Unknown")),
             "disposition_id": int(record.get("disposition_id", 99)),
             "src_ip": str(src_ep.get("ip", "0.0.0.0")),

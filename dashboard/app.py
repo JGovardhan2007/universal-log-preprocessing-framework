@@ -179,12 +179,25 @@ def load_and_score_parquet_stream():
         table = pq.read_table(DATA_PATH)
         df = table.to_pandas()
         if not df.empty:
+            # Reconcile vendor / vendor_name column aliasing
+            if "vendor" in df.columns and "vendor_name" not in df.columns:
+                df["vendor_name"] = df["vendor"]
+            elif "vendor_name" in df.columns and "vendor" not in df.columns:
+                df["vendor"] = df["vendor_name"]
+
+            # Reconcile product / product_name column aliasing
+            if "product" in df.columns and "product_name" not in df.columns:
+                df["product_name"] = df["product"]
+            elif "product_name" in df.columns and "product" not in df.columns:
+                df["product"] = df["product_name"]
+
             detector = ThreatAnomalyDetector(contamination=0.08)
             df = detector.fit_predict(df)
         return df
     except Exception as e:
         st.error(f"Error reading Parquet buffer: {e}")
         return pd.DataFrame()
+
 
 
 # -------------------------------------------------------------
