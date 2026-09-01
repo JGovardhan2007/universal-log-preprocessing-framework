@@ -1,3 +1,0 @@
-# Track 4: Traffic Generator & Benchmarks
-pyarrow>=15.0.0
-pandas>=2.0.0

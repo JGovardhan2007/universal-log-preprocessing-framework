@@ -1,0 +1,55 @@
+[
+  {
+    "event_id": "7f33078d-3a42-4285-a44f-59f5810f6986",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Blocked",
+    "disposition_id": 2,
+    "src_endpoint": {
+      "ip": "192.168.17.127",
+      "port": 50041,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.211.90",
+      "port": 8080,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 1,
+      "format_name": "Tier1:pfSense / Suricata_Suricata & Filterlog",
+      "product": {
+        "vendor_name": "pfSense / Suricata",
+        "name": "Suricata & Filterlog",
+        "version": "1.1.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:25:58.249897+00:00",
+      "hash": "d108e0e53bdece1aeebe06fb49c921fe455efbddb2ff04c4958fafb00a71c86d"
+    },
+    "raw_data": "{\"timestamp\":\"2026-09-01T09:25:58.156599+00:00\",\"event_type\":\"alert\",\"src_ip\":\"192.168.17.127\",\"src_port\":50041,\"dest_ip\":\"198.51.211.90\",\"dest_port\":8080,\"proto\":\"TCP\",\"alert\":{\"action\":\"blocked\",\"signature\":\"ET TROJAN Cobalt Strike Beacon\",\"category\":\"Threat Alert\",\"severity\":1}}"
+  }
+]

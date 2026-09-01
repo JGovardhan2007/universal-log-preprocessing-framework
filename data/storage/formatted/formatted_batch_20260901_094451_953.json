@@ -1,0 +1,4958 @@
+[
+  {
+    "event_id": "4f0f3790-18ac-4511-89f5-584911f8a45b",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Allowed",
+    "disposition_id": 1,
+    "src_endpoint": {
+      "ip": "192.168.60.42",
+      "port": 12858,
+      "zone": "port1",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.117.113",
+      "port": 80,
+      "zone": "port2",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "UDP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 1,
+      "format_name": "Tier1:Fortinet_FortiGate",
+      "product": {
+        "vendor_name": "Fortinet",
+        "name": "FortiGate",
+        "version": "1.1.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:42.279164+00:00",
+      "hash": "7c2a54e4b6b4a6afad81922c3ee9584288b4ea99f8fe30543c58902ce0a6e8a8"
+    },
+    "raw_data": "date=2026-09-01 time=09:44:42 devname=\"FGT-HQ-01\" devid=\"FGT60D4614041234\" logid=\"0000000013\" type=\"traffic\" subtype=\"forward\" level=\"notice\" vd=\"root\" srcip=192.168.60.42 srcport=12858 srcintf=\"port1\" dstip=198.51.117.113 dstport=80 dstintf=\"port2\" proto=17 action=\"close\" policyid=1 service=\"HTTPS\" duration=21 sentbyte=3532 rcvdbyte=1476",
+    "traffic": {
+      "bytes": 3532,
+      "packets": 0
+    }
+  },
+  {
+    "event_id": "7694665a-5689-41c1-81cb-e9b5905da5e2",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Blocked",
+    "disposition_id": 2,
+    "src_endpoint": {
+      "ip": "192.168.104.208",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.226.137",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "ICMP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 3,
+      "format_name": "Tier3:HeuristicFallback",
+      "product": {
+        "vendor_name": "Generic",
+        "name": "Network Appliance",
+        "version": "1.0.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:42.279164+00:00",
+      "hash": "7b7756a1d67701323bbec3915d38fe71e06fccc3e8c9b0ec1fe93354026ee854"
+    },
+    "raw_data": "time=1788255882|hostname=cp-fw01|product=VPN-1 & FireWall-1|action=drop|src=192.168.104.208|dst=198.51.226.137|proto=icmp|s_port=12742|service=3389|rule=12|reason=Policy match evaluation"
+  },
+  {
+    "event_id": "b7293382-9503-4c07-9ce1-77aaf428d158",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Allowed",
+    "disposition_id": 1,
+    "src_endpoint": {
+      "ip": "192.168.8.53",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.16.44",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "ICMP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 3,
+      "format_name": "Tier3:HeuristicFallback",
+      "product": {
+        "vendor_name": "Generic",
+        "name": "Network Appliance",
+        "version": "1.0.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:42.327377+00:00",
+      "hash": "da27f9ac50ec381eef19277ded5b4dfa9de98a8e0dbf8a40598ff2151291f599"
+    },
+    "raw_data": "time=1788255882|hostname=cp-fw01|product=VPN-1 & FireWall-1|action=accept|src=192.168.8.53|dst=198.51.16.44|proto=icmp|s_port=62102|service=3389|rule=12|reason=Policy match evaluation"
+  },
+  {
+    "event_id": "fdc23687-0cbb-4466-ac35-a56b394425b0",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Unknown",
+    "disposition_id": 99,
+    "src_endpoint": {
+      "ip": "192.168.216.122",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.144.210",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 2,
+      "format_name": "Tier2:KeyValue",
+      "product": {
+        "vendor_name": "Generic",
+        "name": "Network Appliance",
+        "version": "1.0.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:42.427998+00:00",
+      "hash": "6d4bda61e686c81a1a054c4bf73d8cf1c2331f616bf747757ac21060ea58fa9e"
+    },
+    "raw_data": "UNKNOWN_RAW_LOG timestamp=2026-09-01T09:44:42.427998+00:00 src=192.168.216.122 dst=198.51.144.210 port=22"
+  },
+  {
+    "event_id": "4ba78aa3-9586-428a-b760-d8a0efb8eaea",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Blocked",
+    "disposition_id": 2,
+    "src_endpoint": {
+      "ip": "203.0.113.137",
+      "port": 51338,
+      "zone": "outside",
+      "geo": {
+        "country": "United States",
+        "country_code": "US",
+        "city": "Dallas, TX",
+        "is_internal": false,
+        "asn": "AS13335"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "192.168.1.50",
+      "port": 628,
+      "zone": "inside",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 1,
+      "format_name": "Tier1:Cisco_ASA",
+      "product": {
+        "vendor_name": "Cisco",
+        "name": "ASA",
+        "version": "1.1.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:42.529292+00:00",
+      "hash": "038e475bb0ae7d8f585fac393823b99820ca21abdf14f3b5abb905852e8ef4bd"
+    },
+    "raw_data": "%ASA-4-106023: Deny tcp src outside:203.0.113.137/51338 dst inside:192.168.1.50/628 by access-group \"OUTSIDE-IN\" [0x0, 0x0]"
+  },
+  {
+    "event_id": "fc120094-663e-4120-be41-e978e263d6f6",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Unknown",
+    "disposition_id": 99,
+    "src_endpoint": {
+      "ip": "192.168.13.52",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.44.191",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 2,
+      "format_name": "Tier2:KeyValue",
+      "product": {
+        "vendor_name": "Generic",
+        "name": "Network Appliance",
+        "version": "1.0.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:42.629362+00:00",
+      "hash": "ccb9e8b9d7e20f81748c1a4611aecfcdf75257f51ee502de46ec77115889ac59"
+    },
+    "raw_data": "UNKNOWN_RAW_LOG timestamp=2026-09-01T09:44:42.629362+00:00 src=192.168.13.52 dst=198.51.44.191 port=3389"
+  },
+  {
+    "event_id": "42b03bed-336d-4b16-bafc-70c1a0acc040",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Blocked",
+    "disposition_id": 2,
+    "src_endpoint": {
+      "ip": "192.168.209.63",
+      "port": 52056,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.73.177",
+      "port": 53,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "ICMP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 1,
+      "format_name": "Tier1:pfSense / Suricata_Suricata & Filterlog",
+      "product": {
+        "vendor_name": "pfSense / Suricata",
+        "name": "Suricata & Filterlog",
+        "version": "1.1.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:42.729851+00:00",
+      "hash": "518c2017230c84da3c006a82e0d6e76b75c8bf74435a46c151d3900ec1fa81bc"
+    },
+    "raw_data": "Sep 01 09:44:42 pfsense filterlog[28410]: 4,,,1000000103,igb0,match,block,in,4,0x0,,64,0,0,DF,17,icmp,60,192.168.209.63,198.51.73.177,52056,53,0,S,12345678,,65535,,mss;sackOK;TS"
+  },
+  {
+    "event_id": "3c812ccf-1f94-409f-b409-73341ddb9474",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Allowed",
+    "disposition_id": 1,
+    "src_endpoint": {
+      "ip": "192.168.140.68",
+      "port": 17917,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.11.93",
+      "port": 443,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "ICMP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 1,
+      "format_name": "Tier1:pfSense / Suricata_Suricata & Filterlog",
+      "product": {
+        "vendor_name": "pfSense / Suricata",
+        "name": "Suricata & Filterlog",
+        "version": "1.1.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:42.830782+00:00",
+      "hash": "da233b78c91c69ae1920cbde530763a6f0d96335beb14959c93347d638b2a2da"
+    },
+    "raw_data": "Sep 01 09:44:42 pfsense filterlog[28410]: 4,,,1000000103,igb0,match,pass,in,4,0x0,,64,0,0,DF,17,icmp,60,192.168.140.68,198.51.11.93,17917,443,0,S,12345678,,65535,,mss;sackOK;TS"
+  },
+  {
+    "event_id": "882e682a-09df-4fd5-ad42-3880a06b113c",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Unknown",
+    "disposition_id": 99,
+    "src_endpoint": {
+      "ip": "192.168.1.50",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "8.8.8.8",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "53",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 1,
+      "format_name": "Tier1:Palo Alto Networks_PAN-OS",
+      "product": {
+        "vendor_name": "Palo Alto Networks",
+        "name": "PAN-OS",
+        "version": "1.1.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:42.931642+00:00",
+      "hash": "776522ff978000fa4007ab79c9ae2b3cbbb615aac4f02c82d1dabad6bb5d2d9f"
+    },
+    "raw_data": "1,2026/09/01 09:44:42,001801000001,TRAFFIC,allow,1,2026/09/01 09:44:42,192.168.1.50,8.8.8.8,0.0.0.0,0.0.0.0,Rule-DNS,,,dns,vsys1,trust,untrust,ethernet1/2,ethernet1/1,Log-Forwarder,2026/09/01 09:44:42,9999,1,63768,53,0,0,0x0,udp,allow,512,256,256,1,2026/09/01 09:44:42,0,any,0,0,0,0,,IN,US,0,1,1",
+    "traffic": {
+      "bytes": 0,
+      "packets": 0
+    }
+  },
+  {
+    "event_id": "bc3a9c81-b098-4324-b4d8-45fadde3d7cb",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Allowed",
+    "disposition_id": 1,
+    "src_endpoint": {
+      "ip": "192.168.129.108",
+      "port": 43165,
+      "zone": "port1",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.137.151",
+      "port": 443,
+      "zone": "port2",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 1,
+      "format_name": "Tier1:Fortinet_FortiGate",
+      "product": {
+        "vendor_name": "Fortinet",
+        "name": "FortiGate",
+        "version": "1.1.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:43.032954+00:00",
+      "hash": "28e3c2c1a576735a13288fdb505b1219ad9a8f3c6be49ae323ef982fc47cd71e"
+    },
+    "raw_data": "date=2026-09-01 time=09:44:43 devname=\"FGT-HQ-01\" devid=\"FGT60D4614041234\" logid=\"0000000013\" type=\"traffic\" subtype=\"forward\" level=\"notice\" vd=\"root\" srcip=192.168.129.108 srcport=43165 srcintf=\"port1\" dstip=198.51.137.151 dstport=443 dstintf=\"port2\" proto=6 action=\"accept\" policyid=1 service=\"HTTPS\" duration=10 sentbyte=3785 rcvdbyte=2217",
+    "traffic": {
+      "bytes": 3785,
+      "packets": 0
+    }
+  },
+  {
+    "event_id": "6ff16ece-f91b-4546-a571-c091737d6e3c",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Blocked",
+    "disposition_id": 2,
+    "src_endpoint": {
+      "ip": "192.168.238.12",
+      "port": 65493,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.218.77",
+      "port": 53,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 1,
+      "format_name": "Tier1:pfSense / Suricata_Suricata & Filterlog",
+      "product": {
+        "vendor_name": "pfSense / Suricata",
+        "name": "Suricata & Filterlog",
+        "version": "1.1.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:43.133901+00:00",
+      "hash": "5d14fb249ef96a8891f1115d511e726058d9184e6249cd3e3f788a80ea92b7fa"
+    },
+    "raw_data": "{\"timestamp\":\"2026-09-01T09:44:43.133901+00:00\",\"event_type\":\"alert\",\"src_ip\":\"192.168.238.12\",\"src_port\":65493,\"dest_ip\":\"198.51.218.77\",\"dest_port\":53,\"proto\":\"TCP\",\"alert\":{\"action\":\"blocked\",\"signature\":\"ET TROJAN Cobalt Strike Beacon\",\"category\":\"Threat Alert\",\"severity\":1}}"
+  },
+  {
+    "event_id": "de8e05cc-4f00-46a4-bf15-bda59f253e3f",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Unknown",
+    "disposition_id": 99,
+    "src_endpoint": {
+      "ip": "192.168.22.187",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.218.124",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 2,
+      "format_name": "Tier2:KeyValue",
+      "product": {
+        "vendor_name": "Generic",
+        "name": "Network Appliance",
+        "version": "1.0.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:43.234582+00:00",
+      "hash": "0ffda9610b93e0594b7552cafbf1596653b22031d354947a62a878d1b1ef5f86"
+    },
+    "raw_data": "UNKNOWN_RAW_LOG timestamp=2026-09-01T09:44:43.234582+00:00 src=192.168.22.187 dst=198.51.218.124 port=22"
+  },
+  {
+    "event_id": "868482b3-dccf-49ba-b2d2-39f10e99e314",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Unknown",
+    "disposition_id": 99,
+    "src_endpoint": {
+      "ip": "192.168.219.211",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.201.139",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 2,
+      "format_name": "Tier2:KeyValue",
+      "product": {
+        "vendor_name": "Generic",
+        "name": "Network Appliance",
+        "version": "1.0.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:43.335886+00:00",
+      "hash": "cd647d31381d3ffb14f423e55d1f7d909807fea1bc6f618a1983438af4e6bf4f"
+    },
+    "raw_data": "UNKNOWN_RAW_LOG timestamp=2026-09-01T09:44:43.335144+00:00 src=192.168.219.211 dst=198.51.201.139 port=443"
+  },
+  {
+    "event_id": "a10df7e5-ef2c-4e65-a4c9-95eb5b9342ae",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Unknown",
+    "disposition_id": 99,
+    "src_endpoint": {
+      "ip": "192.168.115.82",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.246.43",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 2,
+      "format_name": "Tier2:KeyValue",
+      "product": {
+        "vendor_name": "Generic",
+        "name": "Network Appliance",
+        "version": "1.0.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:43.436775+00:00",
+      "hash": "7dc1c4c4aea19064f3ab8afa283bd4aa1acbbb3946b5a26040c179c6ea3deee1"
+    },
+    "raw_data": "UNKNOWN_RAW_LOG timestamp=2026-09-01T09:44:43.436775+00:00 src=192.168.115.82 dst=198.51.246.43 port=80"
+  },
+  {
+    "event_id": "b50c9051-eb33-4f35-959f-36848c9fd34b",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Unknown",
+    "disposition_id": 99,
+    "src_endpoint": {
+      "ip": "192.168.136.161",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.151.71",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 2,
+      "format_name": "Tier2:KeyValue",
+      "product": {
+        "vendor_name": "Generic",
+        "name": "Network Appliance",
+        "version": "1.0.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:43.538935+00:00",
+      "hash": "92d52943411a3f21bfdf9636bc271ce81d5ab351b73f0c230f8ee09527d8bb6a"
+    },
+    "raw_data": "UNKNOWN_RAW_LOG timestamp=2026-09-01T09:44:43.538935+00:00 src=192.168.136.161 dst=198.51.151.71 port=80"
+  },
+  {
+    "event_id": "89ac0052-3bff-45bb-b901-9b75507e657f",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Unknown",
+    "disposition_id": 99,
+    "src_endpoint": {
+      "ip": "192.168.232.99",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.85.30",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 2,
+      "format_name": "Tier2:KeyValue",
+      "product": {
+        "vendor_name": "Generic",
+        "name": "Network Appliance",
+        "version": "1.0.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:43.639690+00:00",
+      "hash": "0cd7c91773a42f948f2814c671ee9a0d5f0e0dd3a0c70cbfb6239b1f0ba7f976"
+    },
+    "raw_data": "UNKNOWN_RAW_LOG timestamp=2026-09-01T09:44:43.639690+00:00 src=192.168.232.99 dst=198.51.85.30 port=443"
+  },
+  {
+    "event_id": "5a0d36a3-c2c3-4a7d-8ee7-4da1f3b82e9a",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Allowed",
+    "disposition_id": 1,
+    "src_endpoint": {
+      "ip": "192.168.150.148",
+      "port": 14981,
+      "zone": "port1",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.51.28",
+      "port": 8443,
+      "zone": "port2",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "UDP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 1,
+      "format_name": "Tier1:Fortinet_FortiGate",
+      "product": {
+        "vendor_name": "Fortinet",
+        "name": "FortiGate",
+        "version": "1.1.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:43.741182+00:00",
+      "hash": "d688b70798954f030a1bb8ebf17ec6911941f7b9bb53f1e75fb0b75c7932331e"
+    },
+    "raw_data": "date=2026-09-01 time=09:44:43 devname=\"FGT-HQ-01\" devid=\"FGT60D4614041234\" logid=\"0000000013\" type=\"traffic\" subtype=\"forward\" level=\"notice\" vd=\"root\" srcip=192.168.150.148 srcport=14981 srcintf=\"port1\" dstip=198.51.51.28 dstport=8443 dstintf=\"port2\" proto=17 action=\"accept\" policyid=1 service=\"HTTPS\" duration=6 sentbyte=2671 rcvdbyte=2135",
+    "traffic": {
+      "bytes": 2671,
+      "packets": 0
+    }
+  },
+  {
+    "event_id": "3d63f940-d8ad-499b-ade7-c8121b4afb6d",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Blocked",
+    "disposition_id": 2,
+    "src_endpoint": {
+      "ip": "192.168.14.203",
+      "port": 23664,
+      "zone": "outside",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.39.208",
+      "port": 3389,
+      "zone": "inside",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 1,
+      "format_name": "Tier1:Cisco_ASA",
+      "product": {
+        "vendor_name": "Cisco",
+        "name": "ASA",
+        "version": "1.1.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:43.842643+00:00",
+      "hash": "7f800998aafe99afbda962580d6e77f5e5ebabf7fe0e45da6042d4ac697f358c"
+    },
+    "raw_data": "%ASA-4-106023: Deny tcp src outside:192.168.14.203/23664 dst inside:198.51.39.208/3389 by access-group \"OUTSIDE-IN\" [0x0, 0x0]"
+  },
+  {
+    "event_id": "eb9a2b74-2c26-4ea1-878b-7dd8baf4c536",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Blocked",
+    "disposition_id": 2,
+    "src_endpoint": {
+      "ip": "192.168.152.57",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.158.180",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 3,
+      "format_name": "Tier3:HeuristicFallback",
+      "product": {
+        "vendor_name": "Generic",
+        "name": "Network Appliance",
+        "version": "1.0.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:43.943544+00:00",
+      "hash": "6fd6286a333dfbcf30927a999e9d3f5252c2af388cdef22b8fe5dafad9c6c79d"
+    },
+    "raw_data": "time=1788255883|hostname=cp-fw01|product=VPN-1 & FireWall-1|action=reject|src=192.168.152.57|dst=198.51.158.180|proto=tcp|s_port=15858|service=443|rule=12|reason=Policy match evaluation"
+  },
+  {
+    "event_id": "f2da42a9-2b6e-4a11-9766-58474c8ca915",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Unknown",
+    "disposition_id": 99,
+    "src_endpoint": {
+      "ip": "192.168.1.50",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "8.8.8.8",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "53",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 1,
+      "format_name": "Tier1:Palo Alto Networks_PAN-OS",
+      "product": {
+        "vendor_name": "Palo Alto Networks",
+        "name": "PAN-OS",
+        "version": "1.1.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:44.044741+00:00",
+      "hash": "4cd8c8b355617bb3e0b6574c1eaee59b9ed0686f76e40c312c247ea3a62918d5"
+    },
+    "raw_data": "1,2026/09/01 09:44:44,001801000001,TRAFFIC,allow,1,2026/09/01 09:44:44,192.168.1.50,8.8.8.8,0.0.0.0,0.0.0.0,Rule-DNS,,,dns,vsys1,trust,untrust,ethernet1/2,ethernet1/1,Log-Forwarder,2026/09/01 09:44:44,9999,1,43712,53,0,0,0x0,udp,allow,512,256,256,1,2026/09/01 09:44:44,0,any,0,0,0,0,,IN,US,0,1,1",
+    "traffic": {
+      "bytes": 0,
+      "packets": 0
+    }
+  },
+  {
+    "event_id": "639463e0-4495-48fc-838d-c47f0b0276db",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Allowed",
+    "disposition_id": 1,
+    "src_endpoint": {
+      "ip": "192.168.213.200",
+      "port": 41003,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.184.99",
+      "port": 445,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "ICMP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 1,
+      "format_name": "Tier1:pfSense / Suricata_Suricata & Filterlog",
+      "product": {
+        "vendor_name": "pfSense / Suricata",
+        "name": "Suricata & Filterlog",
+        "version": "1.1.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:44.144683+00:00",
+      "hash": "226f2473b2e06769bb08dcf428084c1b5b7a174677b1befd41de82d9ffd30cca"
+    },
+    "raw_data": "Sep 01 09:44:44 pfsense filterlog[28410]: 4,,,1000000103,igb0,match,pass,in,4,0x0,,64,0,0,DF,17,icmp,60,192.168.213.200,198.51.184.99,41003,445,0,S,12345678,,65535,,mss;sackOK;TS"
+  },
+  {
+    "event_id": "e26347e8-aeff-4d59-983c-2b300d1184d5",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Alert",
+    "disposition_id": 3,
+    "src_endpoint": {
+      "ip": "192.168.11.44",
+      "port": 41228,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.238.189",
+      "port": 3389,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 1,
+      "format_name": "Tier1:pfSense / Suricata_Suricata & Filterlog",
+      "product": {
+        "vendor_name": "pfSense / Suricata",
+        "name": "Suricata & Filterlog",
+        "version": "1.1.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:44.245254+00:00",
+      "hash": "fe0ad8f609f9136f260ff0c503a89d328875503adfd10ae12f10fb6376de9225"
+    },
+    "raw_data": "{\"timestamp\":\"2026-09-01T09:44:44.245254+00:00\",\"event_type\":\"alert\",\"src_ip\":\"192.168.11.44\",\"src_port\":41228,\"dest_ip\":\"198.51.238.189\",\"dest_port\":3389,\"proto\":\"TCP\",\"alert\":{\"action\":\"alert\",\"signature\":\"ET POLICY Suspicious Inbound SMB\",\"category\":\"Threat Alert\",\"severity\":1}}"
+  },
+  {
+    "event_id": "011ba22b-1b36-4739-87e5-84039c23962b",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Blocked",
+    "disposition_id": 2,
+    "src_endpoint": {
+      "ip": "192.168.189.17",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.8.16",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "ICMP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 3,
+      "format_name": "Tier3:HeuristicFallback",
+      "product": {
+        "vendor_name": "Generic",
+        "name": "Network Appliance",
+        "version": "1.0.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:44.370686+00:00",
+      "hash": "a856e935d0d3c9220beb3096223f1a548c9418a4507fc3b9dfcba07890662fba"
+    },
+    "raw_data": "time=1788255884|hostname=cp-fw01|product=VPN-1 & FireWall-1|action=reject|src=192.168.189.17|dst=198.51.8.16|proto=icmp|s_port=24722|service=3389|rule=12|reason=Policy match evaluation"
+  },
+  {
+    "event_id": "c9f795eb-ff8f-441d-88a0-c44b01e53feb",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Allowed",
+    "disposition_id": 1,
+    "src_endpoint": {
+      "ip": "192.168.25.127",
+      "port": 2525,
+      "zone": "port1",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.13.11",
+      "port": 8443,
+      "zone": "port2",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "UDP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 1,
+      "format_name": "Tier1:Fortinet_FortiGate",
+      "product": {
+        "vendor_name": "Fortinet",
+        "name": "FortiGate",
+        "version": "1.1.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:44.473068+00:00",
+      "hash": "ad5c2423a062823fb4c1d6e5c01815396387e2d2b228e5b78fae97283d0b1d80"
+    },
+    "raw_data": "date=2026-09-01 time=09:44:44 devname=\"FGT-HQ-01\" devid=\"FGT60D4614041234\" logid=\"0000000013\" type=\"traffic\" subtype=\"forward\" level=\"notice\" vd=\"root\" srcip=192.168.25.127 srcport=2525 srcintf=\"port1\" dstip=198.51.13.11 dstport=8443 dstintf=\"port2\" proto=17 action=\"accept\" policyid=1 service=\"HTTPS\" duration=111 sentbyte=3501 rcvdbyte=6874",
+    "traffic": {
+      "bytes": 3501,
+      "packets": 0
+    }
+  },
+  {
+    "event_id": "7184a0cc-472f-408c-99c0-c970e22f931a",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Blocked",
+    "disposition_id": 2,
+    "src_endpoint": {
+      "ip": "192.168.239.159",
+      "port": 23741,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.139.235",
+      "port": 3389,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 1,
+      "format_name": "Tier1:pfSense / Suricata_Suricata & Filterlog",
+      "product": {
+        "vendor_name": "pfSense / Suricata",
+        "name": "Suricata & Filterlog",
+        "version": "1.1.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:44.573751+00:00",
+      "hash": "e732529faeb358ef655c9d9a8b936ce3f1217cf8fc44017c1de1cacfed5a717e"
+    },
+    "raw_data": "{\"timestamp\":\"2026-09-01T09:44:44.573751+00:00\",\"event_type\":\"alert\",\"src_ip\":\"192.168.239.159\",\"src_port\":23741,\"dest_ip\":\"198.51.139.235\",\"dest_port\":3389,\"proto\":\"TCP\",\"alert\":{\"action\":\"blocked\",\"signature\":\"ET TROJAN Cobalt Strike Beacon\",\"category\":\"Threat Alert\",\"severity\":1}}"
+  },
+  {
+    "event_id": "0f3dd3de-8318-47ef-b7d5-6961cd2b4eb4",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Blocked",
+    "disposition_id": 2,
+    "src_endpoint": {
+      "ip": "192.168.227.106",
+      "port": 14499,
+      "zone": "port1",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.217.205",
+      "port": 8443,
+      "zone": "port2",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 1,
+      "format_name": "Tier1:Fortinet_FortiGate",
+      "product": {
+        "vendor_name": "Fortinet",
+        "name": "FortiGate",
+        "version": "1.1.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:44.675223+00:00",
+      "hash": "486dced9c6ec7cc3d3ab35dc464b7486c95ea06a550a7b9998bde24744a6af82"
+    },
+    "raw_data": "date=2026-09-01 time=09:44:44 devname=\"FGT-HQ-01\" devid=\"FGT60D4614041234\" logid=\"0000000013\" type=\"traffic\" subtype=\"forward\" level=\"notice\" vd=\"root\" srcip=192.168.227.106 srcport=14499 srcintf=\"port1\" dstip=198.51.217.205 dstport=8443 dstintf=\"port2\" proto=6 action=\"deny\" policyid=1 service=\"HTTPS\" duration=7 sentbyte=3834 rcvdbyte=5118",
+    "traffic": {
+      "bytes": 3834,
+      "packets": 0
+    }
+  },
+  {
+    "event_id": "6f09396f-2f1d-486b-bda4-7b2b36ecbf71",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Unknown",
+    "disposition_id": 99,
+    "src_endpoint": {
+      "ip": "192.168.199.218",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.234.55",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "8443",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 1,
+      "format_name": "Tier1:Palo Alto Networks_PAN-OS",
+      "product": {
+        "vendor_name": "Palo Alto Networks",
+        "name": "PAN-OS",
+        "version": "1.1.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:44.777020+00:00",
+      "hash": "1a0f1c293a61207093f8e11a0e66f7da52192aff98749cc07b049dc9b44f5f6b"
+    },
+    "raw_data": "1,2026/09/01 09:44:44,001801000001,TRAFFIC,allow,1,2026/09/01 09:44:44,192.168.199.218,198.51.234.55,0.0.0.0,0.0.0.0,Rule-Policy,,,ssl,vsys1,untrust,trust,ethernet1/1,ethernet1/2,Log-Forwarder,2026/09/01 09:44:44,12345,1,29813,8443,0,0,0x0,tcp,allow,2992,512,1911,1,2026/09/01 09:44:44,0,any,0,0,0,0,,US,IN,0,1,0",
+    "traffic": {
+      "bytes": 0,
+      "packets": 0
+    }
+  },
+  {
+    "event_id": "4fcb6111-a4e4-47f2-83de-585b695382af",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Allowed",
+    "disposition_id": 1,
+    "src_endpoint": {
+      "ip": "192.168.174.106",
+      "port": 8765,
+      "zone": "port1",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.69.252",
+      "port": 80,
+      "zone": "port2",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 1,
+      "format_name": "Tier1:Fortinet_FortiGate",
+      "product": {
+        "vendor_name": "Fortinet",
+        "name": "FortiGate",
+        "version": "1.1.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:44.877833+00:00",
+      "hash": "fa9f56ef8fc949565fbfc1118229f1a297082097f460b9fbdaed19001fffcd88"
+    },
+    "raw_data": "date=2026-09-01 time=09:44:44 devname=\"FGT-HQ-01\" devid=\"FGT60D4614041234\" logid=\"0000000013\" type=\"traffic\" subtype=\"forward\" level=\"notice\" vd=\"root\" srcip=192.168.174.106 srcport=8765 srcintf=\"port1\" dstip=198.51.69.252 dstport=80 dstintf=\"port2\" proto=6 action=\"accept\" policyid=1 service=\"HTTPS\" duration=41 sentbyte=1001 rcvdbyte=2994",
+    "traffic": {
+      "bytes": 1001,
+      "packets": 0
+    }
+  },
+  {
+    "event_id": "3c7dec25-9fa6-4fe0-968d-58746bd59d5c",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Unknown",
+    "disposition_id": 99,
+    "src_endpoint": {
+      "ip": "192.168.28.101",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.200.39",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 2,
+      "format_name": "Tier2:KeyValue",
+      "product": {
+        "vendor_name": "Generic",
+        "name": "Network Appliance",
+        "version": "1.0.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:44.978919+00:00",
+      "hash": "b4ed9cc86b4c8e82d034f917d57355ce01c7e8a83d8e92eee897f536d7f2fa1b"
+    },
+    "raw_data": "UNKNOWN_RAW_LOG timestamp=2026-09-01T09:44:44.978919+00:00 src=192.168.28.101 dst=198.51.200.39 port=3389"
+  },
+  {
+    "event_id": "81ac062b-722a-45b3-a190-4ca93b99ace3",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Blocked",
+    "disposition_id": 2,
+    "src_endpoint": {
+      "ip": "192.168.80.241",
+      "port": 41805,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "0.0.0.0",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "Unknown",
+        "country_code": "UNK",
+        "city": "Unknown",
+        "is_internal": false
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 1,
+      "format_name": "Tier1:Linux_Syslog & SSH Auth",
+      "product": {
+        "vendor_name": "Linux",
+        "name": "Syslog & SSH Auth",
+        "version": "1.1.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:45.079429+00:00",
+      "hash": "a4adc8e2d15ddb370c29e56a13e86e05b4c08aeeaa23715dc0ae80f159be57a1"
+    },
+    "raw_data": "Sep 01 09:44:45 server-hq-01 sshd[54217]: Failed password for invalid user deploy from 192.168.80.241 port 41805 ssh2"
+  },
+  {
+    "event_id": "346afdd6-31be-40bb-9be1-666ec9e38488",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Allowed",
+    "disposition_id": 1,
+    "src_endpoint": {
+      "ip": "192.168.101.91",
+      "port": 32838,
+      "zone": "port1",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.149.199",
+      "port": 443,
+      "zone": "port2",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "UDP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 1,
+      "format_name": "Tier1:Fortinet_FortiGate",
+      "product": {
+        "vendor_name": "Fortinet",
+        "name": "FortiGate",
+        "version": "1.1.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:45.180388+00:00",
+      "hash": "f4cdd0f1213fd0cea39982970c4b76733df56d9d46310bbba8bd71cf7ead98a2"
+    },
+    "raw_data": "date=2026-09-01 time=09:44:45 devname=\"FGT-HQ-01\" devid=\"FGT60D4614041234\" logid=\"0000000013\" type=\"traffic\" subtype=\"forward\" level=\"notice\" vd=\"root\" srcip=192.168.101.91 srcport=32838 srcintf=\"port1\" dstip=198.51.149.199 dstport=443 dstintf=\"port2\" proto=17 action=\"accept\" policyid=1 service=\"HTTPS\" duration=78 sentbyte=2785 rcvdbyte=2077",
+    "traffic": {
+      "bytes": 2785,
+      "packets": 0
+    }
+  },
+  {
+    "event_id": "c3e24365-c817-4ece-92fd-478af239e094",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Unknown",
+    "disposition_id": 99,
+    "src_endpoint": {
+      "ip": "192.168.171.213",
+      "port": 192,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.65.112",
+      "port": 35195,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 3,
+      "format_name": "Tier3:HeuristicFallback",
+      "product": {
+        "vendor_name": "Generic",
+        "name": "Network Appliance",
+        "version": "1.0.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:45.281236+00:00",
+      "hash": "9ae05ad74a1f6686ca549d8fa63464fb70e7c7339ad5dffcd48a64c926a0c86a"
+    },
+    "raw_data": "%ASA-4-106023: Teardown tcp src outside:192.168.171.213/35195 dst inside:198.51.65.112/443 by access-group \"OUTSIDE-IN\" [0x0, 0x0]"
+  },
+  {
+    "event_id": "7b06f5e7-88c9-4d8e-9dee-f371e973bcb8",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Blocked",
+    "disposition_id": 2,
+    "src_endpoint": {
+      "ip": "203.0.113.154",
+      "port": 47578,
+      "zone": "unknown",
+      "geo": {
+        "country": "United States",
+        "country_code": "US",
+        "city": "Dallas, TX",
+        "is_internal": false,
+        "asn": "AS13335"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "192.168.1.50",
+      "port": 22,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 1,
+      "format_name": "Tier1:Fortinet_FortiGate",
+      "product": {
+        "vendor_name": "Fortinet",
+        "name": "FortiGate",
+        "version": "1.1.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:45.382440+00:00",
+      "hash": "5639389dbcb050e40007bb8a2bfa5821b827de7b8b2303160979889afca402ad"
+    },
+    "raw_data": "date=2026-09-01 time=09:44:45 devname=\"FGT-HQ-01\" logid=\"0000000020\" type=\"traffic\" subtype=\"forward\" level=\"warning\" srcip=203.0.113.154 srcport=47578 dstip=192.168.1.50 dstport=22 proto=6 action=\"deny\" msg=\"SSH authentication failure threshold exceeded\""
+  },
+  {
+    "event_id": "7e6c1d09-b751-4e4c-a8ef-26a58168dc65",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Allowed",
+    "disposition_id": 1,
+    "src_endpoint": {
+      "ip": "192.168.136.197",
+      "port": 63927,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "0.0.0.0",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "Unknown",
+        "country_code": "UNK",
+        "city": "Unknown",
+        "is_internal": false
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 1,
+      "format_name": "Tier1:Linux_Syslog & SSH Auth",
+      "product": {
+        "vendor_name": "Linux",
+        "name": "Syslog & SSH Auth",
+        "version": "1.1.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:45.482899+00:00",
+      "hash": "def7837318ef84cd073038b9e4ab6dbf79fa07a49bdc3439b17d22aa35a9df47"
+    },
+    "raw_data": "Sep 01 09:44:45 server-hq-01 sshd[10973]: Accepted password for root from 192.168.136.197 port 63927 ssh2"
+  },
+  {
+    "event_id": "b8b1cf47-7084-4a86-b4bf-e8e493f8e538",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Unknown",
+    "disposition_id": 99,
+    "src_endpoint": {
+      "ip": "192.168.117.118",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.56.103",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "443",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 1,
+      "format_name": "Tier1:Palo Alto Networks_PAN-OS",
+      "product": {
+        "vendor_name": "Palo Alto Networks",
+        "name": "PAN-OS",
+        "version": "1.1.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:45.583707+00:00",
+      "hash": "74aa5b0a1c228ed68f76b4d9399fc05ef6e4884932251f26f05e50220f745e29"
+    },
+    "raw_data": "1,2026/09/01 09:44:45,001801000001,TRAFFIC,deny,1,2026/09/01 09:44:45,192.168.117.118,198.51.56.103,0.0.0.0,0.0.0.0,Rule-Policy,,,ssl,vsys1,untrust,trust,ethernet1/1,ethernet1/2,Log-Forwarder,2026/09/01 09:44:45,12345,1,18275,443,0,0,0x0,icmp,deny,4396,1520,2384,1,2026/09/01 09:44:45,0,any,0,0,0,0,,US,IN,0,1,0",
+    "traffic": {
+      "bytes": 0,
+      "packets": 0
+    }
+  },
+  {
+    "event_id": "9b627bfd-8a23-4a97-8295-1d735f0cf422",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Allowed",
+    "disposition_id": 1,
+    "src_endpoint": {
+      "ip": "192.168.137.102",
+      "port": 38167,
+      "zone": "port1",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.119.49",
+      "port": 22,
+      "zone": "port2",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "UDP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 1,
+      "format_name": "Tier1:Fortinet_FortiGate",
+      "product": {
+        "vendor_name": "Fortinet",
+        "name": "FortiGate",
+        "version": "1.1.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:45.683913+00:00",
+      "hash": "057d854ee0055d675146363b1d47c4db6376d5ced5d7841affb5c7e1241f88f4"
+    },
+    "raw_data": "date=2026-09-01 time=09:44:45 devname=\"FGT-HQ-01\" devid=\"FGT60D4614041234\" logid=\"0000000013\" type=\"traffic\" subtype=\"forward\" level=\"notice\" vd=\"root\" srcip=192.168.137.102 srcport=38167 srcintf=\"port1\" dstip=198.51.119.49 dstport=22 dstintf=\"port2\" proto=17 action=\"close\" policyid=1 service=\"HTTPS\" duration=14 sentbyte=3095 rcvdbyte=2267",
+    "traffic": {
+      "bytes": 3095,
+      "packets": 0
+    }
+  },
+  {
+    "event_id": "7cee2980-327a-4a7d-9400-62b24eb5067a",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Blocked",
+    "disposition_id": 2,
+    "src_endpoint": {
+      "ip": "203.0.113.143",
+      "port": 50855,
+      "zone": "unknown",
+      "geo": {
+        "country": "United States",
+        "country_code": "US",
+        "city": "Dallas, TX",
+        "is_internal": false,
+        "asn": "AS13335"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "192.168.1.50",
+      "port": 22,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 1,
+      "format_name": "Tier1:Fortinet_FortiGate",
+      "product": {
+        "vendor_name": "Fortinet",
+        "name": "FortiGate",
+        "version": "1.1.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:45.784415+00:00",
+      "hash": "b14a133c8ee90e7e230039f1c0a74609aaa527f12e2628038d0e6694998d45a3"
+    },
+    "raw_data": "date=2026-09-01 time=09:44:45 devname=\"FGT-HQ-01\" logid=\"0000000020\" type=\"traffic\" subtype=\"forward\" level=\"warning\" srcip=203.0.113.143 srcport=50855 dstip=192.168.1.50 dstport=22 proto=6 action=\"deny\" msg=\"SSH authentication failure threshold exceeded\""
+  },
+  {
+    "event_id": "f859be33-7cdd-46a9-8cb9-870ec809c7ea",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Blocked",
+    "disposition_id": 2,
+    "src_endpoint": {
+      "ip": "192.168.127.9",
+      "port": 34222,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.221.22",
+      "port": 8080,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "ICMP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 1,
+      "format_name": "Tier1:pfSense / Suricata_Suricata & Filterlog",
+      "product": {
+        "vendor_name": "pfSense / Suricata",
+        "name": "Suricata & Filterlog",
+        "version": "1.1.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:45.885196+00:00",
+      "hash": "d99178bba0475de99531ab5ea9e2885455541f1c10bc0d93b8db9fd29684b441"
+    },
+    "raw_data": "Sep 01 09:44:45 pfsense filterlog[28410]: 4,,,1000000103,igb0,match,block,in,4,0x0,,64,0,0,DF,17,icmp,60,192.168.127.9,198.51.221.22,34222,8080,0,S,12345678,,65535,,mss;sackOK;TS"
+  },
+  {
+    "event_id": "2225b364-1143-468d-a575-818c62be761d",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Unknown",
+    "disposition_id": 99,
+    "src_endpoint": {
+      "ip": "192.168.179.129",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.182.49",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 2,
+      "format_name": "Tier2:KeyValue",
+      "product": {
+        "vendor_name": "Generic",
+        "name": "Network Appliance",
+        "version": "1.0.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:45.985927+00:00",
+      "hash": "b01ba83ee4042d72326276414cfa8966bcb27332c2855cda8058ca45f90efc98"
+    },
+    "raw_data": "UNKNOWN_RAW_LOG timestamp=2026-09-01T09:44:45.985927+00:00 src=192.168.179.129 dst=198.51.182.49 port=8443"
+  },
+  {
+    "event_id": "dc93578d-47f7-4888-bf7f-3dca49025c59",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Unknown",
+    "disposition_id": 99,
+    "src_endpoint": {
+      "ip": "192.168.166.131",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.61.123",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 2,
+      "format_name": "Tier2:KeyValue",
+      "product": {
+        "vendor_name": "Generic",
+        "name": "Network Appliance",
+        "version": "1.0.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:46.086341+00:00",
+      "hash": "b9bcce2420202f13b4e08badfcf38024743dc3d8359dbb3882f5e93fdae118b8"
+    },
+    "raw_data": "UNKNOWN_RAW_LOG timestamp=2026-09-01T09:44:46.086341+00:00 src=192.168.166.131 dst=198.51.61.123 port=22"
+  },
+  {
+    "event_id": "cb6e36b3-aafc-43a5-b8f8-97c5b5378042",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Blocked",
+    "disposition_id": 2,
+    "src_endpoint": {
+      "ip": "192.168.148.57",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.173.64",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 3,
+      "format_name": "Tier3:HeuristicFallback",
+      "product": {
+        "vendor_name": "Generic",
+        "name": "Network Appliance",
+        "version": "1.0.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:46.186812+00:00",
+      "hash": "21c5b0836a6d84307a789085ca4ca06f9ee4d3d422ca080bf14202c7ef127f61"
+    },
+    "raw_data": "time=1788255886|hostname=cp-fw01|product=VPN-1 & FireWall-1|action=drop|src=192.168.148.57|dst=198.51.173.64|proto=tcp|s_port=48430|service=3389|rule=12|reason=Policy match evaluation"
+  },
+  {
+    "event_id": "cf3e2cbb-dd8d-4eeb-afb0-d11a195b8565",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Unknown",
+    "disposition_id": 99,
+    "src_endpoint": {
+      "ip": "192.168.89.207",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.111.37",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "22",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 1,
+      "format_name": "Tier1:Palo Alto Networks_PAN-OS",
+      "product": {
+        "vendor_name": "Palo Alto Networks",
+        "name": "PAN-OS",
+        "version": "1.1.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:46.287474+00:00",
+      "hash": "41a8f39fcb013c6384e3d5fe95f418dbae5a9209d3fb86a368b2bd0f5db55a3c"
+    },
+    "raw_data": "1,2026/09/01 09:44:46,001801000001,TRAFFIC,drop,1,2026/09/01 09:44:46,192.168.89.207,198.51.111.37,0.0.0.0,0.0.0.0,Rule-Policy,,,ssl,vsys1,untrust,trust,ethernet1/1,ethernet1/2,Log-Forwarder,2026/09/01 09:44:46,12345,1,10300,22,0,0,0x0,udp,drop,1589,1533,377,1,2026/09/01 09:44:46,0,any,0,0,0,0,,US,IN,0,1,0",
+    "traffic": {
+      "bytes": 0,
+      "packets": 0
+    }
+  },
+  {
+    "event_id": "906b99e4-d069-49a6-aabc-3b8e5a042c15",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Blocked",
+    "disposition_id": 2,
+    "src_endpoint": {
+      "ip": "192.168.48.73",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.84.113",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "ICMP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 3,
+      "format_name": "Tier3:HeuristicFallback",
+      "product": {
+        "vendor_name": "Generic",
+        "name": "Network Appliance",
+        "version": "1.0.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:46.388112+00:00",
+      "hash": "75b63d7efd322e7b1ccb178f4c69d64172948d42d290162c48c1cb67d1066474"
+    },
+    "raw_data": "time=1788255886|hostname=cp-fw01|product=VPN-1 & FireWall-1|action=reject|src=192.168.48.73|dst=198.51.84.113|proto=icmp|s_port=49920|service=53|rule=12|reason=Policy match evaluation"
+  },
+  {
+    "event_id": "08427979-2a3f-4263-9509-cc08c89f93d7",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Unknown",
+    "disposition_id": 99,
+    "src_endpoint": {
+      "ip": "192.168.1.50",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "8.8.8.8",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "53",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 1,
+      "format_name": "Tier1:Palo Alto Networks_PAN-OS",
+      "product": {
+        "vendor_name": "Palo Alto Networks",
+        "name": "PAN-OS",
+        "version": "1.1.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:46.488556+00:00",
+      "hash": "7f9c77f32424bc849633ec611425086fb9ec38723bdf184dfd30eecca33d9d91"
+    },
+    "raw_data": "1,2026/09/01 09:44:46,001801000001,TRAFFIC,allow,1,2026/09/01 09:44:46,192.168.1.50,8.8.8.8,0.0.0.0,0.0.0.0,Rule-DNS,,,dns,vsys1,trust,untrust,ethernet1/2,ethernet1/1,Log-Forwarder,2026/09/01 09:44:46,9999,1,58913,53,0,0,0x0,udp,allow,512,256,256,1,2026/09/01 09:44:46,0,any,0,0,0,0,,IN,US,0,1,1",
+    "traffic": {
+      "bytes": 0,
+      "packets": 0
+    }
+  },
+  {
+    "event_id": "2804127d-fc34-48d5-982c-caf04ae85143",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Blocked",
+    "disposition_id": 2,
+    "src_endpoint": {
+      "ip": "192.168.94.221",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.135.53",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 3,
+      "format_name": "Tier3:HeuristicFallback",
+      "product": {
+        "vendor_name": "Generic",
+        "name": "Network Appliance",
+        "version": "1.0.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:46.589224+00:00",
+      "hash": "a3b4b99e3a84c9ffc54ddff8cb229b991e8699ddba754461b50c87ce27543af1"
+    },
+    "raw_data": "time=1788255886|hostname=cp-fw01|product=VPN-1 & FireWall-1|action=drop|src=192.168.94.221|dst=198.51.135.53|proto=tcp|s_port=26975|service=443|rule=12|reason=Policy match evaluation"
+  },
+  {
+    "event_id": "e1e3a3ea-6f4a-4b4d-97e0-19d32ef0860f",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Unknown",
+    "disposition_id": 99,
+    "src_endpoint": {
+      "ip": "192.168.177.82",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.11.252",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 2,
+      "format_name": "Tier2:KeyValue",
+      "product": {
+        "vendor_name": "Generic",
+        "name": "Network Appliance",
+        "version": "1.0.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:46.690029+00:00",
+      "hash": "bd8228a401d4462d82d8598b919eee2cf5447d4df24f23a880cf055833826d9a"
+    },
+    "raw_data": "UNKNOWN_RAW_LOG timestamp=2026-09-01T09:44:46.690029+00:00 src=192.168.177.82 dst=198.51.11.252 port=80"
+  },
+  {
+    "event_id": "be7ade5a-3c89-4e67-a67e-a5913c2c59dc",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Unknown",
+    "disposition_id": 99,
+    "src_endpoint": {
+      "ip": "192.168.174.27",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.155.189",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 2,
+      "format_name": "Tier2:KeyValue",
+      "product": {
+        "vendor_name": "Generic",
+        "name": "Network Appliance",
+        "version": "1.0.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:46.790628+00:00",
+      "hash": "04a465876a214f7a6d2c90910d867a81e46362d3b54727503b336f8d4eac83bb"
+    },
+    "raw_data": "UNKNOWN_RAW_LOG timestamp=2026-09-01T09:44:46.790628+00:00 src=192.168.174.27 dst=198.51.155.189 port=443"
+  },
+  {
+    "event_id": "f1ee483d-8d35-44a8-a8e5-338d018c073e",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Unknown",
+    "disposition_id": 99,
+    "src_endpoint": {
+      "ip": "192.168.1.50",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "8.8.8.8",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "53",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 1,
+      "format_name": "Tier1:Palo Alto Networks_PAN-OS",
+      "product": {
+        "vendor_name": "Palo Alto Networks",
+        "name": "PAN-OS",
+        "version": "1.1.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:46.891350+00:00",
+      "hash": "e996e3df1181285ac71aa2110051f7cd61f3f5e578ac1999ec6983e920dee759"
+    },
+    "raw_data": "1,2026/09/01 09:44:46,001801000001,TRAFFIC,allow,1,2026/09/01 09:44:46,192.168.1.50,8.8.8.8,0.0.0.0,0.0.0.0,Rule-DNS,,,dns,vsys1,trust,untrust,ethernet1/2,ethernet1/1,Log-Forwarder,2026/09/01 09:44:46,9999,1,53504,53,0,0,0x0,udp,allow,512,256,256,1,2026/09/01 09:44:46,0,any,0,0,0,0,,IN,US,0,1,1",
+    "traffic": {
+      "bytes": 0,
+      "packets": 0
+    }
+  },
+  {
+    "event_id": "8c6438f9-c097-4e80-b28e-7ce56019e583",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Unknown",
+    "disposition_id": 99,
+    "src_endpoint": {
+      "ip": "192.168.26.189",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.26.199",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 2,
+      "format_name": "Tier2:KeyValue",
+      "product": {
+        "vendor_name": "Generic",
+        "name": "Network Appliance",
+        "version": "1.0.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:46.992379+00:00",
+      "hash": "777574185bb7b2464d56e78ad21ec81afeece6ae1367b57ed048898832fdbfed"
+    },
+    "raw_data": "UNKNOWN_RAW_LOG timestamp=2026-09-01T09:44:46.992010+00:00 src=192.168.26.189 dst=198.51.26.199 port=8080"
+  },
+  {
+    "event_id": "6cd9d474-19d6-44db-bcfc-320d2d29f796",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Unknown",
+    "disposition_id": 99,
+    "src_endpoint": {
+      "ip": "192.168.12.126",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.124.101",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 2,
+      "format_name": "Tier2:KeyValue",
+      "product": {
+        "vendor_name": "Generic",
+        "name": "Network Appliance",
+        "version": "1.0.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:47.093094+00:00",
+      "hash": "8f5db3e0d6eec1748b2b68adde9dfa14add67e5229835c518f2b69e6caca4065"
+    },
+    "raw_data": "UNKNOWN_RAW_LOG timestamp=2026-09-01T09:44:47.093094+00:00 src=192.168.12.126 dst=198.51.124.101 port=8080"
+  },
+  {
+    "event_id": "691d7f38-7e78-498c-a3be-a0a176e6d009",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Unknown",
+    "disposition_id": 99,
+    "src_endpoint": {
+      "ip": "192.168.253.230",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.149.192",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 2,
+      "format_name": "Tier2:KeyValue",
+      "product": {
+        "vendor_name": "Generic",
+        "name": "Network Appliance",
+        "version": "1.0.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:47.194024+00:00",
+      "hash": "26a70eb2643cf0cd398e4e7c5e83a2aa7ef04fef9a6b9e35b562dc5603aaa648"
+    },
+    "raw_data": "UNKNOWN_RAW_LOG timestamp=2026-09-01T09:44:47.194024+00:00 src=192.168.253.230 dst=198.51.149.192 port=443"
+  },
+  {
+    "event_id": "f9f638d8-3f9f-4ba8-863d-f98f71ec0e0c",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Unknown",
+    "disposition_id": 99,
+    "src_endpoint": {
+      "ip": "192.168.104.177",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.57.216",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 2,
+      "format_name": "Tier2:KeyValue",
+      "product": {
+        "vendor_name": "Generic",
+        "name": "Network Appliance",
+        "version": "1.0.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:47.294438+00:00",
+      "hash": "dd285a520b33db050f950104f2fefd32dfb1323e46a8adf4d3b5c3ec216e5e4b"
+    },
+    "raw_data": "UNKNOWN_RAW_LOG timestamp=2026-09-01T09:44:47.294438+00:00 src=192.168.104.177 dst=198.51.57.216 port=53"
+  },
+  {
+    "event_id": "c1077280-3140-44cc-a333-429d740862bc",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Unknown",
+    "disposition_id": 99,
+    "src_endpoint": {
+      "ip": "192.168.124.127",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.14.14",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 2,
+      "format_name": "Tier2:KeyValue",
+      "product": {
+        "vendor_name": "Generic",
+        "name": "Network Appliance",
+        "version": "1.0.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:47.395257+00:00",
+      "hash": "19f82b4ce7466bf819d0d6a9c495ec68e430f3aea5624462cb98a2d7e6d17d91"
+    },
+    "raw_data": "UNKNOWN_RAW_LOG timestamp=2026-09-01T09:44:47.395257+00:00 src=192.168.124.127 dst=198.51.14.14 port=8443"
+  },
+  {
+    "event_id": "bb08742b-2b5f-451d-8b94-7509b45ab116",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Blocked",
+    "disposition_id": 2,
+    "src_endpoint": {
+      "ip": "192.168.223.250",
+      "port": 41365,
+      "zone": "outside",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.161.102",
+      "port": 53,
+      "zone": "inside",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "UDP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 1,
+      "format_name": "Tier1:Cisco_ASA",
+      "product": {
+        "vendor_name": "Cisco",
+        "name": "ASA",
+        "version": "1.1.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:47.496131+00:00",
+      "hash": "f38c7a116f5e442090e47f60b5c250c790864472bbeb6c9bd1434f5a9833cff6"
+    },
+    "raw_data": "%ASA-4-106023: Deny udp src outside:192.168.223.250/41365 dst inside:198.51.161.102/53 by access-group \"OUTSIDE-IN\" [0x0, 0x0]"
+  },
+  {
+    "event_id": "9735cc4f-9613-49e2-94b1-8fdc57b65a0f",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Blocked",
+    "disposition_id": 2,
+    "src_endpoint": {
+      "ip": "192.168.179.138",
+      "port": 30150,
+      "zone": "port1",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.11.109",
+      "port": 53,
+      "zone": "port2",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "UDP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 1,
+      "format_name": "Tier1:Fortinet_FortiGate",
+      "product": {
+        "vendor_name": "Fortinet",
+        "name": "FortiGate",
+        "version": "1.1.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:47.597245+00:00",
+      "hash": "260876c34ddc0ecb30d9bf533838e93ce2239cebb4de4d1540a79bea7ca7c61e"
+    },
+    "raw_data": "date=2026-09-01 time=09:44:47 devname=\"FGT-HQ-01\" devid=\"FGT60D4614041234\" logid=\"0000000013\" type=\"traffic\" subtype=\"forward\" level=\"notice\" vd=\"root\" srcip=192.168.179.138 srcport=30150 srcintf=\"port1\" dstip=198.51.11.109 dstport=53 dstintf=\"port2\" proto=17 action=\"deny\" policyid=1 service=\"HTTPS\" duration=70 sentbyte=734 rcvdbyte=4281",
+    "traffic": {
+      "bytes": 734,
+      "packets": 0
+    }
+  },
+  {
+    "event_id": "475ddc4f-732c-4419-a7c7-0455d906f45d",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Blocked",
+    "disposition_id": 2,
+    "src_endpoint": {
+      "ip": "192.168.115.23",
+      "port": 53003,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.195.212",
+      "port": 8080,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "UDP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 1,
+      "format_name": "Tier1:pfSense / Suricata_Suricata & Filterlog",
+      "product": {
+        "vendor_name": "pfSense / Suricata",
+        "name": "Suricata & Filterlog",
+        "version": "1.1.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:47.697723+00:00",
+      "hash": "7bb1ebe5b2ab0be91c4eeb466bcae260a17912b544e1b1ef1863c1df19fbce2a"
+    },
+    "raw_data": "Sep 01 09:44:47 pfsense filterlog[28410]: 4,,,1000000103,igb0,match,block,in,4,0x0,,64,0,0,DF,17,udp,60,192.168.115.23,198.51.195.212,53003,8080,0,S,12345678,,65535,,mss;sackOK;TS"
+  },
+  {
+    "event_id": "29f874b6-eba4-4da5-bcaf-66ef78c8fde8",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Allowed",
+    "disposition_id": 1,
+    "src_endpoint": {
+      "ip": "192.168.35.164",
+      "port": 5826,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.36.93",
+      "port": 8443,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "ICMP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 1,
+      "format_name": "Tier1:pfSense / Suricata_Suricata & Filterlog",
+      "product": {
+        "vendor_name": "pfSense / Suricata",
+        "name": "Suricata & Filterlog",
+        "version": "1.1.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:47.799177+00:00",
+      "hash": "3b4d4c078e5905dc2bb50e8660bc912f65e9fd9dfae6236e8d09f5eebe893d41"
+    },
+    "raw_data": "Sep 01 09:44:47 pfsense filterlog[28410]: 4,,,1000000103,igb0,match,pass,in,4,0x0,,64,0,0,DF,17,icmp,60,192.168.35.164,198.51.36.93,5826,8443,0,S,12345678,,65535,,mss;sackOK;TS"
+  },
+  {
+    "event_id": "4f55ca1b-3df6-44aa-a67b-ef2dee79840e",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Unknown",
+    "disposition_id": 99,
+    "src_endpoint": {
+      "ip": "192.168.238.240",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.148.194",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 2,
+      "format_name": "Tier2:KeyValue",
+      "product": {
+        "vendor_name": "Generic",
+        "name": "Network Appliance",
+        "version": "1.0.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:47.900188+00:00",
+      "hash": "057030e25662e846219420ee7f81c579bcf52231fe433a13b84b4721285149b4"
+    },
+    "raw_data": "UNKNOWN_RAW_LOG timestamp=2026-09-01T09:44:47.900188+00:00 src=192.168.238.240 dst=198.51.148.194 port=8443"
+  },
+  {
+    "event_id": "62842809-fbfb-4679-9ddd-27239b0d3871",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Blocked",
+    "disposition_id": 2,
+    "src_endpoint": {
+      "ip": "192.168.108.108",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.21.202",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "UDP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 3,
+      "format_name": "Tier3:HeuristicFallback",
+      "product": {
+        "vendor_name": "Generic",
+        "name": "Network Appliance",
+        "version": "1.0.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:48.000931+00:00",
+      "hash": "e4cbc80c9fe90ea91aca16691ad447faec59dbf3a9b04999c094baf6a320d208"
+    },
+    "raw_data": "time=1788255888|hostname=cp-fw01|product=VPN-1 & FireWall-1|action=reject|src=192.168.108.108|dst=198.51.21.202|proto=udp|s_port=15359|service=3389|rule=12|reason=Policy match evaluation"
+  },
+  {
+    "event_id": "d2cf4579-2ba0-4650-9c89-deb741390e8f",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Blocked",
+    "disposition_id": 2,
+    "src_endpoint": {
+      "ip": "192.168.233.53",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.55.123",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 3,
+      "format_name": "Tier3:HeuristicFallback",
+      "product": {
+        "vendor_name": "Generic",
+        "name": "Network Appliance",
+        "version": "1.0.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:48.109646+00:00",
+      "hash": "8285985317c1f17ce0effe55753e99d1a8bf6e053c8df7140155a068d55f34ad"
+    },
+    "raw_data": "time=1788255888|hostname=cp-fw01|product=VPN-1 & FireWall-1|action=reject|src=192.168.233.53|dst=198.51.55.123|proto=tcp|s_port=64270|service=8443|rule=12|reason=Policy match evaluation"
+  },
+  {
+    "event_id": "e1476122-47c7-42a0-84a4-71d2b4bd6b67",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Unknown",
+    "disposition_id": 99,
+    "src_endpoint": {
+      "ip": "192.168.1.99",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "10.0.0.1",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Defense Core)",
+        "country_code": "IN-DEF",
+        "city": "HQ Secure Zone",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 3,
+      "format_name": "Tier3:HeuristicFallback",
+      "product": {
+        "vendor_name": "Generic",
+        "name": "Network Appliance",
+        "version": "1.0.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:48.265521+00:00",
+      "hash": "21d6e1211d112fbcd77c77e00391b54fc470b518570397c564b94206fcc68795"
+    },
+    "raw_data": "CORRUPTED_PACKET_#%@! raw_data_segment_null_byte_err 192.168.1.99 -> 10.0.0.1 ???"
+  },
+  {
+    "event_id": "e24f635d-128d-4df7-8179-551d747b9482",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Allowed",
+    "disposition_id": 1,
+    "src_endpoint": {
+      "ip": "192.168.48.125",
+      "port": 18115,
+      "zone": "outside",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.97.51",
+      "port": 80,
+      "zone": "inside",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "ICMP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 1,
+      "format_name": "Tier1:Cisco_ASA",
+      "product": {
+        "vendor_name": "Cisco",
+        "name": "ASA",
+        "version": "1.1.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:48.363369+00:00",
+      "hash": "3af37e8d1a27c079842060c8bd8c7ccc8705c7d784c18b2b1f23e5b03b674150"
+    },
+    "raw_data": "%ASA-4-106001: Built icmp src outside:192.168.48.125/18115 dst inside:198.51.97.51/80 by access-group \"OUTSIDE-IN\" [0x0, 0x0]"
+  },
+  {
+    "event_id": "d34c24c7-320e-4d3d-b160-0f52775eda19",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Unknown",
+    "disposition_id": 99,
+    "src_endpoint": {
+      "ip": "192.168.1.203",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.250.159",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "443",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 1,
+      "format_name": "Tier1:Palo Alto Networks_PAN-OS",
+      "product": {
+        "vendor_name": "Palo Alto Networks",
+        "name": "PAN-OS",
+        "version": "1.1.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:48.511782+00:00",
+      "hash": "9243b5337a11f1a0a26dd9369c2b54da8054b6a0cad65b6358f44c03246b2cd4"
+    },
+    "raw_data": "1,2026/09/01 09:44:48,001801000001,TRAFFIC,drop,1,2026/09/01 09:44:48,192.168.1.203,198.51.250.159,0.0.0.0,0.0.0.0,Rule-Policy,,,ssl,vsys1,untrust,trust,ethernet1/1,ethernet1/2,Log-Forwarder,2026/09/01 09:44:48,12345,1,57981,443,0,0,0x0,icmp,drop,3310,360,1938,1,2026/09/01 09:44:48,0,any,0,0,0,0,,US,IN,0,1,0",
+    "traffic": {
+      "bytes": 0,
+      "packets": 0
+    }
+  },
+  {
+    "event_id": "4afaf5a8-eb21-43e2-87de-8967cfdc9a13",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Unknown",
+    "disposition_id": 99,
+    "src_endpoint": {
+      "ip": "192.168.1.99",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "10.0.0.1",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Defense Core)",
+        "country_code": "IN-DEF",
+        "city": "HQ Secure Zone",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 3,
+      "format_name": "Tier3:HeuristicFallback",
+      "product": {
+        "vendor_name": "Generic",
+        "name": "Network Appliance",
+        "version": "1.0.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:48.613458+00:00",
+      "hash": "21d6e1211d112fbcd77c77e00391b54fc470b518570397c564b94206fcc68795"
+    },
+    "raw_data": "CORRUPTED_PACKET_#%@! raw_data_segment_null_byte_err 192.168.1.99 -> 10.0.0.1 ???"
+  },
+  {
+    "event_id": "e1f2f967-51bb-4ebe-8467-1878d9781a71",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Unknown",
+    "disposition_id": 99,
+    "src_endpoint": {
+      "ip": "192.168.233.147",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.160.186",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 2,
+      "format_name": "Tier2:KeyValue",
+      "product": {
+        "vendor_name": "Generic",
+        "name": "Network Appliance",
+        "version": "1.0.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:48.743768+00:00",
+      "hash": "410b534b19786710e5941a8ecdc049478a22c145d6753d6dd215b3a1c00d9847"
+    },
+    "raw_data": "UNKNOWN_RAW_LOG timestamp=2026-09-01T09:44:48.737960+00:00 src=192.168.233.147 dst=198.51.160.186 port=8080"
+  },
+  {
+    "event_id": "e32c41e4-1b2c-45c0-843f-cc1615ca1b20",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Blocked",
+    "disposition_id": 2,
+    "src_endpoint": {
+      "ip": "192.168.33.67",
+      "port": 36772,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "0.0.0.0",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "Unknown",
+        "country_code": "UNK",
+        "city": "Unknown",
+        "is_internal": false
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 1,
+      "format_name": "Tier1:Linux_Syslog & SSH Auth",
+      "product": {
+        "vendor_name": "Linux",
+        "name": "Syslog & SSH Auth",
+        "version": "1.1.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:48.845871+00:00",
+      "hash": "cfc6a8ffef8d2eb117d642ce4cfb99fe1c82ae0678d44670c445c3938d8a5a0c"
+    },
+    "raw_data": "Sep 01 09:44:48 server-hq-01 sshd[14335]: Failed password for invalid user admin from 192.168.33.67 port 36772 ssh2"
+  },
+  {
+    "event_id": "bc3279cf-b70e-44af-9c73-903289cea799",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Unknown",
+    "disposition_id": 99,
+    "src_endpoint": {
+      "ip": "192.168.229.137",
+      "port": 192,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.168.31",
+      "port": 33324,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "ICMP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 3,
+      "format_name": "Tier3:HeuristicFallback",
+      "product": {
+        "vendor_name": "Generic",
+        "name": "Network Appliance",
+        "version": "1.0.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:48.946828+00:00",
+      "hash": "58e38b76c03ce6bb8ed6ad902cfbba3de28ba24a810258396a6952b5e39b31d4"
+    },
+    "raw_data": "%ASA-4-302014: Teardown icmp src outside:192.168.229.137/33324 dst inside:198.51.168.31/445 by access-group \"OUTSIDE-IN\" [0x0, 0x0]"
+  },
+  {
+    "event_id": "9c6cbcef-0aeb-46ee-96fb-63b62f2cb70f",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Allowed",
+    "disposition_id": 1,
+    "src_endpoint": {
+      "ip": "192.168.100.221",
+      "port": 31838,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.57.20",
+      "port": 8080,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 1,
+      "format_name": "Tier1:pfSense / Suricata_Suricata & Filterlog",
+      "product": {
+        "vendor_name": "pfSense / Suricata",
+        "name": "Suricata & Filterlog",
+        "version": "1.1.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:49.047399+00:00",
+      "hash": "1b585603b4159e23755db86faa23194c4e7b5bbba6de3012c35872ab1ff22fa6"
+    },
+    "raw_data": "Sep 01 09:44:49 pfsense filterlog[28410]: 4,,,1000000103,igb0,match,pass,in,4,0x0,,64,0,0,DF,6,tcp,60,192.168.100.221,198.51.57.20,31838,8080,0,S,12345678,,65535,,mss;sackOK;TS"
+  },
+  {
+    "event_id": "cbdf8082-275a-4e09-b57a-4a46a4fee6aa",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Allowed",
+    "disposition_id": 1,
+    "src_endpoint": {
+      "ip": "192.168.188.181",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.202.99",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 3,
+      "format_name": "Tier3:HeuristicFallback",
+      "product": {
+        "vendor_name": "Generic",
+        "name": "Network Appliance",
+        "version": "1.0.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:49.148276+00:00",
+      "hash": "001f02208379c01ef945f9f3679672698eaabc8772201cbea00a90ed996eaa1b"
+    },
+    "raw_data": "time=1788255889|hostname=cp-fw01|product=VPN-1 & FireWall-1|action=accept|src=192.168.188.181|dst=198.51.202.99|proto=tcp|s_port=60667|service=3389|rule=12|reason=Policy match evaluation"
+  },
+  {
+    "event_id": "b4477b80-ac03-4744-afec-f88206f352d4",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Unknown",
+    "disposition_id": 99,
+    "src_endpoint": {
+      "ip": "192.168.143.248",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.165.88",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 2,
+      "format_name": "Tier2:KeyValue",
+      "product": {
+        "vendor_name": "Generic",
+        "name": "Network Appliance",
+        "version": "1.0.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:49.250075+00:00",
+      "hash": "a5e124145cc5b7b86df8d676fcb1ee66f94bc9ae5342d02469e011d801852f2e"
+    },
+    "raw_data": "UNKNOWN_RAW_LOG timestamp=2026-09-01T09:44:49.250075+00:00 src=192.168.143.248 dst=198.51.165.88 port=8080"
+  },
+  {
+    "event_id": "96166d1c-5ea8-4149-afee-cb52ee2b33dc",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Unknown",
+    "disposition_id": 99,
+    "src_endpoint": {
+      "ip": "192.168.12.96",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.19.200",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "443",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 1,
+      "format_name": "Tier1:Palo Alto Networks_PAN-OS",
+      "product": {
+        "vendor_name": "Palo Alto Networks",
+        "name": "PAN-OS",
+        "version": "1.1.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:49.351104+00:00",
+      "hash": "762f2943f3559209446d85cfcf5fad0498df01dd09493a82cbf4cace060b17f1"
+    },
+    "raw_data": "1,2026/09/01 09:44:49,001801000001,TRAFFIC,deny,1,2026/09/01 09:44:49,192.168.12.96,198.51.19.200,0.0.0.0,0.0.0.0,Rule-Policy,,,ssl,vsys1,untrust,trust,ethernet1/1,ethernet1/2,Log-Forwarder,2026/09/01 09:44:49,12345,1,62258,443,0,0,0x0,udp,deny,3882,938,1401,1,2026/09/01 09:44:49,0,any,0,0,0,0,,US,IN,0,1,0",
+    "traffic": {
+      "bytes": 0,
+      "packets": 0
+    }
+  },
+  {
+    "event_id": "0ce052d3-41a4-47aa-a661-5700a48293bc",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Unknown",
+    "disposition_id": 99,
+    "src_endpoint": {
+      "ip": "192.168.161.203",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.105.85",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "445",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 1,
+      "format_name": "Tier1:Palo Alto Networks_PAN-OS",
+      "product": {
+        "vendor_name": "Palo Alto Networks",
+        "name": "PAN-OS",
+        "version": "1.1.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:49.452218+00:00",
+      "hash": "931deed8bb6e7f156f390bc0ee85c71740aae6b80b344b2dd6bf7609f29e31a6"
+    },
+    "raw_data": "1,2026/09/01 09:44:49,001801000001,TRAFFIC,allow,1,2026/09/01 09:44:49,192.168.161.203,198.51.105.85,0.0.0.0,0.0.0.0,Rule-Policy,,,ssl,vsys1,untrust,trust,ethernet1/1,ethernet1/2,Log-Forwarder,2026/09/01 09:44:49,12345,1,54557,445,0,0,0x0,tcp,allow,1306,2467,1532,1,2026/09/01 09:44:49,0,any,0,0,0,0,,US,IN,0,1,0",
+    "traffic": {
+      "bytes": 0,
+      "packets": 0
+    }
+  },
+  {
+    "event_id": "7219fe6a-778c-4b77-bd2b-73df6d4860e5",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Unknown",
+    "disposition_id": 99,
+    "src_endpoint": {
+      "ip": "192.168.161.26",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.22.220",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 2,
+      "format_name": "Tier2:KeyValue",
+      "product": {
+        "vendor_name": "Generic",
+        "name": "Network Appliance",
+        "version": "1.0.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:49.552958+00:00",
+      "hash": "a07872e8514f751e021d824b68c710c1ef030b123599bddfb3517202008332b6"
+    },
+    "raw_data": "UNKNOWN_RAW_LOG timestamp=2026-09-01T09:44:49.552958+00:00 src=192.168.161.26 dst=198.51.22.220 port=53"
+  },
+  {
+    "event_id": "3795f01a-8579-444b-89ab-5028a51c2e3d",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Unknown",
+    "disposition_id": 99,
+    "src_endpoint": {
+      "ip": "192.168.1.99",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "10.0.0.1",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Defense Core)",
+        "country_code": "IN-DEF",
+        "city": "HQ Secure Zone",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 3,
+      "format_name": "Tier3:HeuristicFallback",
+      "product": {
+        "vendor_name": "Generic",
+        "name": "Network Appliance",
+        "version": "1.0.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:49.653957+00:00",
+      "hash": "21d6e1211d112fbcd77c77e00391b54fc470b518570397c564b94206fcc68795"
+    },
+    "raw_data": "CORRUPTED_PACKET_#%@! raw_data_segment_null_byte_err 192.168.1.99 -> 10.0.0.1 ???"
+  },
+  {
+    "event_id": "d1fb7f3f-d54f-42eb-a5f2-ae508e03201c",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Blocked",
+    "disposition_id": 2,
+    "src_endpoint": {
+      "ip": "203.0.113.121",
+      "port": 43861,
+      "zone": "unknown",
+      "geo": {
+        "country": "United States",
+        "country_code": "US",
+        "city": "Dallas, TX",
+        "is_internal": false,
+        "asn": "AS13335"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "192.168.1.50",
+      "port": 22,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 1,
+      "format_name": "Tier1:Fortinet_FortiGate",
+      "product": {
+        "vendor_name": "Fortinet",
+        "name": "FortiGate",
+        "version": "1.1.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:49.754525+00:00",
+      "hash": "918a7b58d5a00bf8da1c0d0a8f81d6143d3252f652be874f1e188bb2546ab91b"
+    },
+    "raw_data": "date=2026-09-01 time=09:44:49 devname=\"FGT-HQ-01\" logid=\"0000000020\" type=\"traffic\" subtype=\"forward\" level=\"warning\" srcip=203.0.113.121 srcport=43861 dstip=192.168.1.50 dstport=22 proto=6 action=\"deny\" msg=\"SSH authentication failure threshold exceeded\""
+  },
+  {
+    "event_id": "dd9a11f9-e7d6-4e8e-a3fe-12d427e61b36",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Blocked",
+    "disposition_id": 2,
+    "src_endpoint": {
+      "ip": "192.168.82.137",
+      "port": 14639,
+      "zone": "port1",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.236.92",
+      "port": 443,
+      "zone": "port2",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "UDP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 1,
+      "format_name": "Tier1:Fortinet_FortiGate",
+      "product": {
+        "vendor_name": "Fortinet",
+        "name": "FortiGate",
+        "version": "1.1.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:49.857976+00:00",
+      "hash": "14964fde82254d6a78d452ea5f65c07f7a765573ebd403766389fb8ab2a255aa"
+    },
+    "raw_data": "date=2026-09-01 time=09:44:49 devname=\"FGT-HQ-01\" devid=\"FGT60D4614041234\" logid=\"0000000013\" type=\"traffic\" subtype=\"forward\" level=\"notice\" vd=\"root\" srcip=192.168.82.137 srcport=14639 srcintf=\"port1\" dstip=198.51.236.92 dstport=443 dstintf=\"port2\" proto=17 action=\"deny\" policyid=1 service=\"HTTPS\" duration=31 sentbyte=3039 rcvdbyte=4516",
+    "traffic": {
+      "bytes": 3039,
+      "packets": 0
+    }
+  },
+  {
+    "event_id": "031b1a2d-7dfa-44b5-87e8-1eb016bbaa01",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Alert",
+    "disposition_id": 3,
+    "src_endpoint": {
+      "ip": "192.168.63.201",
+      "port": 63259,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.41.130",
+      "port": 445,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 1,
+      "format_name": "Tier1:pfSense / Suricata_Suricata & Filterlog",
+      "product": {
+        "vendor_name": "pfSense / Suricata",
+        "name": "Suricata & Filterlog",
+        "version": "1.1.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:49.961222+00:00",
+      "hash": "2c85603efebf0bc20094053ef0cfe97df421a3c2a265f62686f31be56297ebf9"
+    },
+    "raw_data": "{\"timestamp\":\"2026-09-01T09:44:49.961222+00:00\",\"event_type\":\"alert\",\"src_ip\":\"192.168.63.201\",\"src_port\":63259,\"dest_ip\":\"198.51.41.130\",\"dest_port\":445,\"proto\":\"TCP\",\"alert\":{\"action\":\"alert\",\"signature\":\"ET SCAN Potential SSH Scan\",\"category\":\"Threat Alert\",\"severity\":1}}"
+  },
+  {
+    "event_id": "454b7442-b86a-462e-a17c-bafc5f41d092",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Unknown",
+    "disposition_id": 99,
+    "src_endpoint": {
+      "ip": "192.168.56.97",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.98.8",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "3389",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 1,
+      "format_name": "Tier1:Palo Alto Networks_PAN-OS",
+      "product": {
+        "vendor_name": "Palo Alto Networks",
+        "name": "PAN-OS",
+        "version": "1.1.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:50.062458+00:00",
+      "hash": "02aae84b946a3fcf79cce1933889daeafaa75954e9f232f99a0976aba55faa6b"
+    },
+    "raw_data": "1,2026/09/01 09:44:50,001801000001,TRAFFIC,drop,1,2026/09/01 09:44:50,192.168.56.97,198.51.98.8,0.0.0.0,0.0.0.0,Rule-Policy,,,ssl,vsys1,untrust,trust,ethernet1/1,ethernet1/2,Log-Forwarder,2026/09/01 09:44:50,12345,1,14935,3389,0,0,0x0,udp,drop,935,746,1388,1,2026/09/01 09:44:50,0,any,0,0,0,0,,US,IN,0,1,0",
+    "traffic": {
+      "bytes": 0,
+      "packets": 0
+    }
+  },
+  {
+    "event_id": "3a53494f-d437-42bf-bf29-6181af51b749",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Allowed",
+    "disposition_id": 1,
+    "src_endpoint": {
+      "ip": "192.168.38.112",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.168.212",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "UDP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 3,
+      "format_name": "Tier3:HeuristicFallback",
+      "product": {
+        "vendor_name": "Generic",
+        "name": "Network Appliance",
+        "version": "1.0.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:50.165587+00:00",
+      "hash": "0200d46e734fd5d59fc210fffcdabffe0fd0d2f4028be9b15aeac89a8fa37c38"
+    },
+    "raw_data": "time=1788255890|hostname=cp-fw01|product=VPN-1 & FireWall-1|action=accept|src=192.168.38.112|dst=198.51.168.212|proto=udp|s_port=21192|service=3389|rule=12|reason=Policy match evaluation"
+  },
+  {
+    "event_id": "264d66e8-202d-44da-a435-96c9c12981a1",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Blocked",
+    "disposition_id": 2,
+    "src_endpoint": {
+      "ip": "203.0.113.157",
+      "port": 56441,
+      "zone": "outside",
+      "geo": {
+        "country": "United States",
+        "country_code": "US",
+        "city": "Dallas, TX",
+        "is_internal": false,
+        "asn": "AS13335"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "192.168.1.50",
+      "port": 708,
+      "zone": "inside",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 1,
+      "format_name": "Tier1:Cisco_ASA",
+      "product": {
+        "vendor_name": "Cisco",
+        "name": "ASA",
+        "version": "1.1.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:50.271887+00:00",
+      "hash": "2714b8c69929b113873a586e6cf7edc9431d915b78ca67666d2ecb6290ed797d"
+    },
+    "raw_data": "%ASA-4-106023: Deny tcp src outside:203.0.113.157/56441 dst inside:192.168.1.50/708 by access-group \"OUTSIDE-IN\" [0x0, 0x0]"
+  },
+  {
+    "event_id": "d1ceb0ca-b047-499b-bef9-a49eec991866",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Blocked",
+    "disposition_id": 2,
+    "src_endpoint": {
+      "ip": "192.168.134.22",
+      "port": 33476,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.6.5",
+      "port": 80,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 1,
+      "format_name": "Tier1:pfSense / Suricata_Suricata & Filterlog",
+      "product": {
+        "vendor_name": "pfSense / Suricata",
+        "name": "Suricata & Filterlog",
+        "version": "1.1.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:50.379740+00:00",
+      "hash": "0d19bebbfd5fab4bc7f45b81b74a28e2d37d0cd1f1e8225aedb8a5cf077b2d2c"
+    },
+    "raw_data": "{\"timestamp\":\"2026-09-01T09:44:50.379740+00:00\",\"event_type\":\"alert\",\"src_ip\":\"192.168.134.22\",\"src_port\":33476,\"dest_ip\":\"198.51.6.5\",\"dest_port\":80,\"proto\":\"TCP\",\"alert\":{\"action\":\"blocked\",\"signature\":\"ET EXPLOIT Apache Struts RCE\",\"category\":\"Threat Alert\",\"severity\":1}}"
+  },
+  {
+    "event_id": "fd36c494-b6d4-4c17-b7d6-5a269125c24b",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Allowed",
+    "disposition_id": 1,
+    "src_endpoint": {
+      "ip": "192.168.104.213",
+      "port": 43375,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.23.130",
+      "port": 22,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 1,
+      "format_name": "Tier1:pfSense / Suricata_Suricata & Filterlog",
+      "product": {
+        "vendor_name": "pfSense / Suricata",
+        "name": "Suricata & Filterlog",
+        "version": "1.1.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:50.504885+00:00",
+      "hash": "7c56acf1e6e4d5b58b900af0e32f5ef99f27b205d2fc41dab6d31a0c17dc29d9"
+    },
+    "raw_data": "Sep 01 09:44:50 pfsense filterlog[28410]: 4,,,1000000103,igb0,match,pass,in,4,0x0,,64,0,0,DF,6,tcp,60,192.168.104.213,198.51.23.130,43375,22,0,S,12345678,,65535,,mss;sackOK;TS"
+  },
+  {
+    "event_id": "bb475463-457e-4960-8a34-1b865393a4ac",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Blocked",
+    "disposition_id": 2,
+    "src_endpoint": {
+      "ip": "192.168.7.38",
+      "port": 24887,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "0.0.0.0",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "Unknown",
+        "country_code": "UNK",
+        "city": "Unknown",
+        "is_internal": false
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 1,
+      "format_name": "Tier1:Linux_Syslog & SSH Auth",
+      "product": {
+        "vendor_name": "Linux",
+        "name": "Syslog & SSH Auth",
+        "version": "1.1.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:50.613542+00:00",
+      "hash": "e34e62fa95146aafd611930b00a02a83320661b82755f375d15c28356dd6c5b1"
+    },
+    "raw_data": "Sep 01 09:44:50 server-hq-01 sshd[41406]: Failed password for invalid user admin from 192.168.7.38 port 24887 ssh2"
+  },
+  {
+    "event_id": "ee5f14d5-0d06-41ca-9c68-c6559bcbd46c",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Unknown",
+    "disposition_id": 99,
+    "src_endpoint": {
+      "ip": "192.168.113.253",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.243.43",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 2,
+      "format_name": "Tier2:KeyValue",
+      "product": {
+        "vendor_name": "Generic",
+        "name": "Network Appliance",
+        "version": "1.0.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:50.735584+00:00",
+      "hash": "bae75c2d329b34d6fcd37dd4a3800bf137dc434e2cea4d42e70d8cb3956f7b6c"
+    },
+    "raw_data": "UNKNOWN_RAW_LOG timestamp=2026-09-01T09:44:50.735584+00:00 src=192.168.113.253 dst=198.51.243.43 port=445"
+  },
+  {
+    "event_id": "e2102106-9b7f-4b85-b24c-5b0619e1cf6b",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Alert",
+    "disposition_id": 3,
+    "src_endpoint": {
+      "ip": "192.168.104.57",
+      "port": 1450,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.207.82",
+      "port": 8080,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 1,
+      "format_name": "Tier1:pfSense / Suricata_Suricata & Filterlog",
+      "product": {
+        "vendor_name": "pfSense / Suricata",
+        "name": "Suricata & Filterlog",
+        "version": "1.1.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:50.885994+00:00",
+      "hash": "37992049a3631445e09b43d7929aa9bbeb61573381d71f026222dfbc8f20fc02"
+    },
+    "raw_data": "{\"timestamp\":\"2026-09-01T09:44:50.885994+00:00\",\"event_type\":\"alert\",\"src_ip\":\"192.168.104.57\",\"src_port\":1450,\"dest_ip\":\"198.51.207.82\",\"dest_port\":8080,\"proto\":\"TCP\",\"alert\":{\"action\":\"alert\",\"signature\":\"ET SCAN Potential SSH Scan\",\"category\":\"Threat Alert\",\"severity\":1}}"
+  },
+  {
+    "event_id": "01f4bc5a-d3b0-4b53-a85d-b41c793618d8",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Unknown",
+    "disposition_id": 99,
+    "src_endpoint": {
+      "ip": "192.168.243.25",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.252.86",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 2,
+      "format_name": "Tier2:KeyValue",
+      "product": {
+        "vendor_name": "Generic",
+        "name": "Network Appliance",
+        "version": "1.0.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:51.007760+00:00",
+      "hash": "c7bb6528ab671850e9334a3bcca2255a058ebae45a47e107d918d82c32be1293"
+    },
+    "raw_data": "UNKNOWN_RAW_LOG timestamp=2026-09-01T09:44:50.993410+00:00 src=192.168.243.25 dst=198.51.252.86 port=3389"
+  },
+  {
+    "event_id": "20fafe6f-c86a-4113-b218-f8ca677c562f",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Allowed",
+    "disposition_id": 1,
+    "src_endpoint": {
+      "ip": "192.168.85.20",
+      "port": 9461,
+      "zone": "outside",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.191.250",
+      "port": 445,
+      "zone": "inside",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "UDP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 1,
+      "format_name": "Tier1:Cisco_ASA",
+      "product": {
+        "vendor_name": "Cisco",
+        "name": "ASA",
+        "version": "1.1.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:51.191490+00:00",
+      "hash": "0e61a79f479df93af9bb0e06062e096d2c71f7054a2dda7744b3b0061ee9473d"
+    },
+    "raw_data": "%ASA-4-106001: Built udp src outside:192.168.85.20/9461 dst inside:198.51.191.250/445 by access-group \"OUTSIDE-IN\" [0x0, 0x0]"
+  },
+  {
+    "event_id": "13f1f434-23fa-49f9-a1c6-142d0f789509",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Unknown",
+    "disposition_id": 99,
+    "src_endpoint": {
+      "ip": "192.168.41.23",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.206.241",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 2,
+      "format_name": "Tier2:KeyValue",
+      "product": {
+        "vendor_name": "Generic",
+        "name": "Network Appliance",
+        "version": "1.0.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:51.319104+00:00",
+      "hash": "43a779e647ccf749034e69fd9486fd2a89287f78137f8ac9b9e7928d3ff10a96"
+    },
+    "raw_data": "UNKNOWN_RAW_LOG timestamp=2026-09-01T09:44:51.309286+00:00 src=192.168.41.23 dst=198.51.206.241 port=22"
+  },
+  {
+    "event_id": "a0a3c208-a4a9-48bc-964c-a000a7987ddf",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Blocked",
+    "disposition_id": 2,
+    "src_endpoint": {
+      "ip": "192.168.240.47",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.189.98",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "UDP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 3,
+      "format_name": "Tier3:HeuristicFallback",
+      "product": {
+        "vendor_name": "Generic",
+        "name": "Network Appliance",
+        "version": "1.0.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:51.454389+00:00",
+      "hash": "24ffc2c71fcd6a144895a430a6bfb403b47f48b03c69edde48419f96fc63286e"
+    },
+    "raw_data": "time=1788255891|hostname=cp-fw01|product=VPN-1 & FireWall-1|action=reject|src=192.168.240.47|dst=198.51.189.98|proto=udp|s_port=40530|service=3389|rule=12|reason=Policy match evaluation"
+  },
+  {
+    "event_id": "b4d2ad42-488f-443e-b486-0c753e1e5efd",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Blocked",
+    "disposition_id": 2,
+    "src_endpoint": {
+      "ip": "192.168.30.242",
+      "port": 14131,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.60.195",
+      "port": 22,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 1,
+      "format_name": "Tier1:pfSense / Suricata_Suricata & Filterlog",
+      "product": {
+        "vendor_name": "pfSense / Suricata",
+        "name": "Suricata & Filterlog",
+        "version": "1.1.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:51.618398+00:00",
+      "hash": "4eb446fc588eeab724dbdbbd0162988480f6e52faaa3c44e9ad5d671d1b67058"
+    },
+    "raw_data": "Sep 01 09:44:51 pfsense filterlog[28410]: 4,,,1000000103,igb0,match,block,in,4,0x0,,64,0,0,DF,6,tcp,60,192.168.30.242,198.51.60.195,14131,22,0,S,12345678,,65535,,mss;sackOK;TS"
+  },
+  {
+    "event_id": "c6413a92-ef64-4558-9520-60b373a945d8",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Blocked",
+    "disposition_id": 2,
+    "src_endpoint": {
+      "ip": "203.0.113.130",
+      "port": 55497,
+      "zone": "outside",
+      "geo": {
+        "country": "United States",
+        "country_code": "US",
+        "city": "Dallas, TX",
+        "is_internal": false,
+        "asn": "AS13335"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "192.168.1.50",
+      "port": 643,
+      "zone": "inside",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 1,
+      "format_name": "Tier1:Cisco_ASA",
+      "product": {
+        "vendor_name": "Cisco",
+        "name": "ASA",
+        "version": "1.1.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:51.777435+00:00",
+      "hash": "1ba932c212b59e29c9f894056782595c1f66b2dbbf43a1ade04364f12b643946"
+    },
+    "raw_data": "%ASA-4-106023: Deny tcp src outside:203.0.113.130/55497 dst inside:192.168.1.50/643 by access-group \"OUTSIDE-IN\" [0x0, 0x0]"
+  },
+  {
+    "event_id": "269e9b7f-c64e-4127-986d-6fd9d592e6e3",
+    "class_uid": 4001,
+    "class_name": "Network Activity",
+    "category_uid": 4,
+    "category_name": "Network Activity",
+    "activity_id": 1,
+    "activity_name": "Traffic",
+    "disposition": "Unknown",
+    "disposition_id": 99,
+    "src_endpoint": {
+      "ip": "192.168.107.137",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "India (Internal LAN)",
+        "country_code": "IN-LAN",
+        "city": "Operations LAN",
+        "is_internal": true,
+        "asn": "AS0-INTERNAL"
+      }
+    },
+    "dst_endpoint": {
+      "ip": "198.51.218.133",
+      "port": 0,
+      "zone": "unknown",
+      "geo": {
+        "country": "External Internet",
+        "country_code": "EXT",
+        "city": "Global",
+        "is_internal": false,
+        "asn": "AS-EXTERNAL"
+      }
+    },
+    "connection_info": {
+      "protocol_name": "TCP",
+      "direction": "Inbound"
+    },
+    "metadata": {
+      "framework": "ULPF-NTRO-v1.1",
+      "version": "1.1.0",
+      "tier": 2,
+      "format_name": "Tier2:KeyValue",
+      "product": {
+        "vendor_name": "Generic",
+        "name": "Network Appliance",
+        "version": "1.0.0"
+      },
+      "ingest_timestamp": "2026-09-01T09:44:51.929199+00:00",
+      "hash": "1e194f02a4891f96dc82fcdb749798008271e889837b27acea31ec130960abdc"
+    },
+    "raw_data": "UNKNOWN_RAW_LOG timestamp=2026-09-01T09:44:51.928693+00:00 src=192.168.107.137 dst=198.51.218.133 port=443"
+  }
+]
