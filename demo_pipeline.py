@@ -5,9 +5,9 @@ Live Pipeline Demonstration & Verification Tool
 """
 
 import sys
-import json
 from core_engine.engine import Engine
 from core_engine.hasher import ForensicHasher
+
 
 if hasattr(sys.stdout, "reconfigure"):
     try:

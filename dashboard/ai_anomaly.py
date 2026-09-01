@@ -8,7 +8,8 @@ NTRO Problem Statement ID: 26156
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import IsolationForest
-from typing import Tuple, Dict, Any, List
+from typing import List
+
 
 
 class ThreatAnomalyDetector:

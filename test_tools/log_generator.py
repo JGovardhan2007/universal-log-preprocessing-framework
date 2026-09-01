@@ -9,10 +9,10 @@ import time
 import argparse
 import random
 import os
-import glob
 import sys
 import threading
 from datetime import datetime, timezone
+
 
 # Ensure UTF-8 output on Windows consoles
 if sys.platform == "win32" and hasattr(sys.stdout, "reconfigure"):

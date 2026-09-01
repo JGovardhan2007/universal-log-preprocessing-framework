@@ -7,7 +7,6 @@ Developed for NTRO / NCIIPC (Problem Statement ID: 26156)
 
 import os
 import sys
-import time
 import hashlib
 import json
 import yaml
@@ -15,9 +14,9 @@ import re
 import pandas as pd
 import pyarrow.parquet as pq
 import plotly.express as px
-import plotly.graph_objects as go
 import streamlit as st
 from datetime import datetime, timezone
+
 
 # Ensure UTF-8 output
 if sys.platform == "win32" and hasattr(sys.stdout, "reconfigure"):

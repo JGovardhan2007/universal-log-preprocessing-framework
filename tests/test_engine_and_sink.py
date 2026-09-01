@@ -2,13 +2,12 @@
 Integration & Performance Tests for Engine & Parquet Sink Writer
 """
 
-import os
 import time
 import pytest
 import pyarrow.parquet as pq
 from pathlib import Path
 from core_engine.engine import Engine
-from core_engine.sink_writer import ParquetSinkWriter
+
 
 
 @pytest.fixture

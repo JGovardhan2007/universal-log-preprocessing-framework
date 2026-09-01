@@ -4,8 +4,8 @@ Unit Tests for Track 1: ForensicHasher & Section 65B Cryptographic Provenance
 
 import hashlib
 import uuid
-import pytest
 from core_engine.hasher import ForensicHasher
+
 
 
 def test_compute_sha256_exact_bytes():
