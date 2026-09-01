@@ -1,0 +1,45 @@
+vendor: "Cisco"
+product: "ASA"
+version: "1.1.0"
+description: "Cisco ASA and Firepower Threat Defense (FTD) Syslog Parser"
+
+signature_match:
+  type: "regex"
+  patterns:
+    - "%ASA-\\d-\\d+:"
+    - "%FTD-\\d-\\d+:"
+
+extraction:
+  type: "regex"
+  # Matches ASA built/teardown/deny/drop connection formats
+  patterns:
+    # Pattern 1: Connection Built / Teardown / Denied with zones and ports
+    - '^.*?(?:%ASA|%FTD)-\d-(?P<msg_id>\d+):\s+(?P<action>Built|Teardown|Deny|Denied|Drop|Dropped)\s+(?P<direction>inbound|outbound)?\s*(?P<proto>TCP|UDP|ICMP|IP|tcp|udp|icmp)?\s+connection\s+\d+\s+for\s+(?P<src_zone>[\w-]+):(?P<src_ip>[\d\.]+)\/(?P<src_port>\d+)(?:\s+\([\d\.\/]+\))?\s+to\s+(?P<dst_zone>[\w-]+):(?P<dst_ip>[\d\.]+)\/(?P<dst_port>\d+)'
+    # Pattern 2: Deny packet format
+    - '^.*?(?:%ASA|%FTD)-\d-(?P<msg_id>\d+):\s+(?P<action>Deny|Denied|Drop|Dropped|Built)\s+(?P<proto>\w+)\s+src\s+(?P<src_zone>[\w-]+):(?P<src_ip>[\d\.]+)\/(?P<src_port>\d+)\s+dst\s+(?P<dst_zone>[\w-]+):(?P<dst_ip>[\d\.]+)\/(?P<dst_port>\d+)'
+    # Pattern 3: Generic ASA format fallback
+    - '^.*?(?:%ASA|%FTD)-\d-(?P<msg_id>\d+):\s+(?P<action>\w+)\s+(?P<proto>\w+)\s+(?:src\s+)?(?P<src_ip>[\d\.]+)(?:\/(?P<src_port>\d+))?\s+(?:dst\s+)?(?P<dst_ip>[\d\.]+)(?:\/(?P<dst_port>\d+))?'
+
+field_mapping:
+  class_uid: 4001
+  category_uid: 4
+  activity_id: 1
+  src_endpoint.ip: "$src_ip"
+  src_endpoint.port: "$src_port:integer"
+  src_endpoint.zone: "$src_zone"
+  dst_endpoint.ip: "$dst_ip"
+  dst_endpoint.port: "$dst_port:integer"
+  dst_endpoint.zone: "$dst_zone"
+  connection_info.protocol_name: "$proto:upper"
+  connection_info.direction: "$direction"
+  metadata.product.vendor_name: "Cisco"
+  metadata.product.name: "ASA"
+
+disposition_map:
+  Built: "Allowed"
+  Teardown: "Allowed"
+  Deny: "Blocked"
+  Denied: "Blocked"
+  Drop: "Blocked"
+  Dropped: "Blocked"
+  default: "Unknown"

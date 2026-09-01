@@ -1,0 +1,43 @@
+vendor: "Check Point"
+product: "Quantum Security Gateway"
+version: "1.1.0"
+description: "Check Point Firewall and Security Gateway Syslog Parser"
+
+signature_match:
+  type: "contains"
+  patterns:
+    - "CheckPoint"
+    - "VPN-1 & FireWall-1"
+    - "product=VPN-1"
+    - "fw_subrule"
+    - "fw1:"
+
+
+extraction:
+  type: "regex"
+  patterns:
+    # Pattern 1: Semicolon separated Key-Value pairs with action prefix
+    - '^.*?(?:CheckPoint:\s+)?(?:\d+\w+\d+\s+[\d:]+\s+)?(?P<action>accept|drop|reject|block)\s+(?:.*?;)?\s*src:\s*(?P<src_ip>[\d\.]+);\s*s_port:\s*(?P<src_port>\d+);\s*dst:\s*(?P<dst_ip>[\d\.]+);\s*service:\s*(?P<dst_port>\d+);\s*proto:\s*(?P<proto>\w+);'
+    # Pattern 2: Generic Check Point key-value format
+    - 'src=(?P<src_ip>[\d\.]+)\s+dst=(?P<dst_ip>[\d\.]+)\s+s_port=(?P<src_port>\d+)\s+service=(?P<dst_port>\d+)\s+proto=(?P<proto>\w+)\s+action=(?P<action>\w+)'
+
+field_mapping:
+  class_uid: 4001
+  category_uid: 4
+  activity_id: 1
+  src_endpoint.ip: "$src_ip"
+  src_endpoint.port: "$src_port:integer"
+  dst_endpoint.ip: "$dst_ip"
+  dst_endpoint.port: "$dst_port:integer"
+  connection_info.protocol_name: "$proto:upper"
+  metadata.product.vendor_name: "Check Point"
+  metadata.product.name: "Quantum Security Gateway"
+
+disposition_map:
+  accept: "Allowed"
+  allow: "Allowed"
+  permit: "Allowed"
+  drop: "Blocked"
+  reject: "Blocked"
+  block: "Blocked"
+  default: "Unknown"
