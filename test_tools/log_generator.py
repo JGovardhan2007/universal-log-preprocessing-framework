@@ -1,3 +1,9 @@
+#!/usr/bin/env python3
+"""
+ULPF Multi-Threaded UDP Log Streamer & Attack Injection Suite
+Track 4 (Phase 2): High-Throughput Benchmarking & Cyber-Attack Vectors (NTRO Problem ID 26156)
+"""
+
 import socket
 import time
 import argparse
@@ -5,6 +11,7 @@ import random
 import os
 import glob
 import sys
+import threading
 from datetime import datetime, timezone
 
 # Ensure UTF-8 output on Windows consoles
@@ -14,18 +21,14 @@ if sys.platform == "win32" and hasattr(sys.stdout, "reconfigure"):
     except Exception:
         pass
 
-
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 5140
-
-# Pre-compiled multi-vendor log templates for continuous synthetic generation
-VENDORS = ["cisco_asa", "palo_alto", "fortinet", "checkpoint", "pfsense"]
-
 SAMPLE_LOG_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "sample_logs")
+VENDORS = ["cisco_asa", "palo_alto", "fortinet", "checkpoint", "pfsense"]
 
 
 def generate_synthetic_log(vendor: str) -> str:
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     src_ip = f"192.168.{random.randint(1, 254)}.{random.randint(1, 254)}"
     dst_ip = f"198.51.{random.randint(1, 254)}.{random.randint(1, 254)}"
     src_port = random.randint(1024, 65535)
@@ -56,37 +59,84 @@ def generate_synthetic_log(vendor: str) -> str:
     return f"UNKNOWN_RAW_LOG timestamp={now.isoformat()} src={src_ip} dst={dst_ip} port={dst_port}"
 
 
-def load_sample_logs(vendor: str = "all") -> list:
-    logs = []
-    if vendor == "all":
-        pattern = os.path.join(SAMPLE_LOG_DIR, "*.log")
-    else:
-        pattern = os.path.join(SAMPLE_LOG_DIR, f"{vendor}.log")
+def generate_attack_log(attack_type: str) -> str:
+    """Generates synthetic adversarial log events simulating live cyber attacks."""
+    now = datetime.now(timezone.utc)
+    target_ip = "192.168.1.50"
+    attacker_ip = f"203.0.113.{random.randint(100, 200)}"
     
-    for filepath in glob.glob(pattern):
-        with open(filepath, "r", encoding="utf-8") as f:
-            for line in f:
-                line = line.strip()
-                if line and not line.startswith("#"):
-                    logs.append(line)
-    return logs
+    if attack_type == "port_scan":
+        # Rapid port scanning across consecutive ports
+        scan_port = random.randint(1, 1024)
+        return f"%ASA-4-106023: Deny tcp src outside:{attacker_ip}/{random.randint(40000, 65000)} dst inside:{target_ip}/{scan_port} by access-group \"OUTSIDE-IN\" [0x0, 0x0]"
+        
+    elif attack_type == "ssh_brute_force":
+        # Sustained failed SSH login attempts
+        return f"date={now.strftime('%Y-%m-%d')} time={now.strftime('%H:%M:%S')} devname=\"FGT-HQ-01\" logid=\"0000000020\" type=\"traffic\" subtype=\"forward\" level=\"warning\" srcip={attacker_ip} srcport={random.randint(40000, 65000)} dstip={target_ip} dstport=22 proto=6 action=\"deny\" msg=\"SSH authentication failure threshold exceeded\""
+
+    elif attack_type == "dns_exfiltration":
+        # High-entropy DNS exfiltration queries
+        subdomain = "".join(random.choices("abcdef0123456789", k=24))
+        return f"1,{now.strftime('%Y/%m/%d %H:%M:%S')},001801000001,TRAFFIC,allow,1,{now.strftime('%Y/%m/%d %H:%M:%S')},{target_ip},8.8.8.8,0.0.0.0,0.0.0.0,Rule-DNS,,,dns,vsys1,trust,untrust,ethernet1/2,ethernet1/1,Log-Forwarder,{now.strftime('%Y/%m/%d %H:%M:%S')},9999,1,{random.randint(40000, 65000)},53,0,0,0x0,udp,allow,512,256,256,1,{now.strftime('%Y/%m/%d %H:%M:%S')},0,any,0,0,0,0,,IN,US,0,1,1"
+
+    elif attack_type == "malformed":
+        # Truncated or corrupt payload testing fallback safety
+        return f"CORRUPTED_PACKET_#%@! raw_data_segment_null_byte_err 192.168.1.99 -> 10.0.0.1 ???"
+
+    return generate_synthetic_log("cisco_asa")
 
 
-def send_logs(host: str, port: int, rate_eps: int, duration_sec: int, vendor: str, use_samples: bool):
+def _worker_thread(thread_id: int, host: str, port: int, rate_per_thread: int, duration_sec: int, vendor: str, attack_mode: str, stats: dict, stop_event: threading.Event):
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    print(f"🚀 [Track 4] Starting UDP Log Streamer -> {host}:{port}")
-    print(f"   Target Rate: {rate_eps} EPS | Duration: {duration_sec}s | Vendor Mode: {vendor}")
-    
-    sample_pool = load_sample_logs(vendor) if use_samples else []
-    if use_samples and not sample_pool:
-        print("⚠️ No static sample logs found; falling back to synthetic generator.")
-        use_samples = False
-
-    total_sent = 0
-    total_bytes = 0
     start_time = time.time()
-    next_report_time = start_time + 1.0
-    current_sec_count = 0
+    
+    while not stop_event.is_set():
+        elapsed = time.time() - start_time
+        if duration_sec > 0 and elapsed >= duration_sec:
+            break
+
+        sec_start = time.time()
+        for _ in range(rate_per_thread):
+            if attack_mode and attack_mode != "none":
+                raw_msg = generate_attack_log(attack_mode)
+            else:
+                v = random.choice(VENDORS) if vendor == "all" else vendor
+                raw_msg = generate_synthetic_log(v)
+
+            data = raw_msg.encode("utf-8")
+            sock.sendto(data, (host, port))
+            stats["packets_sent"] += 1
+            stats["bytes_sent"] += len(data)
+
+        sec_elapsed = time.time() - sec_start
+        sleep_time = 1.0 - sec_elapsed
+        if sleep_time > 0:
+            time.sleep(sleep_time)
+
+    sock.close()
+
+
+def run_benchmark_streamer(host: str, port: int, target_eps: int, duration_sec: int, threads: int, vendor: str, attack_mode: str):
+    print(f"🚀 [Track 4 Phase 2] Multi-Threaded UDP Streamer -> {host}:{port}")
+    print(f"   Target Rate: {target_eps:,} EPS | Threads: {threads} | Duration: {duration_sec}s | Attack: {attack_mode}")
+    
+    rate_per_thread = max(1, target_eps // threads)
+    stats = {"packets_sent": 0, "bytes_sent": 0}
+    stop_event = threading.Event()
+    
+    thread_pool = []
+    for i in range(threads):
+        t = threading.Thread(
+            target=_worker_thread,
+            args=(i, host, port, rate_per_thread, duration_sec, vendor, attack_mode, stats, stop_event),
+            daemon=True
+        )
+        thread_pool.append(t)
+        t.start()
+
+    start_time = time.time()
+    last_count = 0
+    next_report = start_time + 1.0
 
     try:
         while True:
@@ -94,51 +144,36 @@ def send_logs(host: str, port: int, rate_eps: int, duration_sec: int, vendor: st
             if duration_sec > 0 and elapsed >= duration_sec:
                 break
 
-            sec_start = time.time()
-            batch_target = rate_eps
-            for _ in range(batch_target):
-                if use_samples:
-                    raw_msg = random.choice(sample_pool)
-                else:
-                    v = random.choice(VENDORS) if vendor == "all" else vendor
-                    raw_msg = generate_synthetic_log(v)
-
-                data = raw_msg.encode("utf-8")
-                sock.sendto(data, (host, port))
-                total_sent += 1
-                total_bytes += len(data)
-                current_sec_count += 1
-
-            sec_elapsed = time.time() - sec_start
-            sleep_time = 1.0 - sec_elapsed
-            if sleep_time > 0:
-                time.sleep(sleep_time)
-
-            now_time = time.time()
-            if now_time >= next_report_time:
-                real_eps = current_sec_count / (now_time - (next_report_time - 1.0))
-                mb_sent = total_bytes / (1024 * 1024)
-                print(f"[{datetime.now().strftime('%H:%M:%S')}] Sent: {total_sent:,} logs ({mb_sent:.2f} MB) | Current Rate: {real_eps:,.0f} EPS")
-                current_sec_count = 0
-                next_report_time = now_time + 1.0
+            time.sleep(0.2)
+            now = time.time()
+            if now >= next_report:
+                current_total = stats["packets_sent"]
+                interval_eps = (current_total - last_count) / (now - (next_report - 1.0))
+                last_count = current_total
+                mb_sent = stats["bytes_sent"] / (1024 * 1024)
+                print(f"[{datetime.now().strftime('%H:%M:%S')}] Total Sent: {current_total:,} ({mb_sent:.2f} MB) | Throughput: {interval_eps:,.0f} EPS")
+                next_report = now + 1.0
 
     except KeyboardInterrupt:
-        print("\n🛑 Stream stopped by user.")
+        print("\n🛑 Terminating worker threads...")
     finally:
+        stop_event.set()
+        for t in thread_pool:
+            t.join(timeout=1.0)
         total_time = max(0.001, time.time() - start_time)
-        avg_eps = total_sent / total_time
-        print(f"\n📊 Summary: {total_sent:,} total packets sent in {total_time:.2f}s (Avg: {avg_eps:,.0f} EPS)")
-        sock.close()
+        avg_eps = stats["packets_sent"] / total_time
+        print(f"\n📊 [Benchmark Complete] {stats['packets_sent']:,} logs sent in {total_time:.2f}s (Average: {avg_eps:,.0f} EPS)")
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="ULPF UDP Multi-Vendor Log Streamer & Benchmark Tool")
-    parser.add_argument("--host", type=str, default=DEFAULT_HOST, help="Target UDP Host (default: 127.0.0.1)")
-    parser.add_argument("--port", type=int, default=DEFAULT_PORT, help="Target UDP Port (default: 5140)")
-    parser.add_argument("--rate", type=int, default=500, help="Target Events Per Second (default: 500)")
-    parser.add_argument("--duration", type=int, default=10, help="Duration in seconds (0 for infinite, default: 10)")
-    parser.add_argument("--vendor", type=str, default="all", choices=["all", "cisco_asa", "palo_alto", "fortinet", "checkpoint", "pfsense"], help="Target Vendor")
-    parser.add_argument("--use-samples", action="store_true", help="Use static raw files from /sample_logs/")
+    parser = argparse.ArgumentParser(description="ULPF Multi-Threaded UDP Log Streamer & Attack Injector")
+    parser.add_argument("--host", type=str, default=DEFAULT_HOST, help="Target Host (default: 127.0.0.1)")
+    parser.add_argument("--port", type=int, default=DEFAULT_PORT, help="Target Port (default: 5140)")
+    parser.add_argument("--rate", type=int, default=1000, help="Target Total EPS (default: 1000)")
+    parser.add_argument("--duration", type=int, default=10, help="Duration in seconds (default: 10)")
+    parser.add_argument("--threads", type=int, default=4, help="Worker thread count (default: 4)")
+    parser.add_argument("--vendor", type=str, default="all", choices=["all", "cisco_asa", "palo_alto", "fortinet", "checkpoint", "pfsense"])
+    parser.add_argument("--attack", type=str, default="none", choices=["none", "port_scan", "ssh_brute_force", "dns_exfiltration", "malformed"], help="Inject cyber attack scenario")
 
     args = parser.parse_args()
-    send_logs(args.host, args.port, args.rate, args.duration, args.vendor, args.use_samples)
+    run_benchmark_streamer(args.host, args.port, args.rate, args.duration, args.threads, args.vendor, args.attack)
