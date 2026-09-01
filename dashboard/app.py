@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
 Universal Log Pre-processing Framework (ULPF)
-Clean 3-Page SOC & Forensic Ingestion System
-1. 📊 Main Dashboard (Analytics & AI Threat Hunting)
-2. ⚡ Live Streamer (Real-time Raw -> SHA-256 -> Formatted JSON & Live Dual-Buffer)
-3. 🗄️ Database & Storage Vault (Raw .log vs Formatted .json Batches)
+Minimalist Professional Interface (Cream-White Theme)
+1. 📊 Dashboard: Analytics, KPIs & AI Threat Detection
+2. ⚡ Live Streamer: Section 1 (Raw String | SHA-256 Key) ➔ Section 2 (Formatted JSON)
+3. 🗄️ Database: Raw .log Files vs Formatted .json Batches
 """
 
 import os
@@ -28,191 +28,225 @@ try:
 except ImportError:
     from ai_anomaly import ThreatAnomalyDetector
 
-# Page configuration
+# Streamlit Page Setup
 st.set_page_config(
     page_title="ULPF | Universal Log Pre-processing Framework",
     page_icon="🛡️",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"
 )
 
-# Custom Design Styling
+# Clean Minimalist Cream-White Theme CSS
 st.markdown("""
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
 <style>
+    /* Global Base */
     .stApp {
-        background: #090d16;
-        color: #e2e8f0;
-        font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+        background-color: #fbfbfa;
+        color: #1c1917;
+        font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
     }
+    
     #MainMenu, footer, header {visibility: hidden;}
+    [data-testid="stSidebar"] {display: none;}
+    
     .block-container {
-        padding-top: 1.2rem;
-        padding-bottom: 2rem;
-        max-width: 96% !important;
+        padding-top: 1.5rem;
+        padding-bottom: 2.5rem;
+        max-width: 95% !important;
     }
-    .header-box {
-        background: linear-gradient(135deg, #0f172a 0%, #172033 50%, #0e304f 100%);
-        border: 1px solid #1e293b;
-        border-radius: 10px;
-        padding: 18px 24px;
-        margin-bottom: 16px;
+
+    /* Top Navigation Header */
+    .top-navbar {
+        background: #ffffff;
+        border: 1px solid #e7e5e4;
+        border-radius: 12px;
+        padding: 16px 24px;
+        margin-bottom: 20px;
         display: flex;
         justify-content: space-between;
         align-items: center;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
     }
-    .kpi-card {
-        background: #0f172a;
-        border: 1px solid #1e293b;
-        border-radius: 8px;
-        padding: 14px 18px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    
+    .brand-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #0f172a;
+        margin: 0;
+        letter-spacing: -0.3px;
     }
-    .kpi-label {
+
+    .brand-subtitle {
+        font-size: 12px;
+        color: #78716c;
+        margin-top: 2px;
+    }
+
+    /* Metric Cards */
+    .metric-card {
+        background: #ffffff;
+        border: 1px solid #e7e5e4;
+        border-radius: 10px;
+        padding: 18px 20px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    }
+
+    .metric-label {
         font-size: 11px;
+        font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.6px;
-        color: #94a3b8;
-        font-weight: 600;
+        color: #78716c;
         margin-bottom: 4px;
     }
-    .kpi-val {
-        font-size: 24px;
+
+    .metric-val {
+        font-size: 26px;
         font-weight: 800;
-        color: #ffffff;
+        color: #0f172a;
         margin: 0;
     }
-    .buffer-box {
-        background: #0b1120;
-        border: 1px solid #334155;
-        border-radius: 8px;
-        padding: 14px 18px;
-        margin-bottom: 16px;
+
+    /* Live Stream Dual Section Cards */
+    .stream-box {
+        background: #ffffff;
+        border: 1px solid #e7e5e4;
+        border-radius: 10px;
+        padding: 16px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+        height: 100%;
     }
-    .stream-card {
-        background: #0b1120;
-        border: 1px solid #1e293b;
-        border-radius: 8px;
-        padding: 14px;
+
+    .stream-box-title {
+        font-size: 13px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #44403c;
         margin-bottom: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #f5f5f4;
+        padding-bottom: 8px;
     }
-    .raw-box {
-        background-color: #020617;
-        border: 1px solid #334155;
-        border-left: 4px solid #f59e0b;
+
+    /* Scrollable items */
+    .raw-item {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-left: 3px solid #f59e0b;
         border-radius: 6px;
-        padding: 10px 14px;
+        padding: 8px 12px;
         font-family: 'JetBrains Mono', monospace;
         font-size: 12px;
-        color: #fbbf24;
+        color: #b45309;
+        margin-bottom: 8px;
         word-break: break-all;
+        line-height: 1.4;
     }
-    .sha-box {
-        background-color: #020617;
-        border: 1px solid #1e293b;
-        border-left: 4px solid #38bdf8;
+
+    .sha-item {
+        background: #f0fdf4;
+        border: 1px solid #dcfce7;
+        border-left: 3px solid #16a34a;
         border-radius: 6px;
         padding: 8px 12px;
         font-family: 'JetBrains Mono', monospace;
         font-size: 11px;
-        color: #38bdf8;
-        margin: 6px 0;
+        color: #15803d;
+        margin-bottom: 8px;
         word-break: break-all;
+        line-height: 1.4;
     }
-    .json-box {
-        background-color: #020617;
-        border: 1px solid #1e293b;
-        border-left: 4px solid #10b981;
-        border-radius: 6px;
-        padding: 10px 14px;
+
+    .json-container {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-left: 4px solid #0284c7;
+        border-radius: 8px;
+        padding: 14px 18px;
         font-family: 'JetBrains Mono', monospace;
         font-size: 12px;
-        color: #34d399;
+        color: #0369a1;
+        margin-bottom: 10px;
+    }
+
+    /* Transition Banner */
+    .transition-divider {
+        background: #ffffff;
+        border: 1px dashed #cbd5e1;
+        border-radius: 8px;
+        padding: 8px;
+        text-align: center;
+        margin: 16px 0;
+        font-size: 12px;
+        font-weight: 600;
+        color: #64748b;
+    }
+
+    /* Streamlit Tab Buttons */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 8px;
+        background: #f5f5f4;
+        padding: 4px 6px;
+        border-radius: 8px;
+        border: 1px solid #e7e5e4;
+    }
+
+    .stTabs [data-baseweb="tab"] {
+        height: 38px;
+        border-radius: 6px;
+        color: #57534e;
+        font-weight: 600;
+        font-size: 13px;
+        padding: 0 20px;
+    }
+
+    .stTabs [aria-selected="true"] {
+        background: #ffffff !important;
+        color: #0f172a !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# Initialize Live Pipeline Service
+# Service Singleton
 service = LiveLogPipelineService.get_instance()
 
 # -------------------------------------------------------------
-# SIDEBAR: Navigation & Live Engine Controls
+# Top Navigation & Brand Header
 # -------------------------------------------------------------
-with st.sidebar:
-    st.markdown("## 🛡️ ULPF Control")
-    page_selection = st.radio(
-        "Navigation",
-        ["📊 Main Dashboard", "⚡ Live Streamer", "🗄️ Database Vault"],
-        index=1  # Default to Live Streamer
-    )
-
-    st.markdown("---")
-    st.markdown("### ⚙️ Live Stream Generator")
-
-    # Start / Stop Engine
-    if service.is_running:
-        status_label = "🟢 GENERATOR & LISTENER ACTIVE"
-        btn_label = "⏹️ Stop Ingestion Stream"
-        btn_type = "secondary"
-    else:
-        status_label = "⚪ INGESTION IDLE"
-        btn_label = "▶️ Start Live Stream (UDP 5140)"
-        btn_type = "primary"
-
-    st.markdown(f"**Status:** `{status_label}`")
-
-    if st.button(btn_label, type=btn_type, use_container_width=True):
-        if service.is_running:
-            service.stop()
-        else:
-            service.start(eps=st.session_state.get("speed_slider", 10))
-        st.rerun()
-
-    # Rate Speed Slider
-    speed = st.slider("Generation Rate (Logs / sec)", min_value=1, max_value=50, value=service.logs_per_second, key="speed_slider")
-    if service.is_running and speed != service.logs_per_second:
-        service.set_speed(speed)
-
-    st.markdown("---")
-    st.markdown("### 📦 Batch Constraint Settings")
-    batch_threshold = st.select_slider(
-        "Logs per File Batch",
-        options=[50, 100, 200, 500, 1000],
-        value=service.batch_size_threshold,
-        help="Number of logs collected into in-memory buffers before converting to .log and .json files."
-    )
-    if batch_threshold != service.batch_size_threshold:
-        service.set_batch_threshold(batch_threshold)
-
-    st.markdown("---")
-    st.markdown("### 📡 Wire Configuration")
-    st.caption(f"• **Port:** UDP 5140 (Syslog)\n• **Active Batch Limit:** {service.batch_size_threshold} logs\n• **Raw Path:** `data/storage/raw/`\n• **JSON Path:** `data/storage/formatted/`")
-
-
-# Top Header
 st.markdown("""
-<div class="header-box">
+<div class="top-navbar">
     <div>
-        <h2 style="margin:0; font-size:20px; font-weight:700; color:#ffffff;">Universal Log Pre-processing Framework (ULPF)</h2>
-        <p style="margin:3px 0 0 0; font-size:12px; color:#94a3b8;">NTRO Problem Statement 26156 • High-Throughput Live Ingestion & Dual-Buffer Storage Architecture</p>
+        <h1 class="brand-title">Universal Log Pre-processing Framework (ULPF)</h1>
+        <div class="brand-subtitle">NTRO Problem Statement 26156 • High-Throughput Live Ingestion & Normalization Engine</div>
     </div>
-    <div style="font-size:12px; font-weight:600; color:#34d399; background:rgba(16,185,129,0.1); padding:5px 14px; border-radius:4px; border:1px solid rgba(16,185,129,0.3);">
-        PORT 5140 • OCSF v1.1.0
+    <div style="font-size:12px; font-weight:600; color:#15803d; background:#f0fdf4; border:1px solid #bbf7d0; padding:6px 14px; border-radius:6px;">
+        STATUS: OPERATIONAL (UDP 5140)
     </div>
 </div>
 """, unsafe_allow_html=True)
 
+# -------------------------------------------------------------
+# Main Top Tab Switcher
+# -------------------------------------------------------------
+tab_dashboard, tab_streamer, tab_database = st.tabs([
+    "📊 Main Dashboard",
+    "⚡ Live Streamer",
+    "🗄️ Database Vault"
+])
+
 
 # =============================================================
-# PAGE 1: 📊 MAIN DASHBOARD (Analytics & AI Threat Hunting)
+# PAGE 1: 📊 MAIN DASHBOARD
 # =============================================================
-if page_selection == "📊 Main Dashboard":
-    st.markdown("### 📊 Enterprise Analytics & AI Threat Intelligence")
-    st.caption("Aggregated analytics and unsupervised Isolation Forest threat detection across all formatted records.")
-
+with tab_dashboard:
     # Load stored parquet data
     parquet_path = os.path.join(PROJECT_ROOT, "data", "stream_buffer.parquet")
     df = pd.DataFrame()
@@ -227,32 +261,32 @@ if page_selection == "📊 Main Dashboard":
         except Exception:
             df = pd.DataFrame()
 
-    # KPI Metrics
     total_logs = len(df) if not df.empty else service.stats["total_formatted"]
     current_eps = service.stats["current_eps"]
     anomalies = len(df[df["is_anomaly"] == True]) if not df.empty and "is_anomaly" in df.columns else 0
     file_info = service.get_stored_files()
     total_batches = len(file_info["raw_files"])
 
+    # 4 Minimalist KPI Cards
     k1, k2, k3, k4 = st.columns(4)
     with k1:
-        st.markdown(f'<div class="kpi-card"><div class="kpi-label">Total Ingested Logs</div><div class="kpi-val" style="color:#38bdf8;">{total_logs:,}</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="metric-card"><div class="metric-label">Total Ingested Logs</div><div class="metric-val" style="color:#0284c7;">{total_logs:,}</div></div>', unsafe_allow_html=True)
     with k2:
-        st.markdown(f'<div class="kpi-card"><div class="kpi-label">Current Throughput</div><div class="kpi-val" style="color:#34d399;">{current_eps} EPS</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="metric-card"><div class="metric-label">Current Speed</div><div class="metric-val" style="color:#16a34a;">{current_eps} EPS</div></div>', unsafe_allow_html=True)
     with k3:
-        st.markdown(f'<div class="kpi-card"><div class="kpi-label">AI Flagged Anomalies</div><div class="kpi-val" style="color:#fb7185;">{anomalies:,}</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="metric-card"><div class="metric-label">AI Anomalies Detected</div><div class="metric-val" style="color:#dc2626;">{anomalies:,}</div></div>', unsafe_allow_html=True)
     with k4:
-        st.markdown(f'<div class="kpi-card"><div class="kpi-label">Batches Stored on Disk</div><div class="kpi-val" style="color:#a5b4fc;">{total_batches} Batches</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="metric-card"><div class="metric-label">Stored Batches</div><div class="metric-val" style="color:#7c3aed;">{total_batches} Files</div></div>', unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
 
     if df.empty:
-        st.info("No logs in database yet. Switch to '⚡ Live Streamer' and click 'Start Live Stream' to begin ingestion.")
+        st.info("No records in buffer. Switch to '⚡ Live Streamer' and click 'Start Ingestion' to begin generating stream.")
     else:
-        # Charts Row
+        # Charts Row (Light theme)
         c1, c2 = st.columns([2, 1])
         with c1:
-            st.markdown("#### 🤖 AI Threat Hunting & Port Entropy")
+            st.markdown("#### AI Threat Anomaly Scatter Plot")
             fig = px.scatter(
                 df,
                 x="src_port",
@@ -260,106 +294,149 @@ if page_selection == "📊 Main Dashboard":
                 color="anomaly_score",
                 size="anomaly_score",
                 hover_data=["src_ip", "dst_ip", "vendor_name", "disposition"],
-                color_continuous_scale="Viridis",
-                template="plotly_dark",
-                height=340
+                color_continuous_scale="Reds",
+                template="plotly_white",
+                height=320
             )
-            fig.update_layout(plot_bgcolor="#0f172a", paper_bgcolor="#0f172a", font=dict(family="Plus Jakarta Sans", color="#94a3b8"))
+            fig.update_layout(plot_bgcolor="#ffffff", paper_bgcolor="#ffffff", font=dict(family="Plus Jakarta Sans", color="#1c1917"))
             st.plotly_chart(fig, use_container_width=True)
 
         with c2:
-            st.markdown("#### 🏢 Ingestion by Vendor")
+            st.markdown("#### Ingestion by Log Source")
             if "vendor_name" in df.columns:
                 v_counts = df["vendor_name"].value_counts().reset_index()
-                v_counts.columns = ["Vendor", "Count"]
-                fig_pie = px.pie(v_counts, values="Count", names="Vendor", hole=0.45, template="plotly_dark", height=340)
-                fig_pie.update_layout(plot_bgcolor="#0f172a", paper_bgcolor="#0f172a", font=dict(family="Plus Jakarta Sans", color="#94a3b8"))
+                v_counts.columns = ["Source", "Count"]
+                fig_pie = px.pie(v_counts, values="Count", names="Source", hole=0.4, template="plotly_white", height=320)
+                fig_pie.update_layout(plot_bgcolor="#ffffff", paper_bgcolor="#ffffff", font=dict(family="Plus Jakarta Sans", color="#1c1917"))
                 st.plotly_chart(fig_pie, use_container_width=True)
 
-        # Flagged High-Risk Anomalies Table
+        # Flagged Threats
         high_risk = df[df["anomaly_score"] > 0.70] if "anomaly_score" in df.columns else pd.DataFrame()
-        st.markdown(f"#### 🚨 Flagged Security Anomalies ({len(high_risk)} Detected)")
+        st.markdown(f"#### Flagged Security Outliers ({len(high_risk)} Detected)")
         if not high_risk.empty:
             cols = ["ingest_timestamp", "vendor_name", "src_ip", "src_port", "dst_ip", "dst_port", "disposition", "anomaly_score"]
             available = [c for c in cols if c in high_risk.columns]
-            st.dataframe(high_risk[available].tail(20).iloc[::-1], use_container_width=True, height=220)
+            st.dataframe(high_risk[available].tail(15).iloc[::-1], use_container_width=True, height=200)
 
 
 # =============================================================
-# PAGE 2: ⚡ LIVE STREAMER (Real-time Flow & Dual-Buffer Status)
+# PAGE 2: ⚡ LIVE STREAMER (Dual-Section Pipeline Layout)
 # =============================================================
-elif page_selection == "⚡ Live Streamer":
-    st.markdown("### ⚡ Real-Time Log Ingestion Streamer")
-    st.caption("Live top-to-bottom pipeline: Raw String (Port 5140) ➔ Hardware SHA-256 Wire Key ➔ Standardized OCSF JSON.")
+with tab_streamer:
+    # Top Control Bar (Clean & Simple)
+    ctrl_col1, ctrl_col2, ctrl_col3, ctrl_col4 = st.columns([2, 2, 2, 2])
 
-    # Live In-Memory Dual-Buffer Progress Widget
-    buf_status = service.get_buffer_status()
-    st.markdown('<div class="buffer-box">', unsafe_allow_html=True)
-    bcol1, bcol2, bcol3 = st.columns([3, 3, 2])
-    with bcol1:
-        st.markdown(f"**📥 In-Memory Raw Buffer:** `{buf_status['raw_count']} / {buf_status['threshold']}` logs ({buf_status['percentage']}%)")
-        st.progress(buf_status['fraction'])
-    with bcol2:
-        st.markdown(f"**📋 In-Memory Formatted JSON Buffer:** `{buf_status['formatted_count']} / {buf_status['threshold']}` records")
-        st.progress(buf_status['fraction'])
-    with bcol3:
-        if st.button("⚡ Flush Buffers to Disk Now", use_container_width=True):
+    with ctrl_col1:
+        if service.is_running:
+            if st.button("⏹️ Stop Stream", type="secondary", use_container_width=True):
+                service.stop()
+                st.rerun()
+        else:
+            if st.button("▶️ Start Live Stream", type="primary", use_container_width=True):
+                service.start(eps=st.session_state.get("stream_rate", 10))
+                st.rerun()
+
+    with ctrl_col2:
+        stream_rate = st.selectbox("Stream Speed", options=[5, 10, 25, 50], index=1, key="stream_rate")
+        if service.is_running and stream_rate != service.logs_per_second:
+            service.set_speed(stream_rate)
+
+    with ctrl_col3:
+        auto_scroll = st.checkbox("Live Auto-Scroll (1s)", value=True)
+
+    with ctrl_col4:
+        if st.button("⚡ Flush to Files Now", use_container_width=True):
             service.flush_now()
-            st.success("Buffers converted to .log & .json files!")
-            st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
-
-    # Live Stream Controls Bar
-    c_ctrl1, c_ctrl2, c_ctrl3 = st.columns([2, 1, 1])
-    with c_ctrl1:
-        auto_refresh = st.checkbox("🔄 Auto-Refresh Stream (1s)", value=True)
-    with c_ctrl2:
-        if st.button("Refresh Now", use_container_width=True):
-            st.rerun()
-    with c_ctrl3:
-        if st.button("Clear Live View", use_container_width=True):
-            service.live_stream_queue.clear()
+            st.success("Buffer flushed to .log and .json files!")
             st.rerun()
 
-    # Fetch live records from the in-memory queue
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # Get Live Events Sliding Window (last 15 records)
     stream_events = service.get_live_stream()
 
     if not stream_events:
-        st.info("Live stream idle. Click '▶️ Start Live Stream (UDP 5140)' in the sidebar to begin continuous streaming.")
+        st.info("Live stream idle. Click '▶️ Start Live Stream' to watch raw strings convert into SHA-256 and formatted JSON.")
     else:
-        st.write(f"**Showing last {len(stream_events)} streaming events:**")
-        # Render scrolling list (newest on top)
-        for item in reversed(stream_events[-20:]):
-            st.markdown('<div class="stream-card">', unsafe_allow_html=True)
-            col1, col2, col3 = st.columns([5, 4, 5])
+        # -------------------------------------------------------------
+        # SECTION 1: Top 2 Parallel Columns (Raw String vs SHA-256 Key)
+        # -------------------------------------------------------------
+        col_raw_sec, col_sha_sec = st.columns(2)
 
-            with col1:
-                st.markdown(f"**[RAW LOG INGRESS]** <span style='font-size:11px; color:#94a3b8;'>({item['timestamp']})</span>", unsafe_allow_html=True)
-                st.markdown(f'<div class="raw-box">{item["raw_string"]}</div>', unsafe_allow_html=True)
+        # Show latest 10 events
+        visible_top_events = stream_events[-10:]
 
-            with col2:
-                st.markdown("**[CRYPTOGRAPHIC WIRE FINGERPRINT]**", unsafe_allow_html=True)
-                st.markdown(f'<div class="sha-box">SHA-256:<br><b>{item["sha256_key"]}</b></div>', unsafe_allow_html=True)
-                disp = item.get("disposition", "Unknown")
-                disp_color = "#10b981" if disp.lower() in ["allowed", "accept", "pass"] else "#ef4444"
-                st.markdown(f"<span style='font-size:12px;'>Vendor: <b>{item.get('vendor')}</b> | Status: <span style='color:{disp_color}; font-weight:700;'>{disp.upper()}</span></span>", unsafe_allow_html=True)
-
-            with col3:
-                st.markdown("**[NORMALIZED OCSF JSON]**", unsafe_allow_html=True)
-                preview = {
-                    "event_id": item["formatted_json"].get("event_id", "")[:13] + "...",
-                    "class_uid": 4001,
-                    "disposition": item["formatted_json"].get("disposition", "Unknown"),
-                    "src_endpoint": f"{item['formatted_json'].get('src_ip')}:{item['formatted_json'].get('src_port')}",
-                    "dst_endpoint": f"{item['formatted_json'].get('dst_ip')}:{item['formatted_json'].get('dst_port')}",
-                    "protocol": item["formatted_json"].get("protocol_name", "TCP")
-                }
-                st.markdown(f'<div class="json-box">{json.dumps(preview, indent=2)}</div>', unsafe_allow_html=True)
-
+        with col_raw_sec:
+            st.markdown("""
+            <div class="stream-box">
+                <div class="stream-box-title">
+                    <span>1. RAW LOG INGRESS (PORT 5140)</span>
+                    <span style="font-size:11px; color:#78716c;">Top-to-Bottom Scroll</span>
+                </div>
+            """, unsafe_allow_html=True)
+            for item in visible_top_events:
+                st.markdown(f'<div class="raw-item">[{item["timestamp"]}] {item["raw_string"]}</div>', unsafe_allow_html=True)
             st.markdown('</div>', unsafe_allow_html=True)
 
-    # Auto-refresh loop if enabled
-    if auto_refresh and service.is_running:
+        with col_sha_sec:
+            st.markdown("""
+            <div class="stream-box">
+                <div class="stream-box-title">
+                    <span>2. HARDWARE SHA-256 WIRE KEY</span>
+                    <span style="font-size:11px; color:#15803d;">Cryptographic Binding</span>
+                </div>
+            """, unsafe_allow_html=True)
+            for item in visible_top_events:
+                st.markdown(f'<div class="sha-item">SHA-256: <b>{item["sha256_key"]}</b></div>', unsafe_allow_html=True)
+            st.markdown('</div>', unsafe_allow_html=True)
+
+        # -------------------------------------------------------------
+        # TRANSITION DIVIDER: As items scroll down into Section 2
+        # -------------------------------------------------------------
+        st.markdown("""
+        <div class="transition-divider">
+            ⬇ <b>NORMALIZATION PIPELINE TRANSITION LAYER</b> — Incoming logs formatted into OCSF JSON Schema ⬇
+        </div>
+        """, unsafe_allow_html=True)
+
+        # -------------------------------------------------------------
+        # SECTION 2: Bottom Full-Width Big Container (Formatted JSON)
+        # -------------------------------------------------------------
+        st.markdown("""
+        <div class="stream-box">
+            <div class="stream-box-title">
+                <span>3. FORMATTED OCSF JSON SCRIPT OUTPUT (CLASS 4001)</span>
+                <span style="font-size:11px; color:#0369a1;">Standardized Analytics Ready</span>
+            </div>
+        """, unsafe_allow_html=True)
+
+        # Display the formatted JSON scripts for the events flowing down
+        for item in reversed(stream_events[-3:]):
+            json_preview = {
+                "event_id": item["formatted_json"].get("event_id"),
+                "class_uid": 4001,
+                "disposition": item["formatted_json"].get("disposition", "Unknown"),
+                "src_endpoint": {
+                    "ip": item["formatted_json"].get("src_ip"),
+                    "port": item["formatted_json"].get("src_port"),
+                    "country": item["formatted_json"].get("src_country", "Local")
+                },
+                "dst_endpoint": {
+                    "ip": item["formatted_json"].get("dst_ip"),
+                    "port": item["formatted_json"].get("dst_port"),
+                    "country": item["formatted_json"].get("dst_country", "Local")
+                },
+                "metadata": {
+                    "hash": item["sha256_key"],
+                    "ingest_timestamp": item["formatted_json"].get("ingest_timestamp")
+                }
+            }
+            st.markdown(f'<div class="json-container">{json.dumps(json_preview, indent=2)}</div>', unsafe_allow_html=True)
+
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    # Live auto-scroll timer
+    if auto_scroll and service.is_running:
         time.sleep(1.0)
         st.rerun()
 
@@ -367,26 +444,11 @@ elif page_selection == "⚡ Live Streamer":
 # =============================================================
 # PAGE 3: 🗄️ DATABASE & STORAGE VAULT
 # =============================================================
-elif page_selection == "🗄️ Database Vault":
-    st.markdown("### 🗄️ Database & Dual-Storage Vault")
-    st.caption("Partitioned files generated upon batch constraint fulfillment (Raw .log vs Formatted .json).")
+with tab_database:
+    st.markdown("### 🗄️ Database & Dual-File Storage Vault")
+    st.caption("Raw `.log` files and formatted `.json` files automatically created upon batch threshold completion.")
 
-    # Real-time Buffer Status Card
-    buf_status = service.get_buffer_status()
-    st.markdown(f"""
-    <div class="buffer-box">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div>
-                <b>Current In-Memory Dual Buffers:</b> <code>{buf_status['raw_count']} / {buf_status['threshold']} logs buffered</code> ({buf_status['percentage']}%)
-                <div style="font-size:12px; color:#94a3b8; margin-top:2px;">Dual files (.log and .json) will automatically be created when threshold ({buf_status['threshold']}) is reached.</div>
-            </div>
-            <div>
-                <span style="font-size:12px; color:#34d399; font-weight:600;">Last File Created: {buf_status['time_since_flush']}s ago</span>
-            </div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-
+    # Storage info
     files_data = service.get_stored_files()
     raw_files = files_data["raw_files"]
     formatted_files = files_data["formatted_files"]
@@ -413,7 +475,7 @@ elif page_selection == "🗄️ Database Vault":
     st.markdown("### 🔍 Dual-File Content Inspector")
 
     if raw_files and formatted_files:
-        sel_idx = st.selectbox("Select Batch to Inspect", options=range(len(raw_files)), format_func=lambda i: raw_files[i]["filename"])
+        sel_idx = st.selectbox("Select Batch File to Inspect", options=range(len(raw_files)), format_func=lambda i: raw_files[i]["filename"])
         selected_raw = raw_files[sel_idx]
         selected_fmt = formatted_files[sel_idx] if sel_idx < len(formatted_files) else None
 
