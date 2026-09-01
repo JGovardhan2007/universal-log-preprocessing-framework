@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ULPF | Universal Log Pre-processing Framework</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Chart.js & Icons -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Cyber Grid Background -->
+    <div class="grid-overlay"></div>
+
+    <div class="app-container">
+        <!-- Top Navigation Bar -->
+        <header class="cyber-navbar">
+            <div class="nav-left">
+                <div class="brand-logo">
+                    <div class="logo-mark">
+                        <span class="logo-core"></span>
+                    </div>
+                    <div class="brand-info">
+                        <span class="brand-name">ULPF <span class="brand-tag">v1.1</span></span>
+                        <span class="brand-desc">UNIVERSAL LOG PRE-PROCESSING FRAMEWORK</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Center Navigation Switcher -->
+            <nav class="nav-tabs">
+                <button class="nav-btn active" data-tab="dashboard">
+                    <span class="tab-corner top-left"></span>
+                    <span class="tab-corner bottom-right"></span>
+                    <span class="tab-icon">📊</span>
+                    <span>Dashboard</span>
+                </button>
+                <button class="nav-btn" data-tab="streamer">
+                    <span class="tab-corner top-left"></span>
+                    <span class="tab-corner bottom-right"></span>
+                    <span class="tab-icon">⚡</span>
+                    <span>Live Streamer</span>
+                    <span class="pulse-dot"></span>
+                </button>
+                <button class="nav-btn" data-tab="database">
+                    <span class="tab-corner top-left"></span>
+                    <span class="tab-corner bottom-right"></span>
+                    <span class="tab-icon">🗄️</span>
+                    <span>Database Vault</span>
+                </button>
+            </nav>
+
+            <div class="nav-right">
+                <div class="system-status-pill">
+                    <span class="status-indicator"></span>
+                    <span class="status-text">PORT 5140 (UDP)</span>
+                </div>
+                <div class="airgap-badge">AIR-GAPPED</div>
+            </div>
+        </header>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="main-viewport">
+            
+            <!-- ==================================================== -->
+            <!-- TAB 1: MAIN DASHBOARD -->
+            <!-- ==================================================== -->
+            <section id="tab-dashboard" class="tab-pane active">
+                <!-- KPI Summary Row -->
+                <div class="kpi-grid">
+                    <div class="cyber-card kpi-card">
+                        <div class="card-corner top-left">+</div>
+                        <div class="card-corner top-right">+</div>
+                        <div class="card-meta">
+                            <span class="kpi-label">TOTAL INGESTED LOGS</span>
+                            <span class="kpi-tag">INGEST::0101</span>
+                        </div>
+                        <div class="kpi-value" id="kpi-total-logs">0</div>
+                        <div class="kpi-trend positive">
+                            <span class="trend-icon">▲</span> 100% Wire Integrity Retained
+                        </div>
+                    </div>
+
+                    <div class="cyber-card kpi-card">
+                        <div class="card-corner top-left">+</div>
+                        <div class="card-corner top-right">+</div>
+                        <div class="card-meta">
+                            <span class="kpi-label">INGESTION THROUGHPUT</span>
+                            <span class="kpi-tag">RATE::0202</span>
+                        </div>
+                        <div class="kpi-value highlight-amber" id="kpi-speed">0.0 <span class="unit">EPS</span></div>
+                        <div class="kpi-trend neutral">
+                            <span class="trend-icon">●</span> Zero Packet Dropped
+                        </div>
+                    </div>
+
+                    <div class="cyber-card kpi-card">
+                        <div class="card-corner top-left">+</div>
+                        <div class="card-corner top-right">+</div>
+                        <div class="card-meta">
+                            <span class="kpi-label">AI ANOMALIES DETECTED</span>
+                            <span class="kpi-tag">THREAT::0303</span>
+                        </div>
+                        <div class="kpi-value highlight-red" id="kpi-anomalies">0</div>
+                        <div class="kpi-trend negative">
+                            <span class="trend-icon">⚡</span> Isolation Forest Real-Time
+                        </div>
+                    </div>
+
+                    <div class="cyber-card kpi-card">
+                        <div class="card-corner top-left">+</div>
+                        <div class="card-corner top-right">+</div>
+                        <div class="card-meta">
+                            <span class="kpi-label">STORAGE BATCHES COMMITTED</span>
+                            <span class="kpi-tag">VAULT::0404</span>
+                        </div>
+                        <div class="kpi-value highlight-cyan" id="kpi-batches">0 <span class="unit">Batches</span></div>
+                        <div class="kpi-trend positive">
+                            <span class="trend-icon">✔</span> Dual-File (.log / .json)
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Visual Analytics Row -->
+                <div class="analytics-grid">
+                    <!-- Left: AI Threat Matrix Scatter -->
+                    <div class="cyber-card chart-card flex-2">
+                        <div class="card-header">
+                            <div class="header-title">
+                                <span class="accent-bar"></span>
+                                <h3>AI THREAT ANOMALY MATRIX (PORT ENTROPY)</h3>
+                            </div>
+                            <div class="header-badge">ISOLATION FOREST CONTAMINATION: 8%</div>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="threatScatterChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Right: Log Source Distribution -->
+                    <div class="cyber-card chart-card flex-1">
+                        <div class="card-header">
+                            <div class="header-title">
+                                <span class="accent-bar"></span>
+                                <h3>INGESTION BY LOG SOURCE</h3>
+                            </div>
+                            <div class="header-badge">MULTI-VENDOR</div>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="vendorPieChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Flagged Security Outliers Table -->
+                <div class="cyber-card table-card">
+                    <div class="card-header">
+                        <div class="header-title">
+                            <span class="accent-bar"></span>
+                            <h3>FLAGGED SECURITY OUTLIERS & ADVERSARIAL PATTERNS</h3>
+                        </div>
+                        <div class="header-badge alert-badge" id="outlier-count-badge">0 DETECTED</div>
+                    </div>
+                    <div class="table-container">
+                        <table class="cyber-table">
+                            <thead>
+                                <tr>
+                                    <th>TIMESTAMP</th>
+                                    <th>SOURCE VENDOR</th>
+                                    <th>SOURCE IP:PORT</th>
+                                    <th>DESTINATION IP:PORT</th>
+                                    <th>DISPOSITION</th>
+                                    <th>ANOMALY SCORE</th>
+                                </tr>
+                            </thead>
+                            <tbody id="anomalies-table-body">
+                                <tr>
+                                    <td colspan="6" class="empty-state">No anomalies flagged. Stream live logs to inspect threats.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- ==================================================== -->
+            <!-- TAB 2: LIVE STREAMER (ONE UNIFIED TERMINAL SCREEN) -->
+            <!-- ==================================================== -->
+            <section id="tab-streamer" class="tab-pane">
+                <!-- Top Stream Controls -->
+                <div class="stream-controls-bar cyber-card">
+                    <div class="ctrl-left">
+                        <button id="stream-toggle-btn" class="cyber-button primary-btn">
+                            <span class="btn-icon" id="stream-btn-icon">▶</span>
+                            <span id="stream-btn-label">START LIVE STREAM</span>
+                        </button>
+
+                        <div class="select-group">
+                            <label>INGESTION RATE:</label>
+                            <select id="stream-speed-select" class="cyber-select">
+                                <option value="5">5 Logs / sec (Relaxed)</option>
+                                <option value="10" selected>10 Logs / sec (Standard)</option>
+                                <option value="25">25 Logs / sec (High)</option>
+                                <option value="50">50 Logs / sec (Stress)</option>
+                            </select>
+                        </div>
+
+                        <div class="select-group">
+                            <label>BATCH CONSTRAINT:</label>
+                            <select id="batch-size-select" class="cyber-select">
+                                <option value="50">50 logs / file</option>
+                                <option value="100">100 logs / file</option>
+                                <option value="200" selected>200 logs / file</option>
+                                <option value="500">500 logs / file</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="ctrl-right">
+                        <!-- Dual Buffer Live Progress -->
+                        <div class="buffer-indicator">
+                            <div class="buffer-labels">
+                                <span>DUAL-BUFFER CAPACITY</span>
+                                <span id="buffer-stat-text">0 / 200 (0%)</span>
+                            </div>
+                            <div class="buffer-progress-bar">
+                                <div class="buffer-progress-fill" id="buffer-progress-fill" style="width: 0%;"></div>
+                            </div>
+                        </div>
+
+                        <button id="flush-now-btn" class="cyber-button secondary-btn">
+                            <span>⚡ FLUSH TO FILES</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- THE "ONE BIG SCREEN" UNIFIED TERMINAL -->
+                <div class="terminal-screen-wrapper cyber-card">
+                    <div class="terminal-header">
+                        <div class="terminal-meta-left">
+                            <span class="dot red"></span>
+                            <span class="dot amber"></span>
+                            <span class="dot green"></span>
+                            <span class="terminal-title">ULPF HIGH-THROUGHPUT FORENSIC INGESTION TERMINAL</span>
+                        </div>
+                        <div class="terminal-meta-right">
+                            <span class="term-badge">PROTOCOL: <b>RFC 5424 / OCSF 1.1</b></span>
+                            <span class="term-badge live">● <b>60 FPS STREAMING</b></span>
+                        </div>
+                    </div>
+
+                    <!-- TOP HALF: RAW INGRESS (LEFT) & HARDWARE SHA-256 (RIGHT) -->
+                    <div class="terminal-section-top">
+                        <!-- Left Sub-Pane: Raw Strings -->
+                        <div class="term-sub-pane col-raw">
+                            <div class="pane-header">
+                                <span class="pane-title">1. RAW WIRE PAYLOAD INGRESS (PORT 5140)</span>
+                                <span class="pane-sub">CONTINUOUS STREAM</span>
+                            </div>
+                            <div class="stream-viewport" id="raw-stream-viewport">
+                                <!-- Raw log items dynamically injected here -->
+                            </div>
+                        </div>
+
+                        <!-- Right Sub-Pane: Hardware SHA-256 Keys -->
+                        <div class="term-sub-pane col-sha">
+                            <div class="pane-header">
+                                <span class="pane-title">2. HARDWARE SHA-256 WIRE DIGEST</span>
+                                <span class="pane-sub">CRYPTOGRAPHIC BINDING</span>
+                            </div>
+                            <div class="stream-viewport" id="sha-stream-viewport">
+                                <!-- SHA items dynamically injected here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TRANSITION PIPELINE DIVIDER -->
+                    <div class="terminal-pipeline-divider">
+                        <div class="divider-line"></div>
+                        <div class="divider-badge">
+                            <span>⬇ NORMALIZATION TRANSITION LAYER — PARSING TO OCSF TAXONOMY ⬇</span>
+                        </div>
+                        <div class="divider-line"></div>
+                    </div>
+
+                    <!-- BOTTOM HALF: FORMATTED OCSF JSON OUTPUT -->
+                    <div class="terminal-section-bottom">
+                        <div class="pane-header">
+                            <span class="pane-title">3. STANDARDIZED OCSF JSON SCRIPT OUTPUT (CLASS 4001: NETWORK ACTIVITY)</span>
+                            <span class="pane-sub" id="processed-counter-badge">EVENTS COMMITTED: 0</span>
+                        </div>
+                        <div class="json-viewport" id="json-stream-viewport">
+                            <!-- JSON script items dynamically injected here -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- ==================================================== -->
+            <!-- TAB 3: DATABASE VAULT -->
+            <!-- ==================================================== -->
+            <section id="tab-database" class="tab-pane">
+                <div class="db-summary-card cyber-card">
+                    <div class="card-meta">
+                        <span class="kpi-label">DUAL-FILE STORAGE SUBSYSTEM</span>
+                        <span class="kpi-tag">STORAGE::PARQUET_LAKE</span>
+                    </div>
+                    <p class="db-desc">
+                        Every batch threshold (e.g. 200 logs) automatically flushes into two persistent artifacts: 
+                        an untouched <code>.log</code> raw forensic archive and a normalized <code>.json</code> OCSF dataset, mirrored to the high-performance Snappy Parquet data lake.
+                    </p>
+                </div>
+
+                <!-- Dual File Storage Tables -->
+                <div class="db-tables-grid">
+                    <!-- Raw Log Files -->
+                    <div class="cyber-card">
+                        <div class="card-header">
+                            <div class="header-title">
+                                <span class="accent-bar amber"></span>
+                                <h3>RAW FORENSIC LOG FILES (<code>.log</code>)</h3>
+                            </div>
+                            <div class="header-badge" id="raw-files-count-badge">0 FILES</div>
+                        </div>
+                        <div class="table-container">
+                            <table class="cyber-table">
+                                <thead>
+                                    <tr>
+                                        <th>FILENAME</th>
+                                        <th>RECORDS</th>
+                                        <th>SIZE</th>
+                                        <th>CREATED</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="raw-files-table-body">
+                                    <tr><td colspan="4" class="empty-state">No raw files created yet.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Formatted JSON Files -->
+                    <div class="cyber-card">
+                        <div class="card-header">
+                            <div class="header-title">
+                                <span class="accent-bar cyan"></span>
+                                <h3>FORMATTED OCSF JSON FILES (<code>.json</code>)</h3>
+                            </div>
+                            <div class="header-badge" id="fmt-files-count-badge">0 FILES</div>
+                        </div>
+                        <div class="table-container">
+                            <table class="cyber-table">
+                                <thead>
+                                    <tr>
+                                        <th>FILENAME</th>
+                                        <th>RECORDS</th>
+                                        <th>SIZE</th>
+                                        <th>CREATED</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="fmt-files-table-body">
+                                    <tr><td colspan="4" class="empty-state">No formatted files created yet.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Side-by-Side File Content Inspector -->
+                <div class="cyber-card inspector-card">
+                    <div class="card-header">
+                        <div class="header-title">
+                            <span class="accent-bar"></span>
+                            <h3>DUAL-FILE CONTENT INSPECTOR (RAW VS NORMALIZED)</h3>
+                        </div>
+                        <div class="inspector-controls">
+                            <select id="batch-inspector-select" class="cyber-select">
+                                <option value="">Select a batch file to inspect...</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="inspector-grid">
+                        <div class="inspector-pane">
+                            <div class="pane-sub-header">
+                                <span>RAW WIRE ARCHIVE (.log)</span>
+                                <span id="inspect-raw-title">No file selected</span>
+                            </div>
+                            <pre class="code-preview" id="inspect-raw-content">Select a batch file above to view raw forensic records.</pre>
+                        </div>
+
+                        <div class="inspector-pane">
+                            <div class="pane-sub-header">
+                                <span>NORMALIZED OCSF SCRIPT (.json)</span>
+                                <span id="inspect-fmt-title">No file selected</span>
+                            </div>
+                            <pre class="code-preview json-format" id="inspect-fmt-content">Select a batch file above to view parsed JSON output.</pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Main Logic Script -->
+    <script src="app.js"></script>
+</body>
+</html>
