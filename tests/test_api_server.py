@@ -2,7 +2,6 @@
 Unit Tests for Phase 2: REST API Ingestion & Verification Server
 """
 
-import pytest
 import hashlib
 from core_engine.api_server import (
     get_health,
@@ -14,6 +13,7 @@ from core_engine.api_server import (
     IngestBatchRequest,
     VerifyRequest
 )
+
 
 
 def test_api_health():

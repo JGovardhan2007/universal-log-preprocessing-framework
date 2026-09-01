@@ -1,13 +1,13 @@
 {
-  "benchmark_timestamp_utc": "2026-09-01T05:04:03.078442+00:00",
+  "benchmark_timestamp_utc": "2026-09-01T05:24:03.008595+00:00",
   "total_events_processed": 200,
-  "total_time_seconds": 0.0191,
-  "throughput_eps": 10484.38,
+  "total_time_seconds": 0.013,
+  "throughput_eps": 15430.07,
   "latency_ms": {
-    "average": 0.0783,
-    "p50": 0.0569,
-    "p95": 0.1756,
-    "p99": 0.4599
+    "average": 0.0537,
+    "p50": 0.0502,
+    "p95": 0.0821,
+    "p99": 0.114
   },
   "system_profile": {
     "platform": "win32",
