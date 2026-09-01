@@ -4,14 +4,21 @@ ULPF Phase 3 Multi-Stage Cyber Attack Campaign Simulator
 Track 4 (Phase 3): Adversarial Threat Emulation (NTRO Problem ID: 26156)
 """
 
+import os
+import sys
 import time
 import json
 import argparse
-import sys
+
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
 from typing import Dict, Any, List
 from core_engine.engine import Engine
 from test_tools.log_generator import generate_attack_log
 from test_tools.stress_tester import generate_extended_synthetic_log
+
 
 # Ensure UTF-8 console output
 if sys.platform == "win32" and hasattr(sys.stdout, "reconfigure"):
