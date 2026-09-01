@@ -7,6 +7,12 @@ Developed for NTRO / NCIIPC (Problem Statement ID: 26156)
 
 import os
 import sys
+
+# Ensure project root is in sys.path
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
 import hashlib
 import json
 import yaml
@@ -17,7 +23,6 @@ import plotly.express as px
 import streamlit as st
 from datetime import datetime, timezone
 
-
 # Ensure UTF-8 output
 if sys.platform == "win32" and hasattr(sys.stdout, "reconfigure"):
     try:
@@ -26,7 +31,11 @@ if sys.platform == "win32" and hasattr(sys.stdout, "reconfigure"):
         pass
 
 # Import Track 3 AI Anomaly Module
-from dashboard.ai_anomaly import ThreatAnomalyDetector
+try:
+    from dashboard.ai_anomaly import ThreatAnomalyDetector
+except ImportError:
+    from ai_anomaly import ThreatAnomalyDetector
+
 
 # Streamlit Page Configuration
 st.set_page_config(
