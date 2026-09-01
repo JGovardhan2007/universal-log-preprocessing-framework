@@ -29,7 +29,10 @@ class CompiledParser:
         # Signature matching setup
         self.sig_config = config.get("signature_match", {})
         self.sig_type = self.sig_config.get("type", "contains")
-        self.sig_patterns = self.sig_config.get("patterns", [])
+        raw_sig_pats = self.sig_config.get("patterns", [])
+        if not raw_sig_pats and "pattern" in self.sig_config:
+            raw_sig_pats = [self.sig_config["pattern"]]
+        self.sig_patterns = raw_sig_pats
         self.compiled_sig_regexes = [
             re.compile(p) for p in self.sig_patterns if self.sig_type == "regex"
         ]
@@ -37,12 +40,16 @@ class CompiledParser:
         # Extraction setup
         self.ext_config = config.get("extraction", {})
         self.ext_type = self.ext_config.get("type", "regex")
+        raw_ext_pats = self.ext_config.get("patterns", [])
+        if not raw_ext_pats and "pattern" in self.ext_config:
+            raw_ext_pats = [self.ext_config["pattern"]]
         self.compiled_ext_regexes = []
-        for p in self.ext_config.get("patterns", []):
+        for p in raw_ext_pats:
             try:
                 self.compiled_ext_regexes.append(re.compile(p))
             except re.error:
                 pass
+
 
         # Field mapping and disposition
         self.field_mapping = config.get("field_mapping", {})
