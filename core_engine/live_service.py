@@ -207,6 +207,31 @@ class LiveLogPipelineService:
 
         sock.close()
 
+    def set_batch_threshold(self, threshold: int):
+        """Sets the batch constraint limit (number of logs before creating .log and .json files)."""
+        self.batch_size_threshold = max(10, min(threshold, 5000))
+
+    def get_buffer_status(self) -> Dict[str, Any]:
+        """Returns the real-time state of the in-memory dual buffers."""
+        with self.batch_lock:
+            raw_count = len(self.raw_batch_buffer)
+            fmt_count = len(self.formatted_batch_buffer)
+            threshold = self.batch_size_threshold
+            pct = min(1.0, raw_count / max(1, threshold))
+            return {
+                "raw_count": raw_count,
+                "formatted_count": fmt_count,
+                "threshold": threshold,
+                "percentage": round(pct * 100, 1),
+                "fraction": pct,
+                "time_since_flush": round(time.time() - self.last_flush_time, 1)
+            }
+
+    def flush_now(self):
+        """Manually forces immediate conversion of the active buffers into .log and .json files."""
+        with self.batch_lock:
+            self._flush_batch_to_files(force=True)
+
     def _flush_batch_to_files(self, force: bool = False):
         """Flushes batch buffer into separate raw (.log) and formatted (.json) files."""
         if not self.raw_batch_buffer and not force:
@@ -222,11 +247,11 @@ class LiveLogPipelineService:
         raw_path = os.path.join(RAW_STORAGE_DIR, raw_file_name)
         formatted_path = os.path.join(FORMATTED_STORAGE_DIR, formatted_file_name)
 
-        # Write Raw Log File
+        # Write Raw Log File (.log)
         with open(raw_path, "w", encoding="utf-8") as f_raw:
             f_raw.write("\n".join(self.raw_batch_buffer) + "\n")
 
-        # Write Formatted JSON File
+        # Write Formatted JSON File (.json)
         with open(formatted_path, "w", encoding="utf-8") as f_json:
             json.dump(self.formatted_batch_buffer, f_json, indent=2)
 
@@ -237,6 +262,7 @@ class LiveLogPipelineService:
         self.raw_batch_buffer.clear()
         self.formatted_batch_buffer.clear()
         self.last_flush_time = time.time()
+
 
     def get_live_stream(self) -> List[Dict[str, Any]]:
         """Returns the current sliding window of live streaming records."""

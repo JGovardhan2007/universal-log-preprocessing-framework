@@ -3,7 +3,7 @@
 Universal Log Pre-processing Framework (ULPF)
 Clean 3-Page SOC & Forensic Ingestion System
 1. 📊 Main Dashboard (Analytics & AI Threat Hunting)
-2. ⚡ Live Streamer (Real-time Raw -> SHA-256 -> Formatted JSON)
+2. ⚡ Live Streamer (Real-time Raw -> SHA-256 -> Formatted JSON & Live Dual-Buffer)
 3. 🗄️ Database & Storage Vault (Raw .log vs Formatted .json Batches)
 """
 
@@ -85,6 +85,13 @@ st.markdown("""
         color: #ffffff;
         margin: 0;
     }
+    .buffer-box {
+        background: #0b1120;
+        border: 1px solid #334155;
+        border-radius: 8px;
+        padding: 14px 18px;
+        margin-bottom: 16px;
+    }
     .stream-card {
         background: #0b1120;
         border: 1px solid #1e293b;
@@ -139,7 +146,7 @@ with st.sidebar:
     page_selection = st.radio(
         "Navigation",
         ["📊 Main Dashboard", "⚡ Live Streamer", "🗄️ Database Vault"],
-        index=1  # Default to Live Streamer as requested
+        index=1  # Default to Live Streamer
     )
 
     st.markdown("---")
@@ -170,8 +177,19 @@ with st.sidebar:
         service.set_speed(speed)
 
     st.markdown("---")
-    st.markdown("### 📡 Wire Details")
-    st.caption(f"• **Port:** UDP 5140 (Syslog)\n• **Storage Constraint:** 200 Logs / Batch\n• **Raw Path:** `data/storage/raw/`\n• **JSON Path:** `data/storage/formatted/`")
+    st.markdown("### 📦 Batch Constraint Settings")
+    batch_threshold = st.select_slider(
+        "Logs per File Batch",
+        options=[50, 100, 200, 500, 1000],
+        value=service.batch_size_threshold,
+        help="Number of logs collected into in-memory buffers before converting to .log and .json files."
+    )
+    if batch_threshold != service.batch_size_threshold:
+        service.set_batch_threshold(batch_threshold)
+
+    st.markdown("---")
+    st.markdown("### 📡 Wire Configuration")
+    st.caption(f"• **Port:** UDP 5140 (Syslog)\n• **Active Batch Limit:** {service.batch_size_threshold} logs\n• **Raw Path:** `data/storage/raw/`\n• **JSON Path:** `data/storage/formatted/`")
 
 
 # Top Header
@@ -179,7 +197,7 @@ st.markdown("""
 <div class="header-box">
     <div>
         <h2 style="margin:0; font-size:20px; font-weight:700; color:#ffffff;">Universal Log Pre-processing Framework (ULPF)</h2>
-        <p style="margin:3px 0 0 0; font-size:12px; color:#94a3b8;">NTRO Problem Statement 26156 • High-Throughput Live Ingestion & Dual-Storage Architecture</p>
+        <p style="margin:3px 0 0 0; font-size:12px; color:#94a3b8;">NTRO Problem Statement 26156 • High-Throughput Live Ingestion & Dual-Buffer Storage Architecture</p>
     </div>
     <div style="font-size:12px; font-weight:600; color:#34d399; background:rgba(16,185,129,0.1); padding:5px 14px; border-radius:4px; border:1px solid rgba(16,185,129,0.3);">
         PORT 5140 • OCSF v1.1.0
@@ -268,11 +286,28 @@ if page_selection == "📊 Main Dashboard":
 
 
 # =============================================================
-# PAGE 2: ⚡ LIVE STREAMER (Real-time Flow)
+# PAGE 2: ⚡ LIVE STREAMER (Real-time Flow & Dual-Buffer Status)
 # =============================================================
 elif page_selection == "⚡ Live Streamer":
     st.markdown("### ⚡ Real-Time Log Ingestion Streamer")
     st.caption("Live top-to-bottom pipeline: Raw String (Port 5140) ➔ Hardware SHA-256 Wire Key ➔ Standardized OCSF JSON.")
+
+    # Live In-Memory Dual-Buffer Progress Widget
+    buf_status = service.get_buffer_status()
+    st.markdown('<div class="buffer-box">', unsafe_allow_html=True)
+    bcol1, bcol2, bcol3 = st.columns([3, 3, 2])
+    with bcol1:
+        st.markdown(f"**📥 In-Memory Raw Buffer:** `{buf_status['raw_count']} / {buf_status['threshold']}` logs ({buf_status['percentage']}%)")
+        st.progress(buf_status['fraction'])
+    with bcol2:
+        st.markdown(f"**📋 In-Memory Formatted JSON Buffer:** `{buf_status['formatted_count']} / {buf_status['threshold']}` records")
+        st.progress(buf_status['fraction'])
+    with bcol3:
+        if st.button("⚡ Flush Buffers to Disk Now", use_container_width=True):
+            service.flush_now()
+            st.success("Buffers converted to .log & .json files!")
+            st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
 
     # Live Stream Controls Bar
     c_ctrl1, c_ctrl2, c_ctrl3 = st.columns([2, 1, 1])
@@ -336,6 +371,22 @@ elif page_selection == "🗄️ Database Vault":
     st.markdown("### 🗄️ Database & Dual-Storage Vault")
     st.caption("Partitioned files generated upon batch constraint fulfillment (Raw .log vs Formatted .json).")
 
+    # Real-time Buffer Status Card
+    buf_status = service.get_buffer_status()
+    st.markdown(f"""
+    <div class="buffer-box">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+                <b>Current In-Memory Dual Buffers:</b> <code>{buf_status['raw_count']} / {buf_status['threshold']} logs buffered</code> ({buf_status['percentage']}%)
+                <div style="font-size:12px; color:#94a3b8; margin-top:2px;">Dual files (.log and .json) will automatically be created when threshold ({buf_status['threshold']}) is reached.</div>
+            </div>
+            <div>
+                <span style="font-size:12px; color:#34d399; font-weight:600;">Last File Created: {buf_status['time_since_flush']}s ago</span>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
     files_data = service.get_stored_files()
     raw_files = files_data["raw_files"]
     formatted_files = files_data["formatted_files"]
@@ -348,7 +399,7 @@ elif page_selection == "🗄️ Database Vault":
             df_raw = pd.DataFrame(raw_files)
             st.dataframe(df_raw[["filename", "records", "size_kb", "timestamp"]], use_container_width=True, height=260)
         else:
-            st.info("No raw log files created yet. Batches flush automatically every 200 records.")
+            st.info(f"No raw log files created yet. Batches flush automatically every {service.batch_size_threshold} records.")
 
     with dcol2:
         st.markdown(f"#### 📋 Formatted JSON Files (`.json`) — {len(formatted_files)} Files")
