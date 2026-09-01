@@ -1,0 +1,50 @@
+vendor: "Fortinet"
+product: "FortiGate"
+version: "1.1.0"
+description: "Fortinet FortiOS Key-Value Traffic and Security Log Parser"
+
+signature_match:
+  type: "contains"
+  patterns:
+    - "devname="
+    - "devid="
+    - 'type="traffic"'
+    - "type=traffic"
+
+extraction:
+  type: "key_value"
+  delimiter: " "
+  kv_delimiter: "="
+  strip_quotes: true
+
+field_mapping:
+  class_uid: 4001
+  category_uid: 4
+  activity_id: 1
+  src_endpoint.ip: "$srcip"
+  src_endpoint.port: "$srcport:integer"
+  src_endpoint.zone: "$srcintf"
+  dst_endpoint.ip: "$dstip"
+  dst_endpoint.port: "$dstport:integer"
+  dst_endpoint.zone: "$dstintf"
+  connection_info.protocol_name: "$proto:proto_name"
+  traffic.bytes: "$sentbyte:integer"
+  traffic.bytes_received: "$rcvdbyte:integer"
+  traffic.packets: "$sentpkt:integer"
+  metadata.product.vendor_name: "Fortinet"
+  metadata.product.name: "FortiGate"
+  metadata.product.version: "$devname"
+
+disposition_map:
+  accept: "Allowed"
+  permit: "Allowed"
+  pass: "Allowed"
+  close: "Allowed"
+  client-rst: "Allowed"
+  server-rst: "Allowed"
+  deny: "Blocked"
+  drop: "Blocked"
+  block: "Blocked"
+  reset: "Blocked"
+  ip-conn: "Blocked"
+  default: "Unknown"

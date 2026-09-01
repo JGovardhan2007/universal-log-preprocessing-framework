@@ -1,0 +1,64 @@
+vendor: "Palo Alto Networks"
+product: "PAN-OS"
+version: "1.1.0"
+description: "Palo Alto PAN-OS CSV and Syslog Traffic Log Parser"
+
+signature_match:
+  type: "contains"
+  patterns:
+    - ",TRAFFIC,"
+    - ",THREAT,"
+    - "TRAFFIC,"
+    - "THREAT,"
+
+extraction:
+  type: "csv"
+  # Standard PAN-OS Traffic CSV Column Index Mapping (0-indexed)
+  delimiter: ","
+  fields:
+    3: "type"          # TRAFFIC / THREAT
+    4: "threat_subtype"
+    7: "src_ip"        # Source IP
+    8: "dst_ip"        # Destination IP
+    12: "src_zone"     # Source Security Zone
+    13: "dst_zone"     # Destination Security Zone
+    20: "src_port"     # Source Port
+    21: "dst_port"     # Destination Port
+    25: "proto"        # Protocol (tcp, udp, etc.)
+    26: "action"       # Action (allow, deny, drop, etc.)
+    27: "bytes"        # Total Bytes
+    28: "bytes_sent"
+    29: "bytes_received"
+    30: "packets"      # Total Packets
+    40: "src_country"  # Source Country
+    41: "dst_country"  # Destination Country
+
+
+field_mapping:
+  class_uid: 4001
+  category_uid: 4
+  activity_id: 1
+  src_endpoint.ip: "$src_ip"
+  src_endpoint.port: "$src_port:integer"
+  src_endpoint.zone: "$src_zone"
+  src_endpoint.geo.country: "$src_country"
+  dst_endpoint.ip: "$dst_ip"
+  dst_endpoint.port: "$dst_port:integer"
+  dst_endpoint.zone: "$dst_zone"
+  dst_endpoint.geo.country: "$dst_country"
+  connection_info.protocol_name: "$proto:upper"
+  traffic.bytes: "$bytes:integer"
+  traffic.packets: "$packets:integer"
+  metadata.product.vendor_name: "Palo Alto Networks"
+  metadata.product.name: "PAN-OS"
+
+disposition_map:
+  allow: "Allowed"
+  permit: "Allowed"
+  deny: "Blocked"
+  drop: "Blocked"
+  reset-server: "Blocked"
+  reset-client: "Blocked"
+  reset-both: "Blocked"
+  block-url: "Blocked"
+  default: "Unknown"
