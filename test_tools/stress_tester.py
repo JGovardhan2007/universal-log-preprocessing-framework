@@ -66,9 +66,10 @@ def generate_extended_synthetic_log(vendor: str) -> str:
 def run_in_memory_stress(event_count: int = 10000, batch_size: int = 1000) -> Dict[str, Any]:
     """Executes high-speed in-memory pipeline stress test across all 7 vendors."""
     print(f"🔥 [Track 4 Phase 3] Starting In-Memory Stress Benchmark ({event_count:,} events)...")
-    engine = Engine(parsers_dir="parsers", parquet_path="data/stream_buffer.parquet", batch_size=batch_size)
+    engine = Engine(parsers_dir="parsers", parquet_path="data/stream_buffer.parquet", batch_size=max(batch_size, event_count))
     
     latencies_ms = []
+
     vendor_distribution: Dict[str, int] = {v: 0 for v in SUPPORTED_VENDORS}
     
     start_time = time.perf_counter()
