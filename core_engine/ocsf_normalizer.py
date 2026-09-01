@@ -3,10 +3,10 @@ Universal Log Pre-processing Framework (ULPF)
 OCSF v1.1.0 Standard Schema Normalizer (Class 4001 Network Activity)
 """
 
-import os
 from typing import Dict, Any, Optional
 from core_engine.parser_loader import CompiledParser
 from core_engine.geoip_resolver import GeoIPResolver
+
 
 
 # Common IP protocol number to name mapping

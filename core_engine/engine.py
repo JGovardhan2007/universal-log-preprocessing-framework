@@ -4,17 +4,16 @@ Asynchronous Ingestion & Normalization Core Engine Daemon
 Port: 5140 (UDP / TCP Syslog RFC 3164 / 5424)
 """
 
-import sys
-import os
 import time
 import asyncio
 import argparse
-from typing import Dict, Any, Optional, List, Tuple
+from typing import Dict, Any, Tuple
 from core_engine.hasher import ForensicHasher
 from core_engine.parser_loader import ParserLoader
 from core_engine.classifier import Classifier
 from core_engine.ocsf_normalizer import OCSFNormalizer
 from core_engine.sink_writer import ParquetSinkWriter
+
 
 
 class SyslogUDPProtocol(asyncio.DatagramProtocol):

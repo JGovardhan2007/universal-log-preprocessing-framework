@@ -14,7 +14,8 @@
 - **Consistency:** Ensure any new code matches the coding patterns, directory structures, and design tokens established in previous entries.
 
 ## 3. POST-ACTION PROTOCOL (The "Talk" Phase)
-- **Log Every Task:** Every time you complete a feature, refactor, or prepare to push changes to Git, you MUST append a new entry to `conversation.md`.
+- **Log Every Task:** Every time you complete a feature or refactor, you MUST append a new entry to `conversation.md`.
+- **NO PUSH WITHOUT USER APPROVAL:** You must **NEVER execute `git push` to any remote repository without first asking the user and obtaining their explicit confirmation.**
 - **Mandatory Entry Format:**
   - Header: `## [YYYY-MM-DD HH:MM] - @<Username> (Agent)`
   - Developer: The specific user you are pair-programming with.
@@ -23,3 +24,4 @@
   - Key Changes & Decisions: What was changed and why.
   - Note to Partner Agents: Practical instructions for what other team members/agents need to know.
   - Status & Merge Readiness: e.g., `✅ Ready for Pull` or `⚠️ In Progress / Potential Conflict`.
+
