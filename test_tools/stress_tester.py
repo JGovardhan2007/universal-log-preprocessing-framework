@@ -5,6 +5,7 @@ Track 4 (Phase 3): 7-Vendor Concurrent Load Testing & Pipeline Synchronization
 NTRO Problem Statement ID: 26156
 """
 
+import os
 import socket
 import time
 import argparse
@@ -14,15 +15,13 @@ import threading
 from datetime import datetime, timezone
 from typing import Dict, Any, List
 
-# Ensure UTF-8 console output
-if sys.platform == "win32" and hasattr(sys.stdout, "reconfigure"):
-    try:
-        sys.stdout.reconfigure(encoding="utf-8")
-    except Exception:
-        pass
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
 
 from core_engine.engine import Engine
 from test_tools.log_generator import generate_synthetic_log, generate_attack_log
+
 
 SUPPORTED_VENDORS = [
     "cisco_asa",
