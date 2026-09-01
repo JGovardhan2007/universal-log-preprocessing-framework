@@ -484,7 +484,7 @@ async function fetchStoredFiles() {
 
 function renderFilesTable(files, tbody, badge) {
     if (!files || files.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" class="empty-state">No files stored yet.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No files stored yet.</td></tr>';
         badge.innerText = '0 FILES';
         return;
     }
@@ -498,10 +498,16 @@ function renderFilesTable(files, tbody, badge) {
             <td><b>${f.records}</b></td>
             <td>${f.size_kb} KB</td>
             <td>${f.timestamp}</td>
+            <td>
+                <a href="/api/v1/files/download?filename=${encodeURIComponent(f.filename)}" class="cyber-btn-download" download="${f.filename}">
+                    ⬇ Download
+                </a>
+            </td>
         `;
         tbody.appendChild(tr);
     });
 }
+
 
 function populateBatchInspector(rawFiles) {
     if (!rawFiles || rawFiles.length === 0) return;

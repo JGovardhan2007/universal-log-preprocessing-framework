@@ -126,9 +126,32 @@ def get_file_content(filename: str):
     }
 
 
+from fastapi.responses import FileResponse
+
+@app.get("/api/v1/files/download")
+def download_file(filename: str):
+    """Downloads a stored raw .log or formatted .json file."""
+    if filename.endswith(".log"):
+        target_path = os.path.join(RAW_STORAGE_DIR, filename)
+    elif filename.endswith(".json"):
+        target_path = os.path.join(FORMATTED_STORAGE_DIR, filename)
+    else:
+        raise HTTPException(status_code=400, detail="Invalid file type")
+
+    if not os.path.exists(target_path):
+        raise HTTPException(status_code=404, detail="File not found")
+
+    return FileResponse(
+        path=target_path,
+        filename=filename,
+        media_type="application/octet-stream"
+    )
+
+
 # Mount the modern static web app at root
 if os.path.exists(WEB_DIR):
     app.mount("/", StaticFiles(directory=WEB_DIR, html=True), name="static")
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8080)
+
