@@ -51,6 +51,8 @@ data/*.parquet
 data/*.mmdb
 data/*.json
 data/lake/
+data/storage/
+data/dlq/
 output/
 *.log
 
