@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Universal Log Pre-processing Framework (ULPF)
-Minimalist High-Contrast Interface (Cream Theme with Smooth 60FPS Live Streamer)
+Production Minimalist High-Contrast Interface (Cream Theme)
 1. 📊 Main Dashboard: Analytics, KPIs & AI Threat Intelligence
 2. ⚡ Live Streamer: One Unified Terminal Screen (Top: Raw String | SHA-256 -> Bottom: Formatted JSON)
 3. 🗄️ Database Vault: Raw .log Files vs Formatted .json Batches
@@ -40,40 +40,40 @@ st.set_page_config(
 # Initialize Live Pipeline Service
 service = LiveLogPipelineService.get_instance()
 
-# Clean Minimalist CSS with Perfect Color Contrast
+# High-Contrast CSS Theme with Crisp Typography & Controls
 st.markdown("""
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
-    /* Global Base */
+    /* Global Background & Base */
     .stApp {
-        background-color: #f8f9fa;
-        color: #0f172a;
-        font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+        background-color: #fafaf9 !important;
+        color: #0f172a !important;
+        font-family: 'Plus Jakarta Sans', -apple-system, sans-serif !important;
     }
     
     #MainMenu, footer, header {visibility: hidden;}
     [data-testid="stSidebar"] {display: none;}
     
     .block-container {
-        padding-top: 1rem;
-        padding-bottom: 2rem;
-        max-width: 95% !important;
+        padding-top: 1.2rem !important;
+        padding-bottom: 2rem !important;
+        max-width: 96% !important;
     }
 
-    /* Top Navigation Bar */
+    /* Top Website Navbar */
     .navbar {
         background: #ffffff;
         border: 1px solid #e2e8f0;
         border-radius: 12px;
-        padding: 14px 24px;
-        margin-bottom: 20px;
+        padding: 16px 24px;
+        margin-bottom: 18px;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
     }
     
     .brand-logo {
@@ -81,7 +81,7 @@ st.markdown("""
         font-weight: 800;
         color: #0f172a;
         margin: 0;
-        letter-spacing: -0.4px;
+        letter-spacing: -0.3px;
         display: flex;
         align-items: center;
         gap: 10px;
@@ -91,6 +91,44 @@ st.markdown("""
         font-size: 12px;
         color: #64748b;
         font-weight: 500;
+        margin-top: 2px;
+    }
+
+    /* High-Contrast Tab Bar */
+    .stTabs [data-baseweb="tab-list"] {
+        background-color: #f1f5f9 !important;
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 10px !important;
+        padding: 5px !important;
+        gap: 8px !important;
+    }
+
+    .stTabs [data-baseweb="tab"] {
+        background: transparent !important;
+        border-radius: 8px !important;
+        padding: 8px 24px !important;
+        border: none !important;
+        transition: all 0.15s ease !important;
+    }
+
+    .stTabs [data-baseweb="tab"] p, 
+    .stTabs [data-baseweb="tab"] span, 
+    .stTabs [data-baseweb="tab"] div {
+        font-size: 13px !important;
+        font-weight: 700 !important;
+        color: #475569 !important;
+    }
+
+    .stTabs [aria-selected="true"] {
+        background-color: #ffffff !important;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08) !important;
+    }
+
+    .stTabs [aria-selected="true"] p, 
+    .stTabs [aria-selected="true"] span, 
+    .stTabs [aria-selected="true"] div {
+        color: #0f172a !important;
+        font-weight: 800 !important;
     }
 
     /* Metric Cards */
@@ -118,28 +156,13 @@ st.markdown("""
         margin: 0;
     }
 
-    /* Navigation Tabs */
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 8px;
-        background: #f1f5f9;
-        padding: 4px 6px;
-        border-radius: 8px;
-        border: 1px solid #e2e8f0;
-    }
-
-    .stTabs [data-baseweb="tab"] {
-        height: 38px;
-        border-radius: 6px;
-        color: #475569;
-        font-weight: 600;
-        font-size: 13px;
-        padding: 0 20px;
-    }
-
-    .stTabs [aria-selected="true"] {
-        background: #ffffff !important;
-        color: #0f172a !important;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+    /* Clean Buttons */
+    .stButton > button {
+        border-radius: 8px !important;
+        font-weight: 700 !important;
+        font-size: 13px !important;
+        padding: 8px 16px !important;
+        border: 1px solid #cbd5e1 !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -154,13 +177,13 @@ st.markdown("""
         <div class="brand-logo">
             <span>🛡️ ULPF</span>
             <span style="font-weight:400; color:#cbd5e1;">|</span>
-            <span style="font-size:14px; font-weight:600; color:#334155;">Universal Log Pre-processing Framework</span>
+            <span style="font-size:14px; font-weight:700; color:#1e293b;">Universal Log Pre-processing Framework</span>
         </div>
         <div class="brand-sub">NTRO Problem Statement 26156 • High-Throughput OCSF v1.1.0 Ingestion Pipeline</div>
     </div>
     <div style="display:flex; align-items:center; gap:12px;">
-        <span style="font-size:12px; font-weight:600; color:#15803d; background:#f0fdf4; border:1px solid #bbf7d0; padding:6px 14px; border-radius:6px;">
-            PORT 5140 (UDP) • AIR-GAPPED
+        <span style="font-size:12px; font-weight:700; color:#15803d; background:#f0fdf4; border:1px solid #bbf7d0; padding:6px 14px; border-radius:6px;">
+            PORT 5140 (UDP) • AIR-GAPPED READY
         </span>
     </div>
 </div>
@@ -256,7 +279,7 @@ with tab_dashboard:
 # PAGE 2: ⚡ LIVE STREAMER (Single Unified Terminal Canvas)
 # =============================================================
 with tab_streamer:
-    # Top Control Bar (Clean and Simple without flashing)
+    # Top Control Bar
     col_btn, col_rate, col_flush, col_space = st.columns([2, 2, 2, 4])
 
     with col_btn:
@@ -280,44 +303,44 @@ with tab_streamer:
             st.success("Flushed active buffer to .log and .json files!")
             st.rerun()
 
-    # Pre-generate or fetch real sliding stream data for JavaScript 60FPS renderer
+    # Pre-generate sample raw stream corpus
     events = service.get_live_stream()
-    events_payload = json.dumps(events)
-    is_active_js = "true" if service.is_running else "false"
+    events_json_str = json.dumps(events)
+    is_active_str = "true" if service.is_running else "false"
 
-    # Embedded 60 FPS Unified Terminal Screen (Zero Page Flashing / Zero Flickering)
-    terminal_html = f"""
+    # Pure HTML/JS Template string (Cleanly formatted without python f-string escaping bugs)
+    terminal_template = """
     <!DOCTYPE html>
     <html>
     <head>
         <meta charset="utf-8">
         <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@500;700&display=swap" rel="stylesheet">
         <style>
-            * {{ box-sizing: border-box; margin: 0; padding: 0; }}
-            body {{
-                background-color: #f8f9fa;
+            * { box-sizing: border-box; margin: 0; padding: 0; }
+            body {
+                background-color: #fafaf9;
                 font-family: 'JetBrains Mono', monospace;
                 padding: 10px 0;
-            }}
-            .terminal-window {{
+            }
+            .terminal-window {
                 background: #090d16;
                 border: 1px solid #1e293b;
                 border-radius: 12px;
-                box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.4);
+                box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.3);
                 overflow: hidden;
                 display: flex;
                 flex-direction: column;
                 height: 640px;
-            }}
-            .terminal-header {{
+            }
+            .terminal-header {
                 background: #0f172a;
                 border-bottom: 1px solid #1e293b;
                 padding: 12px 18px;
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-            }}
-            .terminal-title {{
+            }
+            .terminal-title {
                 color: #e2e8f0;
                 font-size: 13px;
                 font-weight: 700;
@@ -326,33 +349,33 @@ with tab_streamer:
                 display: flex;
                 align-items: center;
                 gap: 10px;
-            }}
-            .dot-red {{ width: 10px; height: 10px; border-radius: 50%; background: #ef4444; display: inline-block; }}
-            .dot-yellow {{ width: 10px; height: 10px; border-radius: 50%; background: #f59e0b; display: inline-block; }}
-            .dot-green {{ width: 10px; height: 10px; border-radius: 50%; background: #10b981; display: inline-block; }}
+            }
+            .dot-red { width: 10px; height: 10px; border-radius: 50%; background: #ef4444; display: inline-block; }
+            .dot-yellow { width: 10px; height: 10px; border-radius: 50%; background: #f59e0b; display: inline-block; }
+            .dot-green { width: 10px; height: 10px; border-radius: 50%; background: #10b981; display: inline-block; }
             
             /* Top Split Section */
-            .section-top {{
+            .section-top {
                 display: flex;
                 height: 320px;
                 border-bottom: 2px solid #1e293b;
                 background: #060911;
-            }}
-            .col-raw {{
+            }
+            .col-raw {
                 flex: 1.2;
                 border-right: 1px solid #1e293b;
                 padding: 14px;
                 overflow-y: auto;
                 scrollbar-width: thin;
-            }}
-            .col-sha {{
+            }
+            .col-sha {
                 flex: 1;
                 padding: 14px;
                 overflow-y: auto;
                 scrollbar-width: thin;
                 background: #090d16;
-            }}
-            .col-header {{
+            }
+            .col-header {
                 font-size: 11px;
                 font-weight: 700;
                 color: #94a3b8;
@@ -364,8 +387,8 @@ with tab_streamer:
                 background: inherit;
                 padding-bottom: 4px;
                 border-bottom: 1px solid #1e293b;
-            }}
-            .log-line {{
+            }
+            .log-line {
                 font-size: 11px;
                 line-height: 1.6;
                 color: #fbbf24;
@@ -376,8 +399,8 @@ with tab_streamer:
                 border-left: 2px solid #f59e0b;
                 padding-left: 8px;
                 animation: fadeIn 0.25s ease-in;
-            }}
-            .sha-line {{
+            }
+            .sha-line {
                 font-size: 11px;
                 line-height: 1.6;
                 color: #34d399;
@@ -388,10 +411,10 @@ with tab_streamer:
                 border-left: 2px solid #10b981;
                 padding-left: 8px;
                 animation: fadeIn 0.25s ease-in;
-            }}
+            }
             
             /* Transition Bar */
-            .transition-bar {{
+            .transition-bar {
                 background: #0f172a;
                 border-top: 1px solid #1e293b;
                 border-bottom: 1px solid #1e293b;
@@ -403,17 +426,17 @@ with tab_streamer:
                 justify-content: space-between;
                 align-items: center;
                 letter-spacing: 0.5px;
-            }}
+            }
 
             /* Bottom Section (Formatted JSON) */
-            .section-bottom {{
+            .section-bottom {
                 flex: 1;
                 background: #060911;
                 padding: 14px 18px;
                 overflow-y: auto;
                 scrollbar-width: thin;
-            }}
-            .json-block {{
+            }
+            .json-block {
                 background: #0b101d;
                 border: 1px solid #1e293b;
                 border-left: 3px solid #38bdf8;
@@ -424,16 +447,16 @@ with tab_streamer:
                 line-height: 1.4;
                 margin-bottom: 8px;
                 animation: slideDown 0.3s ease-out;
-            }}
+            }
 
-            @keyframes fadeIn {{
-                from {{ opacity: 0; transform: translateY(-4px); }}
-                to {{ opacity: 1; transform: translateY(0); }}
-            }}
-            @keyframes slideDown {{
-                from {{ opacity: 0; transform: translateY(-8px); }}
-                to {{ opacity: 1; transform: translateY(0); }}
-            }}
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(-4px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            @keyframes slideDown {
+                from { opacity: 0; transform: translateY(-8px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
         </style>
     </head>
     <body>
@@ -476,8 +499,8 @@ with tab_streamer:
         </div>
 
         <script>
-            let initialEvents = {events_payload};
-            let isRunning = {is_active_js};
+            let initialEvents = __INITIAL_EVENTS__;
+            let isRunning = __IS_RUNNING__;
             let sampleCorpus = [
                 "%ASA-4-106023: Deny tcp src outside:198.51.100.45/51234 dst inside:10.0.0.5/22",
                 'date=2026-09-01 time=08:30:00 devname="FGT60D" srcip=192.168.1.50 dstip=10.0.0.5 action="accept" proto=6',
@@ -490,17 +513,17 @@ with tab_streamer:
 
             let count = 0;
 
-            function sha256_mock(str) {{
+            function sha256_mock(str) {
                 let hash = 0;
-                for (let i = 0; i < str.length; i++) {{
+                for (let i = 0; i < str.length; i++) {
                     hash = ((hash << 5) - hash) + str.charCodeAt(i);
                     hash |= 0;
-                }}
+                }
                 let hex = (Math.abs(hash) * 987654321).toString(16) + "e8c4d2a1b9f0e7d5";
                 return hex.padEnd(64, '0').slice(0, 64);
-            }}
+            }
 
-            function addEventToTerminal(raw) {{
+            function addEventToTerminal(raw) {
                 count++;
                 let hashKey = sha256_mock(raw + count);
                 let timeStr = new Date().toISOString().substring(11, 19);
@@ -509,7 +532,7 @@ with tab_streamer:
                 let rawContainer = document.getElementById('raw-lines-container');
                 let rawEl = document.createElement('div');
                 rawEl.className = 'log-line';
-                rawEl.innerText = `[${{timeStr}}] ${{raw}}`;
+                rawEl.innerText = `[${timeStr}] ${raw}`;
                 rawContainer.insertBefore(rawEl, rawContainer.firstChild);
                 if (rawContainer.children.length > 10) rawContainer.removeChild(rawContainer.lastChild);
 
@@ -517,7 +540,7 @@ with tab_streamer:
                 let shaContainer = document.getElementById('sha-lines-container');
                 let shaEl = document.createElement('div');
                 shaEl.className = 'sha-line';
-                shaEl.innerText = `SHA-256: ${{hashKey}}`;
+                shaEl.innerText = `SHA-256: ${hashKey}`;
                 shaContainer.insertBefore(shaEl, shaContainer.firstChild);
                 if (shaContainer.children.length > 10) shaContainer.removeChild(shaContainer.lastChild);
 
@@ -527,40 +550,41 @@ with tab_streamer:
                 jsonEl.className = 'json-block';
                 
                 let isBlocked = raw.toLowerCase().includes('deny') || raw.toLowerCase().includes('drop') || raw.toLowerCase().includes('blocked');
-                let jsonPayload = {{
-                    "event_id": `uuid-${{Math.random().toString(36).substring(2, 10)}}`,
+                let jsonPayload = {
+                    "event_id": `uuid-${Math.random().toString(36).substring(2, 10)}`,
                     "class_uid": 4001,
                     "disposition": isBlocked ? "Blocked" : "Allowed",
                     "raw_preview": raw.substring(0, 45) + "...",
-                    "metadata": {{ "hash": hashKey, "timestamp": timeStr }}
-                }};
+                    "metadata": { "hash": hashKey, "timestamp": timeStr }
+                };
                 jsonEl.innerText = JSON.stringify(jsonPayload, null, 2);
                 jsonContainer.insertBefore(jsonEl, jsonContainer.firstChild);
                 if (jsonContainer.children.length > 4) jsonContainer.removeChild(jsonContainer.lastChild);
 
-                document.getElementById('live-count-badge').innerText = `BUFFER: ${{count}} EVENTS PROCESSED`;
-            }}
+                document.getElementById('live-count-badge').innerText = `BUFFER: ${count} EVENTS PROCESSED`;
+            }
 
             // Preload initial
-            if (initialEvents && initialEvents.length > 0) {{
+            if (initialEvents && initialEvents.length > 0) {
                 initialEvents.slice(-8).forEach(e => addEventToTerminal(e.raw_string));
-            }} else {{
+            } else {
                 sampleCorpus.slice(0, 5).forEach(s => addEventToTerminal(s));
-            }}
+            }
 
             // 60FPS Smooth Stream Interval (No Page Reloading!)
-            if (isRunning) {{
-                setInterval(() => {{
+            if (isRunning) {
+                setInterval(() => {
                     let randomRaw = sampleCorpus[Math.floor(Math.random() * sampleCorpus.length)];
                     addEventToTerminal(randomRaw);
-                }}, 600);
-            }}
+                }, 600);
+            }
         </script>
     </body>
     </html>
     """
 
-    components.html(terminal_html, height=660)
+    final_html = terminal_template.replace("__INITIAL_EVENTS__", events_json_str).replace("__IS_RUNNING__", is_active_str)
+    components.html(final_html, height=660)
 
 
 # =============================================================
