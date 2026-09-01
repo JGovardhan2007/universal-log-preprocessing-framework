@@ -1,0 +1,44 @@
+vendor: "Linux"
+product: "Syslog & SSH Auth"
+version: "1.1.0"
+description: "Linux PAM, SSH Authentication, and Security Syslog Parser"
+
+signature_match:
+  type: "regex"
+  patterns:
+    - 'sshd\[\d+\]:'
+    - 'sudo:\s+'
+    - 'systemd-logind\[\d+\]:'
+    - 'pam_unix\(.*?\):'
+
+extraction:
+  type: "regex"
+  patterns:
+    # Pattern 1: SSH Failed / Accepted password
+    - '^.*?sshd\[\d+\]:\s+(?P<action>Failed|Accepted)\s+password\s+for\s+(?:invalid\s+user\s+)?(?P<user>[\w-]+)\s+from\s+(?P<src_ip>[\d\.]+)\s+port\s+(?P<src_port>\d+)\s+(?P<proto>\w+)'
+    # Pattern 2: SSH Invalid user
+    - '^.*?sshd\[\d+\]:\s+Invalid\s+user\s+(?P<user>[\w-]+)\s+from\s+(?P<src_ip>[\d\.]+)\s+port\s+(?P<src_port>\d+)'
+    # Pattern 3: SSH Disconnected / Connection closed
+    - '^.*?sshd\[\d+\]:\s+(?P<action>Disconnected|Connection\s+closed)\s+by\s+(?:invalid\s+user\s+)?(?P<user>[\w-]+)?\s*(?P<src_ip>[\d\.]+)\s+port\s+(?P<src_port>\d+)'
+    # Pattern 4: Sudo execution
+    - '^.*?sudo:\s+(?P<user>[\w-]+)\s+:\s+TTY=\S+\s+;\s+PWD=\S+\s+;\s+USER=(?P<target_user>\w+)\s+;\s+COMMAND=(?P<command>.*)'
+
+field_mapping:
+  class_uid: 4001
+  category_uid: 4
+  activity_id: 1
+  src_endpoint.ip: "$src_ip"
+  src_endpoint.port: "$src_port:integer"
+  dst_endpoint.ip: "127.0.0.1"
+  dst_endpoint.port: 22
+  connection_info.protocol_name: "TCP"
+  user.name: "$user"
+  metadata.product.vendor_name: "Linux"
+  metadata.product.name: "Syslog & SSH Auth"
+
+disposition_map:
+  Accepted: "Allowed"
+  Failed: "Blocked"
+  Invalid: "Blocked"
+  Disconnected: "Allowed"
+  default: "Unknown"

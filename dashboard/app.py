@@ -179,18 +179,27 @@ def load_and_score_parquet_stream():
         table = pq.read_table(DATA_PATH)
         df = table.to_pandas()
         if not df.empty:
-            # Reconcile vendor / vendor_name column aliasing
-            if "vendor" in df.columns and "vendor_name" not in df.columns:
+            # Harmonize column names between Track 1 engine and Track 3 UI
+            if "vendor_name" not in df.columns and "vendor" in df.columns:
                 df["vendor_name"] = df["vendor"]
-            elif "vendor_name" in df.columns and "vendor" not in df.columns:
+            elif "vendor" not in df.columns and "vendor_name" in df.columns:
                 df["vendor"] = df["vendor_name"]
+            elif "vendor_name" not in df.columns:
+                df["vendor_name"] = "Generic"
 
-            # Reconcile product / product_name column aliasing
-            if "product" in df.columns and "product_name" not in df.columns:
+            if "product_name" not in df.columns and "product" in df.columns:
                 df["product_name"] = df["product"]
-            elif "product_name" in df.columns and "product" not in df.columns:
+            elif "product" not in df.columns and "product_name" in df.columns:
                 df["product"] = df["product_name"]
+            elif "product_name" not in df.columns:
+                df["product_name"] = "Firewall"
 
+            if "class_uid" not in df.columns:
+                df["class_uid"] = 4001
+            if "is_anomaly" not in df.columns:
+                df["is_anomaly"] = False
+            if "anomaly_score" not in df.columns:
+                df["anomaly_score"] = 0.1
             detector = ThreatAnomalyDetector(contamination=0.08)
             df = detector.fit_predict(df)
         return df

@@ -17,13 +17,17 @@ class ParquetSinkWriter:
     Snappy-compressed Apache Parquet tables for zero-ETL AI consumption.
     """
 
-    def __init__(self, output_path: str = "data/stream_buffer.parquet", batch_size: int = 1000):
+    def __init__(self, output_path: str = "data/stream_buffer.parquet", lake_dir: str = "data/lake", batch_size: int = 1000):
         self.output_path = Path(output_path)
         self.output_path.parent.mkdir(parents=True, exist_ok=True)
+        self.lake_dir = Path(lake_dir) if lake_dir else None
+        if self.lake_dir:
+            self.lake_dir.mkdir(parents=True, exist_ok=True)
         self.batch_size = batch_size
         self.buffer: List[Dict[str, Any]] = []
         self.lock = threading.Lock()
         self.total_written = 0
+
 
     def flatten_record(self, record: Dict[str, Any]) -> Dict[str, Any]:
         """Flatten nested OCSF structure into flat columnar dictionary."""
@@ -33,33 +37,42 @@ class ParquetSinkWriter:
         meta = record.get("metadata", {})
         prod = meta.get("product", {})
         traffic = record.get("traffic", {})
+        vendor_val = str(prod.get("vendor_name", "Generic"))
+        product_val = str(prod.get("name", "Firewall"))
 
         return {
             "event_id": str(record.get("event_id", "")),
             "ingest_timestamp": str(meta.get("ingest_timestamp", "")),
-            "vendor": str(prod.get("vendor_name", "Generic")),
-            "vendor_name": str(prod.get("vendor_name", "Generic")),
-            "product": str(prod.get("name", "Firewall")),
-            "product_name": str(prod.get("name", "Firewall")),
-
+            "class_uid": int(record.get("class_uid", 4001)),
+            "category_uid": int(record.get("category_uid", 4)),
+            "activity_id": int(record.get("activity_id", 1)),
+            "vendor_name": vendor_val,
+            "product_name": product_val,
+            "vendor": vendor_val,
+            "product": product_val,
             "disposition": str(record.get("disposition", "Unknown")),
             "disposition_id": int(record.get("disposition_id", 99)),
             "src_ip": str(src_ep.get("ip", "0.0.0.0")),
             "src_port": int(src_ep.get("port", 0)),
             "src_zone": str(src_ep.get("zone", "unknown")),
             "src_country": str(src_ep.get("geo", {}).get("country", "Unknown")),
+            "src_city": str(src_ep.get("geo", {}).get("city", "Unknown")),
             "dst_ip": str(dst_ep.get("ip", "0.0.0.0")),
             "dst_port": int(dst_ep.get("port", 0)),
             "dst_zone": str(dst_ep.get("zone", "unknown")),
             "dst_country": str(dst_ep.get("geo", {}).get("country", "Unknown")),
+            "dst_city": str(dst_ep.get("geo", {}).get("city", "Unknown")),
             "protocol_name": str(conn.get("protocol_name", "TCP")),
             "direction": str(conn.get("direction", "Inbound")),
             "bytes": int(traffic.get("bytes", 0)),
             "packets": int(traffic.get("packets", 0)),
             "hash": str(meta.get("hash", "")),
             "tier": int(meta.get("tier", 1)),
-            "raw_data": str(record.get("raw_data", ""))
+            "raw_data": str(record.get("raw_data", "")),
+            "anomaly_score": float(record.get("anomaly_score", 0.1)),
+            "is_anomaly": bool(record.get("is_anomaly", False))
         }
+
 
     def add_record(self, record: Dict[str, Any]) -> Optional[int]:
         """Add normalized record to in-memory buffer, flushing if threshold reached."""
