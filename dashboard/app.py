@@ -283,11 +283,11 @@ with tab_stream:
                 st.json(ocsf_preview)
 
 # -------------------------------------------------------------
-# TAB 2: Real File & Payload Ingestion
+# TAB 2: Real File, Payload & Kafka Ingestion
 # -------------------------------------------------------------
 with tab_ingest:
-    st.markdown("### Real Log File & Raw Stream Ingestion")
-    st.caption("Upload raw perimeter firewall log files or ingest direct syslog strings into the live pipeline.")
+    st.markdown("### Real Log File, Raw Stream & Apache Kafka Ingestion")
+    st.caption("Upload perimeter firewall log files, ingest direct syslog strings, or connect to Apache Kafka brokers.")
 
     icol1, icol2 = st.columns([1, 1])
     with icol1:
@@ -350,6 +350,67 @@ with tab_ingest:
             st.success(f"Successfully parsed and ingested {c} records into Parquet buffer.")
             st.cache_data.clear()
             st.rerun()
+
+    st.markdown("---")
+    st.markdown("### Apache Kafka Streaming Consumer & Shipper")
+    st.caption("Consume live system telemetry directly from Kafka topics and normalize in real-time.")
+
+    kcol1, kcol2 = st.columns([1, 1])
+    with kcol1:
+        st.markdown("#### Kafka Consumer Service")
+        kafka_broker = st.text_input("Kafka Bootstrap Broker(s)", value="localhost:9092")
+        kafka_topic = st.text_input("Ingestion Topic", value="system-logs")
+        kafka_group = st.text_input("Consumer Group ID", value="ulpf-ingestion-group")
+
+        if "kafka_consumer_running" not in st.session_state:
+            st.session_state["kafka_consumer_running"] = False
+
+        kbtn_col1, kbtn_col2 = st.columns(2)
+        with kbtn_col1:
+            if st.button("Connect Kafka Consumer", type="primary", use_container_width=True):
+                from core_engine.kafka_ingestion import KafkaIngestionConsumer
+                consumer_worker = KafkaIngestionConsumer(
+                    bootstrap_servers=kafka_broker,
+                    topic=kafka_topic,
+                    group_id=kafka_group
+                )
+                connected = consumer_worker.start()
+                st.session_state["kafka_consumer_worker"] = consumer_worker
+                st.session_state["kafka_consumer_running"] = True
+                if connected:
+                    st.success(f"Kafka Consumer connected to '{kafka_topic}' on {kafka_broker}.")
+                else:
+                    st.warning(f"Kafka Consumer initialized (Broker {kafka_broker} connection pending).")
+                st.rerun()
+
+        with kbtn_col2:
+            if st.button("Stop Kafka Consumer", use_container_width=True):
+                if "kafka_consumer_worker" in st.session_state and st.session_state["kafka_consumer_worker"]:
+                    st.session_state["kafka_consumer_worker"].stop()
+                st.session_state["kafka_consumer_running"] = False
+                st.info("Kafka Consumer stopped.")
+                st.rerun()
+
+        status_txt = "RUNNING" if st.session_state.get("kafka_consumer_running") else "DISCONNECTED"
+        status_clr = "#34d399" if status_txt == "RUNNING" else "#94a3b8"
+        st.markdown(f"**Consumer State:** <span style='color:{status_clr}; font-weight:700;'>{status_txt}</span>", unsafe_allow_html=True)
+
+    with kcol2:
+        st.markdown("#### Ship System Event to Kafka")
+        st.caption("Publish a local system or firewall event directly into the Kafka topic.")
+        sample_kafka_msg = st.text_input(
+            "Payload to Publish",
+            value="%ASA-4-106023: Deny tcp src outside:198.51.100.77/51234 dst inside:10.0.0.5/443"
+        )
+        if st.button("Publish Event to Kafka", use_container_width=True):
+            from core_engine.kafka_ingestion import KafkaSystemLogProducer
+            producer = KafkaSystemLogProducer(bootstrap_servers=kafka_broker)
+            ok = producer.send_log(kafka_topic, sample_kafka_msg)
+            if ok:
+                st.success(f"Published payload to Kafka topic '{kafka_topic}'.")
+            else:
+                st.info(f"Could not connect to Kafka broker at '{kafka_broker}'. Make sure Kafka is running on your system (e.g. `localhost:9092`).")
+
 
 # -------------------------------------------------------------
 # TAB 3: Section 65B Forensic Integrity
