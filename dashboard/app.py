@@ -166,10 +166,33 @@ def load_parquet_stream():
     try:
         table = pq.read_table(DATA_PATH)
         df = table.to_pandas()
+        if not df.empty:
+            # Harmonize column names between Track 1 engine and Track 3 UI
+            if "vendor_name" not in df.columns and "vendor" in df.columns:
+                df["vendor_name"] = df["vendor"]
+            elif "vendor" not in df.columns and "vendor_name" in df.columns:
+                df["vendor"] = df["vendor_name"]
+            elif "vendor_name" not in df.columns:
+                df["vendor_name"] = "Generic"
+
+            if "product_name" not in df.columns and "product" in df.columns:
+                df["product_name"] = df["product"]
+            elif "product" not in df.columns and "product_name" in df.columns:
+                df["product"] = df["product_name"]
+            elif "product_name" not in df.columns:
+                df["product_name"] = "Firewall"
+
+            if "class_uid" not in df.columns:
+                df["class_uid"] = 4001
+            if "is_anomaly" not in df.columns:
+                df["is_anomaly"] = False
+            if "anomaly_score" not in df.columns:
+                df["anomaly_score"] = 0.1
         return df
     except Exception as e:
         st.error(f"Error reading Parquet buffer: {e}")
         return pd.DataFrame()
+
 
 
 # -------------------------------------------------------------

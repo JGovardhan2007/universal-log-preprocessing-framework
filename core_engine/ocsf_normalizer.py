@@ -6,6 +6,7 @@ OCSF v1.1.0 Standard Schema Normalizer (Class 4001 Network Activity)
 import os
 from typing import Dict, Any, Optional
 from core_engine.parser_loader import CompiledParser
+from core_engine.geoip_resolver import GeoIPResolver
 
 
 # Common IP protocol number to name mapping
@@ -19,14 +20,7 @@ IP_PROTO_MAP = {
     "58": "ICMPv6"
 }
 
-# Static offline subnet-to-country / zone dictionary for air-gapped demo enrichment
-STATIC_OFFLINE_GEO = {
-    "203.0.113.": {"country": "United States", "country_code": "US", "city": "Dallas"},
-    "198.51.100.": {"country": "Germany", "country_code": "DE", "city": "Frankfurt"},
-    "192.168.": {"country": "Internal Network", "country_code": "IN-LAN", "city": "Private Zone"},
-    "10.": {"country": "Internal Network", "country_code": "IN-LAN", "city": "Private Zone"},
-    "172.16.": {"country": "Internal Network", "country_code": "IN-LAN", "city": "DMZ Zone"},
-}
+_GEO_RESOLVER = GeoIPResolver()
 
 
 class OCSFNormalizer:
@@ -37,12 +31,8 @@ class OCSFNormalizer:
     @staticmethod
     def resolve_geo(ip: Optional[str]) -> Dict[str, Any]:
         """Perform offline IP-to-Country/City lookup with zero network calls."""
-        if not ip:
-            return {}
-        for prefix, geo_info in STATIC_OFFLINE_GEO.items():
-            if ip.startswith(prefix):
-                return geo_info.copy()
-        return {"country": "External", "country_code": "EXT", "city": "Unknown"}
+        return _GEO_RESOLVER.resolve(ip)
+
 
     @classmethod
     def normalize(

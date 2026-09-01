@@ -1,0 +1,48 @@
+vendor: "OISF"
+product: "Suricata IDS/IPS"
+version: "1.1.0"
+description: "Suricata Network Threat and Intrusion Detection System EVE JSON Parser"
+
+signature_match:
+  type: "regex"
+  patterns:
+    - '"event_type":\s*"alert"'
+    - '"event_type":\s*"drop"'
+    - '"event_type":\s*"anomaly"'
+
+extraction:
+  type: "json"
+  json_fields:
+    src_ip: "src_ip"
+    src_port: "src_port"
+    dst_ip: "dest_ip"
+    dst_port: "dest_port"
+    proto: "proto"
+    action: "alert.action"
+    signature: "alert.signature"
+    category: "alert.category"
+    severity: "alert.severity"
+
+field_mapping:
+  class_uid: 4001
+  category_uid: 4
+  activity_id: 1
+  src_endpoint.ip: "$src_ip"
+  src_endpoint.port: "$src_port:integer"
+  dst_endpoint.ip: "$dst_ip"
+  dst_endpoint.port: "$dst_port:integer"
+  connection_info.protocol_name: "$proto:upper"
+  threat.signature: "$signature"
+  threat.category: "$category"
+  threat.severity: "$severity:integer"
+  metadata.product.vendor_name: "OISF"
+  metadata.product.name: "Suricata IDS/IPS"
+
+disposition_map:
+  allowed: "Allowed"
+  pass: "Allowed"
+  blocked: "Blocked"
+  drop: "Blocked"
+  dropped: "Blocked"
+  alert: "Alert"
+  default: "Alert"

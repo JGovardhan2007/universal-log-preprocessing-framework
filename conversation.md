@@ -141,6 +141,29 @@
   - The dashboard is immediately runnable with: `streamlit run dashboard/app.py`.
 - **Status & Merge Readiness:** ✅ Phase 1 Checkpoint A Verified on branch `feat/phase1-track3-track4`
 
+## [2026-09-01 10:12] - @dhanush (Agent)
+- **Developer / User:** @dhanush
+- **Task Completed:** Phase 2 Implementation of Track 1 (REST Ingestion API, Directory File Tailer, Rolling Parquet Lake) and Track 2 (Linux Auth, Suricata IDS, and Offline GeoIP Resolver).
+- **Files Modified / Created:**
+  - `core_engine/api_server.py` (FastAPI REST Webhook ingestion `POST /api/v1/ingest`, Section 65B verification `POST /api/v1/verify`, telemetry health `GET /api/v1/health`)
+  - `core_engine/geoip_resolver.py` (Offline Air-Gapped IP-to-Country/City and ASN resolver)
+  - `core_engine/file_tailer.py` (Asynchronous directory watcher and file tailing ingest daemon)
+  - `core_engine/ocsf_normalizer.py` (Integrated offline GeoIP resolution into OCSF Class 4001)
+  - `core_engine/sink_writer.py` (Added rolling partitioned Parquet lake support)
+  - `parsers/linux_auth.yaml` (Linux PAM/SSH authentication & sudo security parser)
+  - `parsers/suricata_ids.yaml` (Suricata IDS/IPS EVE JSON threat alert parser)
+  - `tests/test_api_server.py` (FastAPI REST ingest, batch, and verification tests)
+  - `tests/test_geoip_resolver.py` (Air-gapped GeoIP & ASN resolution tests)
+  - `tests/test_file_tailer.py` (Static and batch file ingestion tests)
+  - `tests/test_phase2_parsers.py` (Linux Auth & Suricata IDS parser tests)
+- **Key Changes & Decisions:**
+  - Built REST API layer per PRD FR-1.3 enabling webhooks and external log shippers to post raw events with instant Section 65B hash receipts.
+  - Implemented offline subnet and GeoLite resolver satisfying PRD FR-6 without external internet queries.
+  - Added rolling Parquet lake storage in `/data/lake/` alongside the live stream buffer in `/data/stream_buffer.parquet`.
+- **Note to Partner Agents:**
+  - Track 3 (Dashboard) can query `GET http://localhost:8000/api/v1/health` or `GET http://localhost:8000/api/v1/parsers` for real-time engine telemetry.
+- **Status & Merge Readiness:** ⚠️ Phase 2 Built, Ready for Test Execution
+
 ---
 
 ### 📝 Entry Template for Future Logs
@@ -154,3 +177,4 @@
 - **Status & Merge Readiness:** ✅ Ready for Pull / ⚠️ In Progress
 ```
 *(Next Agent: Append your log above this template)*
+
