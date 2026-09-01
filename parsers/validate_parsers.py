@@ -23,26 +23,37 @@ if hasattr(sys.stdout, "reconfigure"):
 SAMPLE_TEST_LOGS = {
     "cisco_asa": [
         "%ASA-4-106023: Deny tcp src outside:203.0.113.15/44123 dst inside:192.168.1.50/80 by access-group 'outside_in'",
-        "%ASA-6-302013: Built inbound TCP connection 987654 for outside:198.51.100.22/52140 (198.51.100.22/52140) to inside:10.0.0.5/443 (10.0.0.5/443)",
-        "%ASA-6-302014: Teardown TCP connection 987654 for outside:198.51.100.22/52140 to inside:10.0.0.5/443 duration 0:00:30 bytes 5412 TCP FINs"
+        "%ASA-6-302013: Built inbound TCP connection 987654 for outside:198.51.100.22/52140 (198.51.100.22/52140) to inside:10.0.0.5/443 (10.0.0.5/443)"
     ],
     "paloalto_panos": [
-        "1,2026/09/01 08:30:15,001801000001,TRAFFIC,drop,1,2026/09/01 08:30:15,192.168.1.100,10.0.0.1,0.0.0.0,0.0.0.0,Rule-Block,trust,untrust,ethernet1/1,ethernet1/2,Log-Forward,2026/09/01 08:30:15,12345,1,54321,80,0,0,0x0,tcp,deny,120,60,60,1,2026/09/01 08:30:00,15,any,0,0,0,0,,US,IN,0,1,0",
-        "1,2026/09/01 08:30:20,001801000001,TRAFFIC,end,1,2026/09/01 08:30:20,10.10.10.50,172.16.0.20,0.0.0.0,0.0.0.0,Allow-Web,trust,dmz,ethernet1/1,ethernet1/3,Log-Forward,2026/09/01 08:30:20,98765,1,49152,443,0,0,0x0,tcp,allow,4500,1500,3000,25,2026/09/01 08:30:00,20,web-browsing,0,0,0,0,,IN,US,0,1,0"
+        "1,2026/09/01 08:30:15,001801000001,TRAFFIC,drop,1,2026/09/01 08:30:15,192.168.1.100,10.0.0.1,0.0.0.0,0.0.0.0,Rule-Block,trust,untrust,ethernet1/1,ethernet1/2,Log-Forward,2026/09/01 08:30:15,12345,1,54321,80,0,0,0x0,tcp,deny,120,60,60,1,2026/09/01 08:30:00,15,any,0,0,0,0,,US,IN,0,1,0"
     ],
     "fortinet_fortigate": [
-        'date=2026-09-01 time=08:30:00 devname="FGT60D" devid="FGT60D12345678" logid="0000000013" type="traffic" subtype="forward" level="notice" srcip=192.168.1.50 srcport=54321 srcintf="port1" dstip=10.0.0.5 dstport=443 dstintf="port2" proto=6 action="accept" policyid=1 duration=30 sentbyte=1200 rcvdbyte=4500 sentpkt=10 rcvdpkt=15 app="HTTPS"',
-        'date=2026-09-01 time=08:30:05 devname="FGT60D" devid="FGT60D12345678" logid="0000000014" type="traffic" subtype="forward" level="warning" srcip=203.0.113.88 srcport=33891 srcintf="wan1" dstip=192.168.1.10 dstport=22 dstintf="lan" proto=6 action="deny" policyid=99 duration=0 sentbyte=0 rcvdbyte=0 sentpkt=0 rcvdpkt=0 msg="Deny by policy"'
+        'date=2026-09-01 time=08:30:00 devname="FGT60D" devid="FGT60D12345678" logid="0000000013" type="traffic" subtype="forward" level="notice" srcip=192.168.1.50 srcport=54321 srcintf="port1" dstip=10.0.0.5 dstport=443 dstintf="port2" proto=6 action="accept" sentbyte=1200'
     ],
     "checkpoint_fw": [
-        "Sep 1 08:30:15 fw1 CheckPoint: 1Sep2026 8:30:15 accept 192.168.1.10 >eth0 rule: 12; rule_name: Allow_Web; src: 192.168.1.50; s_port: 51234; dst: 203.0.113.80; service: 443; proto: tcp; product: VPN-1 & FireWall-1;",
-        "src=192.168.10.5 dst=10.20.30.40 s_port=60000 service=80 proto=tcp action=drop product=VPN-1"
+        "Sep 1 08:30:15 fw1 CheckPoint: 1Sep2026 8:30:15 accept 192.168.1.10 >eth0 rule: 12; rule_name: Allow_Web; src: 192.168.1.50; s_port: 51234; dst: 203.0.113.80; service: 443; proto: tcp; product: VPN-1 & FireWall-1;"
     ],
     "pfsense_suricata": [
-        '{"timestamp":"2026-09-01T08:30:00.123456+0000","event_type":"alert","src_ip":"192.168.1.50","src_port":54321,"dest_ip":"203.0.113.80","dest_port":80,"proto":"TCP","alert":{"action":"blocked","signature":"ET SCAN Potential SSH Scan"}}',
-        'filterlog[12345]: 4,,,1000000103,em0,match,block,in,4,0x0,,64,0,0,DF,6,tcp,60,192.168.1.100,203.0.113.50,49152,443,0,S,123456789,,1024,,'
+        '{"timestamp":"2026-09-01T08:30:00.123456+0000","event_type":"alert","src_ip":"192.168.1.50","src_port":54321,"dest_ip":"203.0.113.80","dest_port":80,"proto":"TCP","alert":{"action":"blocked"}}'
+    ],
+    "linux_auth": [
+        "Sep 1 08:30:15 server1 sshd[12345]: Failed password for invalid user admin from 203.0.113.88 port 54321 ssh2"
+    ],
+    "suricata_ids": [
+        '{"timestamp":"2026-09-01T08:30:00.123456+0000","event_type":"alert","src_ip":"198.51.100.99","src_port":44444,"dest_ip":"10.0.0.1","dest_port":80,"proto":"TCP","alert":{"action":"blocked","signature":"ET EXPLOIT Apache Struts RCE"}}'
+    ],
+    "windows_event": [
+        "Microsoft-Windows-Security-Auditing: EventID=4624 Account Name: Administrator Source Address: 192.168.1.10 Source Port: 54123 Destination Address: 10.0.0.5 Destination Port: 445"
+    ],
+    "zeek_conn": [
+        "zeek_conn: 1756715430.123 uid123 192.168.1.50 51234 198.51.100.10 443 TCP ssl 1.25 1500 3000 SF"
+    ],
+    "aws_vpc_flow": [
+        "2 123456789012 eni-0a1b2c3d4e5f6g7h8 10.0.1.50 198.51.100.22 49152 443 6 25 3500 1756715400 1756715460 ACCEPT OK"
     ]
 }
+
 
 
 def validate_yaml_file(filepath: Path) -> Tuple[bool, str, Dict[str, Any]]:

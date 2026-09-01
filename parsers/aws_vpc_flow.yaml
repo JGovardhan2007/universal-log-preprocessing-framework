@@ -1,0 +1,35 @@
+vendor: "Amazon Web Services"
+product: "VPC Flow Logs"
+version: "2.0.0"
+description: "Declarative parser for AWS VPC Flow Logs v2 (CloudWatch & S3)"
+
+signature_match:
+  type: "regex"
+  patterns:
+    - '^\s*2\s+\d{12}\s+eni-[0-9a-zA-Z]+'
+    - 'eni-[0-9a-zA-Z]+\s+[0-9\.]+\s+[0-9\.]+\s+\d+\s+\d+'
+
+extraction:
+  type: "regex"
+  patterns:
+    - '^\s*2\s+(?P<account_id>\d+)\s+(?P<interface_id>eni-[0-9a-zA-Z]+)\s+(?P<src_ip>[0-9\.]+)\s+(?P<dst_ip>[0-9\.]+)\s+(?P<src_port>\d+)\s+(?P<dst_port>\d+)\s+(?P<proto>\d+)\s+(?P<packets>\d+)\s+(?P<bytes>\d+)\s+(?P<start_time>\d+)\s+(?P<end_time>\d+)\s+(?P<action>\w+)\s+(?P<log_status>\w+)'
+    - '(?P<interface_id>eni-[0-9a-zA-Z]+)\s+(?P<src_ip>[0-9\.]+)\s+(?P<dst_ip>[0-9\.]+)\s+(?P<src_port>\d+)\s+(?P<dst_port>\d+)\s+(?P<proto>\d+)\s+(?P<packets>\d+)\s+(?P<bytes>\d+)\s+(?P<action>\w+)'
+
+
+field_mapping:
+  "src_endpoint.ip": "$src_ip"
+  "src_endpoint.port": "$src_port:integer"
+  "src_endpoint.zone": "aws_vpc_subnet"
+  "dst_endpoint.ip": "$dst_ip"
+  "dst_endpoint.port": "$dst_port:integer"
+  "dst_endpoint.zone": "aws_vpc_peer"
+  "connection_info.protocol_name": "$proto:proto_name"
+  "traffic.bytes": "$bytes:integer"
+  "traffic.packets": "$packets:integer"
+
+disposition_map:
+  "ACCEPT": "Allowed"
+  "REJECT": "Blocked"
+  "accept": "Allowed"
+  "reject": "Blocked"
+  default: "Allowed"

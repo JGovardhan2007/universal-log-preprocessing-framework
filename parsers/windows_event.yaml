@@ -1,0 +1,45 @@
+vendor: "Microsoft"
+product: "Windows Security"
+version: "1.0.0"
+description: "Declarative parser for Windows Security Event Logs (Event ID 4624, 4625, 5156)"
+
+signature_match:
+  type: "contains"
+  patterns:
+    - "Microsoft-Windows-Security-Auditing"
+    - "EventID=4624"
+    - "EventID=4625"
+    - "EventID=5156"
+    - "Security-Auditing: 4624"
+    - "Security-Auditing: 4625"
+    - "Security-Auditing: 5156"
+
+extraction:
+  type: "regex"
+  patterns:
+    # Key-Value / Syslog style Windows event
+    - 'EventID=(?P<event_id_code>\d+).*?Account Name:\s*(?P<user>\S+).*?Source Address:\s*(?P<src_ip>[0-9\.]+).*?Source Port:\s*(?P<src_port>\d+).*?Destination Address:\s*(?P<dst_ip>[0-9\.]+).*?Destination Port:\s*(?P<dst_port>\d+)'
+    # Pipe delimited or syslog audit line
+    - 'Security-Auditing:\s*(?P<event_id_code>\d+).*?user=(?P<user>\S+)\s+src=(?P<src_ip>[0-9\.]+):(?P<src_port>\d+)\s+dst=(?P<dst_ip>[0-9\.]+):(?P<dst_port>\d+)\s+proto=(?P<proto>\w+)\s+action=(?P<action>\w+)'
+    # Heuristic fallback Windows auth
+    - 'EventID=(?P<event_id_code>\d+).*?user=(?P<user>\S+).*?src=(?P<src_ip>[0-9\.]+).*?dst=(?P<dst_ip>[0-9\.]+)'
+
+field_mapping:
+  "src_endpoint.ip": "$src_ip"
+  "src_endpoint.port": "$src_port:integer"
+  "src_endpoint.zone": "lan"
+  "dst_endpoint.ip": "$dst_ip"
+  "dst_endpoint.port": "$dst_port:integer"
+  "dst_endpoint.zone": "domain_controller"
+  "connection_info.protocol_name": "$proto:upper"
+  "user.name": "$user"
+
+disposition_map:
+  "4624": "Allowed"
+  "4625": "Blocked"
+  "5156": "Allowed"
+  "Audit Success": "Allowed"
+  "Audit Failure": "Blocked"
+  "allow": "Allowed"
+  "block": "Blocked"
+  default: "Allowed"
