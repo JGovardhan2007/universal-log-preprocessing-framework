@@ -20,7 +20,7 @@
   - When creating new parser configurations, place them in `/parsers/` as `.yaml` files.
   - The shared columnar sink format between Rust and Python is **Apache Arrow / Parquet** at `/data/stream_buffer.parquet`.
   - Always preserve the full raw string in `.raw_data` and bind it with the SHA-256 digest in `.metadata.hash`.
-- **Status & Merge Readiness:** ✅ Baseline Docs & Environment Ready
+- **Status & Merge Readiness:** ✅ Pushed cleanly to GitHub `origin/main` (Commit: `8df0114`)
 
 ---
 
