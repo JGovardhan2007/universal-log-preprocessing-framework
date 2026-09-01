@@ -5,12 +5,12 @@ Parser Validation & Syntax Verification Tool
 Track 2: Declarative Parser Specifications
 """
 
-import os
 import re
 import sys
 import yaml
 from pathlib import Path
-from typing import Dict, Any, List, Tuple
+from typing import Dict, Any, Tuple
+
 
 if hasattr(sys.stdout, "reconfigure"):
     try:

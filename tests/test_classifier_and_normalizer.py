@@ -2,20 +2,19 @@
 Unit Tests for 3-Tier Classifier & OCSF v1.1.0 (Class 4001) Normalizer
 """
 
-import pytest
 from core_engine.parser_loader import ParserLoader
 from core_engine.classifier import Classifier
 from core_engine.ocsf_normalizer import OCSFNormalizer
 from core_engine.hasher import ForensicHasher
 
 
-@pytest.fixture
-def classifier():
+def _get_classifier():
     loader = ParserLoader("parsers")
     return Classifier(loader)
 
 
-def test_tier1_classification(classifier):
+def test_tier1_classification():
+    classifier = _get_classifier()
     raw = "%ASA-4-106023: Deny tcp src outside:203.0.113.15/44123 dst inside:192.168.1.50/80"
     tier, format_name, tokens, parser = classifier.classify_and_extract(raw)
 
@@ -25,7 +24,8 @@ def test_tier1_classification(classifier):
     assert tokens.get("src_ip") == "203.0.113.15"
 
 
-def test_tier2_json_classification(classifier):
+def test_tier2_json_classification():
+    classifier = _get_classifier()
     raw = '{"custom_event": "traffic", "src_ip": "10.0.0.1", "dest_ip": "10.0.0.2", "proto": "UDP"}'
     tier, format_name, tokens, parser = classifier.classify_and_extract(raw)
 
@@ -34,7 +34,8 @@ def test_tier2_json_classification(classifier):
     assert tokens.get("src_ip") == "10.0.0.1"
 
 
-def test_tier2_key_value_classification(classifier):
+def test_tier2_key_value_classification():
+    classifier = _get_classifier()
     raw = "timestamp=123456 app=custom_proxy client_ip=192.168.10.1 server_ip=10.20.30.40 status=blocked"
     tier, format_name, tokens, parser = classifier.classify_and_extract(raw)
 
@@ -44,7 +45,8 @@ def test_tier2_key_value_classification(classifier):
     assert tokens.get("server_ip") == "10.20.30.40"
 
 
-def test_tier3_heuristic_fallback(classifier):
+def test_tier3_heuristic_fallback():
+    classifier = _get_classifier()
     # Completely unstructured log with raw text
     raw = "CRITICAL ALERT: Connection from 198.51.100.99 to 192.168.1.1 on port 8080 was blocked by firewall"
     tier, format_name, tokens, parser = classifier.classify_and_extract(raw)
@@ -56,7 +58,8 @@ def test_tier3_heuristic_fallback(classifier):
     assert tokens.get("action") == "blocked"
 
 
-def test_ocsf_normalization_class_4001(classifier):
+def test_ocsf_normalization_class_4001():
+    classifier = _get_classifier()
     raw = "%ASA-4-106023: Deny tcp src outside:203.0.113.15/44123 dst inside:192.168.1.50/80"
     event_id, raw_str, digest, ts = ForensicHasher.create_provenance_envelope(raw.encode("utf-8"))
     tier, format_name, tokens, parser = classifier.classify_and_extract(raw_str)
@@ -88,3 +91,4 @@ def test_ocsf_normalization_class_4001(classifier):
     assert ocsf["metadata"]["hash"] == digest
     assert ocsf["metadata"]["product"]["vendor_name"] == "Cisco"
     assert ocsf["raw_data"] == raw
+

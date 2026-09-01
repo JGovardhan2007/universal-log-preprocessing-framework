@@ -3,12 +3,12 @@ Universal Log Pre-processing Framework (ULPF)
 Columnar Apache Arrow / Parquet Streaming Sink Writer
 """
 
-import os
 import threading
 import pyarrow as pa
 import pyarrow.parquet as pq
 from pathlib import Path
 from typing import Dict, Any, List, Optional
+
 
 
 class ParquetSinkWriter:
