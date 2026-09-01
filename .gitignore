@@ -49,8 +49,11 @@ yarn-error.log*
 # Temporary data / buffers / models
 data/*.parquet
 data/*.mmdb
+data/*.json
+data/lake/
 output/
 *.log
+
 *.tmp
 *.bak
 scratch/

@@ -3,11 +3,15 @@ Universal Log Pre-processing Framework (ULPF)
 Columnar Apache Arrow / Parquet Streaming Sink Writer
 """
 
+import time
+import json
 import threading
+from datetime import datetime, timezone
 import pyarrow as pa
 import pyarrow.parquet as pq
 from pathlib import Path
 from typing import Dict, Any, List, Optional
+
 
 
 
@@ -104,7 +108,6 @@ class ParquetSinkWriter:
         try:
             table = pa.Table.from_pylist(self.buffer)
             if self.output_path.exists():
-                # Read existing table and append (or write rolling file)
                 try:
                     existing_table = pq.read_table(self.output_path)
                     combined_table = pa.concat_tables([existing_table, table])
@@ -117,9 +120,42 @@ class ParquetSinkWriter:
             else:
                 pq.write_table(table, self.output_path, compression="snappy")
 
+
+            # Also persist into partitioned rolling historical lake
+            try:
+                now = datetime.now(timezone.utc)
+                lake_dir = self.output_path.parent / "lake" / f"year={now.year}" / f"month={now.strftime('%m')}" / f"day={now.strftime('%d')}"
+                lake_dir.mkdir(parents=True, exist_ok=True)
+                lake_file = lake_dir / f"partition_{now.strftime('%H%M%S')}_{int(time.time()*1000)%10000}.parquet"
+                pq.write_table(table, lake_file, compression="snappy")
+            except Exception:
+                pass
+
+
             self.total_written += count
             self.buffer.clear()
             return count
         except Exception as e:
             print(f"[ERROR] Parquet flush failed: {e}")
             return 0
+
+    def write_to_dlq(self, raw_bytes: bytes, error_reason: str, source_ip: str = "127.0.0.1"):
+        """Failsafe Dead-Letter Queue for corrupted, unparseable, or malformed bytes."""
+        try:
+            now = datetime.now(timezone.utc)
+            dlq_dir = self.output_path.parent / "dlq" / f"date={now.strftime('%Y-%m-%d')}"
+            dlq_dir.mkdir(parents=True, exist_ok=True)
+            dlq_file = dlq_dir / "dead_letters.jsonl"
+            
+            entry = {
+                "timestamp_utc": now.isoformat(),
+                "source_ip": source_ip,
+                "error_reason": error_reason,
+                "raw_bytes_len": len(raw_bytes),
+                "raw_hex": raw_bytes.hex()
+            }
+            with open(dlq_file, "a", encoding="utf-8") as f:
+                f.write(json.dumps(entry) + "\n")
+        except Exception:
+            pass
+

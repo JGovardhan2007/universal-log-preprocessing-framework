@@ -1,0 +1,42 @@
+vendor: "Zeek"
+product: "Network Security Monitor (conn.log)"
+version: "1.0.0"
+description: "Declarative parser for Zeek/Bro connection logs (conn.log)"
+
+signature_match:
+  type: "contains"
+  patterns:
+    - "zeek.conn"
+    - "#fields\tts\tuid\tid.orig_h\tid.orig_p\tid.resp_h\tid.resp_p\tproto"
+    - "id.orig_h="
+    - "zeek_conn:"
+
+extraction:
+  type: "regex"
+  patterns:
+    # Key-value / Syslog tagged Zeek conn
+    - 'zeek_conn:\s*(?P<ts>\S+)\s+(?P<uid>\S+)\s+(?P<src_ip>[0-9\.]+)\s+(?P<src_port>\d+)\s+(?P<dst_ip>[0-9\.]+)\s+(?P<dst_port>\d+)\s+(?P<proto>\w+)\s+(?P<service>\S+)\s+(?P<duration>\S+)\s+(?P<orig_bytes>\d+)\s+(?P<resp_bytes>\d+)\s+(?P<conn_state>\w+)'
+    # Key=Value style Zeek export
+    - 'id\.orig_h=(?P<src_ip>[0-9\.]+)\s+id\.orig_p=(?P<src_port>\d+)\s+id\.resp_h=(?P<dst_ip>[0-9\.]+)\s+id\.resp_p=(?P<dst_port>\d+)\s+proto=(?P<proto>\w+)\s+conn_state=(?P<conn_state>\w+)'
+
+field_mapping:
+  "src_endpoint.ip": "$src_ip"
+  "src_endpoint.port": "$src_port:integer"
+  "src_endpoint.zone": "monitored_lan"
+  "dst_endpoint.ip": "$dst_ip"
+  "dst_endpoint.port": "$dst_port:integer"
+  "dst_endpoint.zone": "external"
+  "connection_info.protocol_name": "$proto:upper"
+  "traffic.bytes": "$orig_bytes:integer"
+
+disposition_map:
+  "SF": "Allowed"
+  "S0": "Blocked"
+  "REJ": "Blocked"
+  "RSTO": "Blocked"
+  "RSTOS0": "Blocked"
+  "RSTR": "Allowed"
+  "SH": "Blocked"
+  "SHR": "Blocked"
+  "OTH": "Unknown"
+  default: "Allowed"
