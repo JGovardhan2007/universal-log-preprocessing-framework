@@ -1,6 +1,7 @@
 /**
  * ULPF Client Application Logic
- * Modern 60FPS Reactive Controller & Visualizer
+ * Shadcn Dark Zinc High-Performance Controller
+ * Robustness: Bounded Virtual DOM, Resilient Auto-Reconnect Heartbeat, Telemetry & CSV Export
  */
 
 // State Management
@@ -14,14 +15,18 @@ const state = {
     anomaliesCount: 0,
     batchesCount: 0,
     bufferRawCount: 0,
+    activeFilter: 'all',
+    searchQuery: '',
+    allTelemetryRecords: [],
     streamTimer: null,
-    pollTimer: null
+    pollTimer: null,
+    isBackendOnline: true
 };
 
-// DOM Elements
+// DOM References
 const DOM = {
-    navBtns: document.querySelectorAll('.nav-btn'),
-    tabPanes: document.querySelectorAll('.tab-pane'),
+    navBtns: document.querySelectorAll('.tab-trigger'),
+    tabPanes: document.querySelectorAll('.tab-content'),
     kpiTotalLogs: document.getElementById('kpi-total-logs'),
     kpiSpeed: document.getElementById('kpi-speed'),
     kpiAnomalies: document.getElementById('kpi-anomalies'),
@@ -48,14 +53,38 @@ const DOM = {
     inspectRawTitle: document.getElementById('inspect-raw-title'),
     inspectRawContent: document.getElementById('inspect-raw-content'),
     inspectFmtTitle: document.getElementById('inspect-fmt-title'),
-    inspectFmtContent: document.getElementById('inspect-fmt-content')
+    inspectFmtContent: document.getElementById('inspect-fmt-content'),
+    // Health Telemetry & Connection
+    healthCpu: document.getElementById('health-cpu'),
+    healthRam: document.getElementById('health-ram'),
+    healthLatency: document.getElementById('health-latency'),
+    healthDlq: document.getElementById('health-dlq'),
+    connDot: document.getElementById('conn-dot'),
+    connStatusText: document.getElementById('conn-status-text'),
+    connStatusBadge: document.getElementById('connection-status-badge'),
+    // Query Lake & Export
+    queryLakeInput: document.getElementById('query-lake-input'),
+    filterChips: document.querySelectorAll('.pill-chip'),
+    exportCsvBtn: document.getElementById('export-csv-btn'),
+    // Studio Drawer
+    toggleStudioBtn: document.getElementById('toggle-studio-btn'),
+    closeStudioBtn: document.getElementById('close-studio-btn'),
+    parserStudioDrawer: document.getElementById('parser-studio-drawer'),
+    studioVendorInput: document.getElementById('studio-vendor-input'),
+    studioProductInput: document.getElementById('studio-product-input'),
+    studioLogInput: document.getElementById('studio-log-input'),
+    studioGenerateBtn: document.getElementById('studio-generate-btn'),
+    studioStatusMsg: document.getElementById('studio-status-msg'),
+    studioPreviewBox: document.getElementById('studio-preview-box'),
+    studioPreviewFile: document.getElementById('studio-preview-file'),
+    studioYamlPreview: document.getElementById('studio-yaml-preview')
 };
 
 // Charts References
 let scatterChart = null;
 let vendorPieChart = null;
 
-// Synthetic Corpus for Continuous Smooth Terminal Animation
+// Synthetic Corpus for Continuous Smooth Stream Animation
 const SYNTHETIC_CORPUS = [
     {
         raw: "%ASA-4-106023: Deny tcp src outside:198.51.100.45/51234 dst inside:10.0.0.5/22 by access-group 'OUTSIDE_IN'",
@@ -129,7 +158,7 @@ const SYNTHETIC_CORPUS = [
     }
 ];
 
-// Helper: Fast SHA-256 Hex Digest
+// Fast SHA-256 Mock Digester
 function computeMockSha256(str) {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
@@ -147,10 +176,12 @@ document.addEventListener('DOMContentLoaded', () => {
     initTabs();
     initCharts();
     bindControls();
+    initQueryLake();
+    initStudioDrawer();
     fetchLiveTelemetry();
     
-    // Polling Telemetry every 2 seconds
-    setInterval(fetchLiveTelemetry, 2000);
+    // Heartbeat & Telemetry Polling (every 2.5 seconds)
+    setInterval(fetchLiveTelemetry, 2500);
 });
 
 // -------------------------------------------------------------
@@ -216,14 +247,18 @@ function bindControls() {
         if (!fname) return;
         inspectBatchFile(fname);
     });
+
+    if (DOM.exportCsvBtn) {
+        DOM.exportCsvBtn.addEventListener('click', exportTelemetryToCsv);
+    }
 }
 
 function toggleStream() {
     state.isStreaming = !state.isStreaming;
 
     if (state.isStreaming) {
-        DOM.streamBtnIcon.innerText = '⏹';
-        DOM.streamBtnLabel.innerText = 'STOP LIVE STREAM';
+        DOM.streamBtnIcon.innerText = '■';
+        DOM.streamBtnLabel.innerText = 'Stop Live Stream';
         DOM.streamToggleBtn.classList.add('running');
         startStreamTimer();
 
@@ -234,7 +269,7 @@ function toggleStream() {
         }).catch(() => {});
     } else {
         DOM.streamBtnIcon.innerText = '▶';
-        DOM.streamBtnLabel.innerText = 'START LIVE STREAM';
+        DOM.streamBtnLabel.innerText = 'Start Live Stream';
         DOM.streamToggleBtn.classList.remove('running');
         clearInterval(state.streamTimer);
 
@@ -253,7 +288,113 @@ function restartStreamTimer() {
 }
 
 // -------------------------------------------------------------
-// SMOOTH 60FPS TERMINAL RENDERER (TOP RAW/SHA -> BOTTOM JSON)
+// QUERY LAKE, INSTANT FILTER BAR & CSV EXPORT
+// -------------------------------------------------------------
+function initQueryLake() {
+    if (DOM.queryLakeInput) {
+        DOM.queryLakeInput.addEventListener('input', (e) => {
+            state.searchQuery = e.target.value.toLowerCase().trim();
+            renderFilteredTelemetryTable();
+        });
+    }
+
+    DOM.filterChips.forEach(chip => {
+        chip.addEventListener('click', () => {
+            DOM.filterChips.forEach(c => c.classList.remove('active'));
+            chip.classList.add('active');
+            state.activeFilter = chip.getAttribute('data-filter');
+            renderFilteredTelemetryTable();
+        });
+    });
+}
+
+function exportTelemetryToCsv() {
+    if (state.allTelemetryRecords.length === 0) {
+        alert('No telemetry records available to export.');
+        return;
+    }
+
+    const headers = ['Timestamp', 'Vendor', 'Source_IP', 'Source_Port', 'Dest_IP', 'Dest_Port', 'Disposition', 'Anomaly_Score'];
+    const csvRows = [headers.join(',')];
+
+    state.allTelemetryRecords.forEach(r => {
+        csvRows.push([
+            `"${r.timeStr}"`,
+            `"${r.vendor}"`,
+            `"${r.src_ip}"`,
+            r.src_port,
+            `"${r.dst_ip}"`,
+            r.dst_port,
+            `"${r.disposition}"`,
+            r.anomaly_score
+        ].join(','));
+    });
+
+    const blob = new Blob([csvRows.join('\n')], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `ulpf_telemetry_export_${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '_')}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+// -------------------------------------------------------------
+// NO-CODE PARSER STUDIO DRAWER
+// -------------------------------------------------------------
+function initStudioDrawer() {
+    if (DOM.toggleStudioBtn) {
+        DOM.toggleStudioBtn.addEventListener('click', () => {
+            DOM.parserStudioDrawer.classList.toggle('hidden');
+        });
+    }
+    if (DOM.closeStudioBtn) {
+        DOM.closeStudioBtn.addEventListener('click', () => {
+            DOM.parserStudioDrawer.classList.add('hidden');
+        });
+    }
+    if (DOM.studioGenerateBtn) {
+        DOM.studioGenerateBtn.addEventListener('click', async () => {
+            const vendor = DOM.studioVendorInput.value.trim();
+            const product = DOM.studioProductInput.value.trim() || 'Generic';
+            const logStr = DOM.studioLogInput.value.trim();
+
+            if (!vendor || !logStr) {
+                DOM.studioStatusMsg.innerText = 'Vendor and Sample Log required!';
+                DOM.studioStatusMsg.style.color = '#f87171';
+                return;
+            }
+
+            DOM.studioStatusMsg.innerText = 'Scaffolding declarative YAML...';
+            DOM.studioStatusMsg.style.color = '#fbbf24';
+
+            try {
+                const res = await fetch('/api/v1/parsers/auto-generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ vendor, product, sample_log: logStr })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    DOM.studioStatusMsg.innerText = `[SUCCESS] Parser ${data.filename} hot-reloaded! (${data.active_parsers} active)`;
+                    DOM.studioStatusMsg.style.color = '#10b981';
+                    DOM.studioPreviewBox.classList.remove('hidden');
+                    DOM.studioPreviewFile.innerText = data.filename;
+                    DOM.studioYamlPreview.innerText = data.yaml_content;
+                } else {
+                    DOM.studioStatusMsg.innerText = `Error: ${data.detail}`;
+                    DOM.studioStatusMsg.style.color = '#f87171';
+                }
+            } catch (err) {
+                DOM.studioStatusMsg.innerText = 'Failed to generate parser.';
+                DOM.studioStatusMsg.style.color = '#f87171';
+            }
+        });
+    }
+}
+
+// -------------------------------------------------------------
+// VIRTUALIZED BOUNDED 60FPS TERMINAL STREAM
 // -------------------------------------------------------------
 let eventCounter = 0;
 function generateStreamEvent() {
@@ -265,25 +406,25 @@ function generateStreamEvent() {
     const timeStr = new Date().toISOString().substring(11, 23);
     const shaKey = computeMockSha256(item.raw + eventCounter);
 
-    // 1. INJECT RAW LOG STRING (Top Left)
+    // 1. BOUNDED INJECTION: RAW STRING (Max 10 nodes in DOM)
     const rawEl = document.createElement('div');
     rawEl.className = 'stream-item-raw';
     rawEl.innerText = `[${timeStr}] ${item.raw}`;
     DOM.rawStreamViewport.insertBefore(rawEl, DOM.rawStreamViewport.firstChild);
-    if (DOM.rawStreamViewport.children.length > 12) {
+    if (DOM.rawStreamViewport.children.length > 10) {
         DOM.rawStreamViewport.removeChild(DOM.rawStreamViewport.lastChild);
     }
 
-    // 2. INJECT SHA-256 KEY (Top Right)
+    // 2. BOUNDED INJECTION: SHA-256 KEY (Max 10 nodes in DOM)
     const shaEl = document.createElement('div');
     shaEl.className = 'stream-item-sha';
     shaEl.innerText = `SHA-256: ${shaKey}`;
     DOM.shaStreamViewport.insertBefore(shaEl, DOM.shaStreamViewport.firstChild);
-    if (DOM.shaStreamViewport.children.length > 12) {
+    if (DOM.shaStreamViewport.children.length > 10) {
         DOM.shaStreamViewport.removeChild(DOM.shaStreamViewport.lastChild);
     }
 
-    // 3. INJECT FORMATTED OCSF JSON OUTPUT (Bottom Half)
+    // 3. BOUNDED INJECTION: FORMATTED OCSF JSON (Max 4 nodes in DOM)
     const jsonRecord = {
         event_id: `uuid-${Math.random().toString(36).substring(2, 11)}`,
         class_uid: 4001,
@@ -308,20 +449,92 @@ function generateStreamEvent() {
     // Update Counter
     DOM.processedCounterBadge.innerText = `EVENTS COMMITTED: ${eventCounter}`;
 
-    // Anomaly Check
-    if (item.anomaly_score > 0.70) {
-        state.anomaliesCount++;
-        appendAnomalyTableRow(item, timeStr, shaKey);
+    // Store in Telemetry Array (Cap at 100 in memory)
+    state.allTelemetryRecords.unshift({
+        timeStr,
+        vendor: item.vendor,
+        src_ip: item.src_ip,
+        src_port: item.src_port,
+        dst_ip: item.dst_ip,
+        dst_port: item.dst_port,
+        disposition: item.disposition,
+        anomaly_score: item.anomaly_score
+    });
+    if (state.allTelemetryRecords.length > 100) {
+        state.allTelemetryRecords.pop();
     }
 
-    // Update buffer progress
+    if (item.anomaly_score > 0.70) {
+        state.anomaliesCount++;
+    }
+
+    // Re-render Telemetry Table according to active filters
+    renderFilteredTelemetryTable();
+
+    // Auto-flush trigger
     if (state.bufferRawCount >= state.batchThreshold) {
         state.bufferRawCount = 0;
         state.batchesCount++;
-        DOM.kpiBatches.innerHTML = `${state.batchesCount} <span class="unit">Batches</span>`;
+        DOM.kpiBatches.innerHTML = `${state.batchesCount} <span class="stat-unit">Batches</span>`;
+        fetchStoredFiles();
     }
     updateBufferUI();
     updateKpis();
+}
+
+function renderFilteredTelemetryTable() {
+    let filtered = state.allTelemetryRecords;
+
+    // Filter Chips
+    if (state.activeFilter === 'blocked') {
+        filtered = filtered.filter(r => r.disposition.toLowerCase() === 'blocked');
+    } else if (state.activeFilter === 'allowed') {
+        filtered = filtered.filter(r => r.disposition.toLowerCase() === 'allowed');
+    } else if (state.activeFilter === 'ssh') {
+        filtered = filtered.filter(r => r.dst_port === 22 || r.src_port === 22);
+    } else if (state.activeFilter === 'web') {
+        filtered = filtered.filter(r => r.dst_port === 80 || r.dst_port === 443);
+    } else if (state.activeFilter === 'threat') {
+        filtered = filtered.filter(r => r.anomaly_score > 0.70);
+    }
+
+    // Search Query Filter
+    if (state.searchQuery) {
+        const q = state.searchQuery;
+        filtered = filtered.filter(r => 
+            r.vendor.toLowerCase().includes(q) ||
+            r.src_ip.includes(q) ||
+            r.dst_ip.includes(q) ||
+            r.disposition.toLowerCase().includes(q) ||
+            r.src_port.toString().includes(q) ||
+            r.dst_port.toString().includes(q)
+        );
+    }
+
+    if (filtered.length === 0) {
+        DOM.anomaliesTableBody.innerHTML = '<tr><td colspan="6" class="empty-state">No records found matching query criteria.</td></tr>';
+        DOM.outlierCountBadge.innerText = '0 MATCHES';
+        return;
+    }
+
+    DOM.outlierCountBadge.innerText = `${filtered.length} MATCHES`;
+    DOM.anomaliesTableBody.innerHTML = '';
+
+    filtered.slice(0, 15).forEach(item => {
+        const row = document.createElement('tr');
+        const dispClass = item.disposition.toLowerCase() === 'blocked' ? 'blocked' : 'allowed';
+        const scoreColor = item.anomaly_score > 0.7 ? '#f87171' : '#34d399';
+
+        row.innerHTML = `
+            <td>${item.timeStr}</td>
+            <td><b>${item.vendor}</b></td>
+            <td><code>${item.src_ip}:${item.src_port}</code></td>
+            <td><code>${item.dst_ip}:${item.dst_port}</code></td>
+            <td><span class="table-badge ${dispClass}">${item.disposition.toUpperCase()}</span></td>
+            <td style="color:${scoreColor}; font-weight:700;">${item.anomaly_score.toFixed(3)}</td>
+        `;
+        DOM.anomaliesTableBody.appendChild(row);
+    });
 }
 
 function updateBufferUI() {
@@ -333,37 +546,12 @@ function updateBufferUI() {
 
 function updateKpis() {
     DOM.kpiTotalLogs.innerText = state.totalIngested.toLocaleString();
-    DOM.kpiSpeed.innerHTML = `${state.isStreaming ? state.speed.toFixed(1) : '0.0'} <span class="unit">EPS</span>`;
+    DOM.kpiSpeed.innerHTML = `${state.isStreaming ? state.speed.toFixed(1) : '0.0'} <span class="stat-unit">EPS</span>`;
     DOM.kpiAnomalies.innerText = state.anomaliesCount.toLocaleString();
 }
 
-function appendAnomalyTableRow(item, timeStr, shaKey) {
-    const row = document.createElement('tr');
-    const dispClass = item.disposition.toLowerCase() === 'blocked' ? 'blocked' : 'allowed';
-    
-    row.innerHTML = `
-        <td>${timeStr}</td>
-        <td><b>${item.vendor}</b></td>
-        <td><code>${item.src_ip}:${item.src_port}</code></td>
-        <td><code>${item.dst_ip}:${item.dst_port}</code></td>
-        <td><span class="status-badge ${dispClass}">${item.disposition.toUpperCase()}</span></td>
-        <td style="color:#f87171; font-weight:700;">${item.anomaly_score.toFixed(3)}</td>
-    `;
-
-    if (DOM.anomaliesTableBody.querySelector('.empty-state')) {
-        DOM.anomaliesTableBody.innerHTML = '';
-    }
-
-    DOM.anomaliesTableBody.insertBefore(row, DOM.anomaliesTableBody.firstChild);
-    if (DOM.anomaliesTableBody.children.length > 20) {
-        DOM.anomaliesTableBody.removeChild(DOM.anomaliesTableBody.lastChild);
-    }
-
-    DOM.outlierCountBadge.innerText = `${state.anomaliesCount} DETECTED`;
-}
-
 // -------------------------------------------------------------
-// CHARTS & VISUALIZATIONS
+// CHARTS (SHADCN DARK THEME)
 // -------------------------------------------------------------
 function initCharts() {
     // 1. AI Threat Scatter Plot
@@ -385,10 +573,10 @@ function initCharts() {
                 data: scatterData,
                 backgroundColor: (ctx) => {
                     const raw = ctx.raw;
-                    if (!raw) return 'rgba(255, 85, 0, 0.7)';
+                    if (!raw) return 'rgba(249, 115, 22, 0.7)';
                     return raw.score > 0.7 ? 'rgba(239, 68, 68, 0.9)' : 'rgba(251, 191, 36, 0.6)';
                 },
-                borderColor: 'rgba(255, 255, 255, 0.1)',
+                borderColor: 'rgba(255, 255, 255, 0.05)',
                 borderWidth: 1,
                 pointRadius: 5,
                 pointHoverRadius: 8
@@ -397,19 +585,17 @@ function initCharts() {
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false }
-            },
+            plugins: { legend: { display: false } },
             scales: {
                 x: {
-                    title: { display: true, text: 'Source Port (Entropy)', color: '#64748b' },
-                    grid: { color: '#161d2b' },
-                    ticks: { color: '#94a3b8' }
+                    title: { display: true, text: 'Source Port (Entropy)', color: '#71717a' },
+                    grid: { color: '#18181b' },
+                    ticks: { color: '#a1a1aa' }
                 },
                 y: {
-                    title: { display: true, text: 'Destination Port (Service)', color: '#64748b' },
-                    grid: { color: '#161d2b' },
-                    ticks: { color: '#94a3b8' }
+                    title: { display: true, text: 'Destination Port (Service)', color: '#71717a' },
+                    grid: { color: '#18181b' },
+                    ticks: { color: '#a1a1aa' }
                 }
             }
         }
@@ -424,13 +610,13 @@ function initCharts() {
             datasets: [{
                 data: [32, 24, 18, 14, 12, 10, 8],
                 backgroundColor: [
-                    '#ff5500',
-                    '#f59e0b',
-                    '#06b6d4',
-                    '#10b981',
-                    '#8b5cf6',
+                    '#f97316',
+                    '#fbbf24',
+                    '#38bdf8',
+                    '#34d399',
+                    '#a855f7',
                     '#ec4899',
-                    '#64748b'
+                    '#71717a'
                 ],
                 borderWidth: 0
             }]
@@ -441,22 +627,32 @@ function initCharts() {
             plugins: {
                 legend: {
                     position: 'right',
-                    labels: { color: '#94a3b8', font: { family: 'JetBrains Mono', size: 10 } }
+                    labels: { color: '#a1a1aa', font: { family: 'Inter', size: 11 } }
                 }
             },
-            cutout: '70%'
+            cutout: '72%'
         }
     });
 }
 
 // -------------------------------------------------------------
-// TELEMETRY & BACKEND INTEGRATION
+// TELEMETRY & RESILIENT AUTO-RECONNECT HEARTBEAT
 // -------------------------------------------------------------
 async function fetchLiveTelemetry() {
     try {
         const res = await fetch('/api/v1/stats');
-        if (!res.ok) return;
+        if (!res.ok) throw new Error('Network error');
         const data = await res.json();
+
+        // Heartbeat Recovery
+        if (!state.isBackendOnline) {
+            state.isBackendOnline = true;
+            DOM.connDot.style.background = '#10b981';
+            DOM.connDot.style.boxShadow = '0 0 6px #10b981';
+            DOM.connStatusText.innerText = 'PORT 5140 (UDP)';
+            DOM.connStatusBadge.style.borderColor = 'rgba(16, 185, 129, 0.25)';
+            DOM.connStatusBadge.style.color = '#34d399';
+        }
 
         state.totalIngested = data.total_ingested || state.totalIngested;
         state.currentEps = data.current_eps || state.currentEps;
@@ -464,9 +660,23 @@ async function fetchLiveTelemetry() {
         state.batchesCount = data.total_batches || state.batchesCount;
         state.isStreaming = data.is_running || state.isStreaming;
 
+        // Health Telemetry
+        if (DOM.healthCpu) DOM.healthCpu.innerText = `${data.cpu_percent || '0.0'}%`;
+        if (DOM.healthRam) DOM.healthRam.innerText = `${data.memory_mb || '0'} MB`;
+        if (DOM.healthLatency) DOM.healthLatency.innerText = `${data.p99_latency_ms || '<0.5'}ms`;
+        if (DOM.healthDlq) DOM.healthDlq.innerText = `${data.dlq_count || 0}`;
+
         updateKpis();
     } catch (e) {
-        // Standalone fallback
+        // Resilient Disconnect State
+        state.isBackendOnline = false;
+        if (DOM.connDot) {
+            DOM.connDot.style.background = '#f59e0b';
+            DOM.connDot.style.boxShadow = '0 0 6px #f59e0b';
+            DOM.connStatusText.innerText = 'RECONNECTING...';
+            DOM.connStatusBadge.style.borderColor = 'rgba(245, 158, 11, 0.3)';
+            DOM.connStatusBadge.style.color = '#fbbf24';
+        }
     }
 }
 
@@ -499,15 +709,14 @@ function renderFilesTable(files, tbody, badge) {
             <td>${f.size_kb} KB</td>
             <td>${f.timestamp}</td>
             <td>
-                <a href="/api/v1/files/download?filename=${encodeURIComponent(f.filename)}" class="cyber-btn-download" download="${f.filename}">
-                    ⬇ Download
+                <a href="/api/v1/files/download?filename=${encodeURIComponent(f.filename)}" class="btn-download-sm" download="${f.filename}">
+                    DOWNLOAD
                 </a>
             </td>
         `;
         tbody.appendChild(tr);
     });
 }
-
 
 function populateBatchInspector(rawFiles) {
     if (!rawFiles || rawFiles.length === 0) return;

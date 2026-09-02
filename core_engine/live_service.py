@@ -275,35 +275,41 @@ class LiveLogPipelineService:
             for fname in sorted(os.listdir(RAW_STORAGE_DIR), reverse=True):
                 if fname.endswith(".log"):
                     fpath = os.path.join(RAW_STORAGE_DIR, fname)
-                    size_kb = round(os.path.getsize(fpath) / 1024.0, 2)
-                    with open(fpath, "r", encoding="utf-8", errors="ignore") as f:
-                        lines = len(f.readlines())
-                    raw_files.append({
-                        "filename": fname,
-                        "size_kb": size_kb,
-                        "records": lines,
-                        "path": fpath,
-                        "timestamp": datetime.fromtimestamp(os.path.getmtime(fpath)).strftime("%Y-%m-%d %H:%M:%S")
-                    })
+                    try:
+                        size_kb = round(os.path.getsize(fpath) / 1024.0, 2)
+                        with open(fpath, "r", encoding="utf-8", errors="ignore") as f:
+                            lines = len(f.readlines())
+                        raw_files.append({
+                            "filename": fname,
+                            "size_kb": size_kb,
+                            "records": lines,
+                            "path": fpath,
+                            "timestamp": datetime.fromtimestamp(os.path.getmtime(fpath)).strftime("%Y-%m-%d %H:%M:%S")
+                        })
+                    except Exception:
+                        continue
 
         formatted_files = []
         if os.path.exists(FORMATTED_STORAGE_DIR):
             for fname in sorted(os.listdir(FORMATTED_STORAGE_DIR), reverse=True):
                 if fname.endswith(".json"):
                     fpath = os.path.join(FORMATTED_STORAGE_DIR, fname)
-                    size_kb = round(os.path.getsize(fpath) / 1024.0, 2)
                     try:
+                        size_kb = round(os.path.getsize(fpath) / 1024.0, 2)
                         with open(fpath, "r", encoding="utf-8") as f:
                             data = json.load(f)
                             count = len(data) if isinstance(data, list) else 1
+                        formatted_files.append({
+                            "filename": fname,
+                            "size_kb": size_kb,
+                            "records": count,
+                            "path": fpath,
+                            "timestamp": datetime.fromtimestamp(os.path.getmtime(fpath)).strftime("%Y-%m-%d %H:%M:%S")
+                        })
                     except Exception:
-                        count = 0
-                    formatted_files.append({
-                        "filename": fname,
-                        "size_kb": size_kb,
-                        "records": count,
-                        "path": fpath,
-                        "timestamp": datetime.fromtimestamp(os.path.getmtime(fpath)).strftime("%Y-%m-%d %H:%M:%S")
-                    })
+                        continue
 
-        return {"raw_files": raw_files, "formatted_files": formatted_files}
+        return {
+            "raw_files": raw_files,
+            "formatted_files": formatted_files
+        }
