@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ULPF | Universal Log Pre-processing Framework</title>
+    <title>ULPF | Universal Log Pre-processing &amp; Threat Intelligence Framework</title>
     <!-- Fonts: Inter & JetBrains Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -23,16 +23,14 @@
                     <div class="brand-badge">
                         <div class="brand-square"></div>
                         <span class="brand-title">ULPF</span>
-                        <span class="brand-sub">v1.1</span>
+                        <span class="brand-sub">v2.0-SOC</span>
                     </div>
-                    <div class="header-separator"></div>
-                    <span class="header-label">UNIVERSAL LOG PRE-PROCESSING FRAMEWORK</span>
                 </div>
 
                 <!-- Center Segmented Tabs Control -->
                 <nav class="shadcn-tabs">
                     <button class="tab-trigger active" data-tab="dashboard">
-                        <span>Dashboard</span>
+                        <span>Threat Intelligence</span>
                     </button>
                     <button class="tab-trigger" data-tab="streamer">
                         <span>Live Streamer</span>
@@ -43,24 +41,8 @@
                     </button>
                 </nav>
 
-                <!-- Right System Status & Telemetry -->
-                <div class="header-right">
-                    <div class="health-metrics-strip">
-                        <span class="metric-item">CPU <b id="health-cpu">0.0%</b></span>
-                        <span class="metric-divider">/</span>
-                        <span class="metric-item">RAM <b id="health-ram">0 MB</b></span>
-                        <span class="metric-divider">/</span>
-                        <span class="metric-item">LATENCY <b id="health-latency">&lt;0.5ms</b></span>
-                        <span class="metric-divider">/</span>
-                        <span class="metric-item">DLQ <b id="health-dlq">0</b></span>
-                    </div>
-                    
-                    <div class="status-badge-outline" id="connection-status-badge">
-                        <span class="status-pulse-dot" id="conn-dot"></span>
-                        <span id="conn-status-text">PORT 5140 (UDP)</span>
-                    </div>
-                    <div class="airgap-pill">AIR-GAPPED</div>
-                </div>
+                <!-- Right Action / Space Holder -->
+                <div class="header-right"></div>
             </div>
         </header>
 
@@ -68,64 +50,374 @@
         <main class="main-content">
             
             <!-- ==================================================== -->
-            <!-- TAB 1: MAIN DASHBOARD -->
+            <!-- TAB 1: SOC THREAT INTELLIGENCE DASHBOARD -->
             <!-- ==================================================== -->
             <section id="tab-dashboard" class="tab-content active">
                 
-                <!-- KPI Stat Cards Row -->
-                <div class="stats-grid">
-                    <div class="shadcn-card stat-card">
-                        <div class="card-header-compact">
-                            <span class="stat-label">Total Ingested Logs</span>
-                            <span class="stat-meta-tag">INGEST::01</span>
+                <!-- 1. TOP SEVERITY & INGESTION STRIP (EXECUTIVE KPIS) -->
+                <div class="executive-kpi-strip">
+                    <!-- Critical (Red) -->
+                    <div class="shadcn-card sev-card sev-critical">
+                        <div class="sev-header">
+                            <span class="sev-badge badge-crit">CRITICAL</span>
+                            <span class="sev-meta">P1 DETECTIONS</span>
                         </div>
-                        <div class="stat-value" id="kpi-total-logs">0</div>
-                        <div class="stat-caption text-emerald">
-                            <span class="caption-bullet">●</span> 100% Wire Integrity Retained
-                        </div>
+                        <div class="sev-value" id="sev-count-critical">0</div>
+                        <div class="sev-caption">Immediate Mitigation Required</div>
                     </div>
 
-                    <div class="shadcn-card stat-card">
-                        <div class="card-header-compact">
-                            <span class="stat-label">Ingestion Throughput</span>
-                            <span class="stat-meta-tag">RATE::02</span>
+                    <!-- High (Orange) -->
+                    <div class="shadcn-card sev-card sev-high">
+                        <div class="sev-header">
+                            <span class="sev-badge badge-high">HIGH</span>
+                            <span class="sev-meta">P2 EXPLOITS</span>
                         </div>
-                        <div class="stat-value text-amber" id="kpi-speed">0.0 <span class="stat-unit">EPS</span></div>
-                        <div class="stat-caption text-muted">
-                            <span class="caption-bullet">●</span> Zero Packets Dropped
-                        </div>
+                        <div class="sev-value" id="sev-count-high">0</div>
+                        <div class="sev-caption">Privilege &amp; Policy Abuse</div>
                     </div>
 
-                    <div class="shadcn-card stat-card">
-                        <div class="card-header-compact">
-                            <span class="stat-label">AI Anomalies Detected</span>
-                            <span class="stat-meta-tag">THREAT::03</span>
+                    <!-- Medium (Amber) -->
+                    <div class="shadcn-card sev-card sev-medium">
+                        <div class="sev-header">
+                            <span class="sev-badge badge-med">MEDIUM</span>
+                            <span class="sev-meta">P3 SUSPICIOUS</span>
                         </div>
-                        <div class="stat-value text-crimson" id="kpi-anomalies">0</div>
-                        <div class="stat-caption text-crimson">
-                            <span class="caption-bullet">●</span> Isolation Forest Real-Time
-                        </div>
+                        <div class="sev-value" id="sev-count-medium">0</div>
+                        <div class="sev-caption">Port Scans &amp; Lateral Probing</div>
                     </div>
 
-                    <div class="shadcn-card stat-card">
-                        <div class="card-header-compact">
-                            <span class="stat-label">Storage Batches</span>
-                            <span class="stat-meta-tag">VAULT::04</span>
+                    <!-- Low (Emerald) -->
+                    <div class="shadcn-card sev-card sev-low">
+                        <div class="sev-header">
+                            <span class="sev-badge badge-low">LOW</span>
+                            <span class="sev-meta">P4 TELEMETRY</span>
                         </div>
-                        <div class="stat-value text-cyan" id="kpi-batches">0 <span class="stat-unit">Batches</span></div>
-                        <div class="stat-caption text-emerald">
-                            <span class="caption-bullet">●</span> Dual-File (.log / .json)
+                        <div class="sev-value" id="sev-count-low">0</div>
+                        <div class="sev-caption">Reconnaissance &amp; Scan Noise</div>
+                    </div>
+
+                    <!-- Ingestion Velocity & Live Sparkline Card -->
+                    <div class="shadcn-card velocity-card">
+                        <div class="velocity-header">
+                            <div>
+                                <span class="stat-label">Ingestion Velocity &amp; Volume</span>
+                                <div class="velocity-numbers">
+                                    <span class="stat-value" id="kpi-total-logs">0</span>
+                                    <span class="rate-badge" id="kpi-speed">0.0 EPS</span>
+                                </div>
+                            </div>
+                            <div class="sparkline-wrapper">
+                                <div class="sparkline-label">VELOCITY TREND (PAST HOUR)</div>
+                                <canvas id="velocitySparkline" width="180" height="42"></canvas>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Visual Analytics Row -->
+                <!-- 2. HIGH-DIMENSIONAL THREAT ANALYTICS & MAPPING -->
+                <div class="analytics-double-grid">
+                    <!-- Left: MITRE ATT&CK Tactic-to-Technique Flow (Sankey / Flow Graph) -->
+                    <div class="shadcn-card mitre-flow-card">
+                        <div class="card-title-row">
+                            <div>
+                                <h3 class="card-title">MITRE ATT&CK Tactic-to-Technique Flow</h3>
+                                <p class="card-subtitle">Real-Time Adversary Behavior Attribution &amp; Progression Pathing</p>
+                            </div>
+                            <span class="badge-secondary">OCSF TAXONOMY</span>
+                        </div>
+                        
+                        <div class="mitre-flow-container" id="mitre-flow-container">
+                            <!-- Tactical Stages Columns -->
+                            <div class="mitre-column col-tactics">
+                                <div class="column-header">OBSERVED TACTICS</div>
+                                <div class="mitre-nodes-list">
+                                    <div class="mitre-node node-tactic" data-tactic="initial-access">
+                                        <div class="node-header-row">
+                                            <span class="node-title">Initial Access</span>
+                                            <span class="node-id-badge">TA0001</span>
+                                        </div>
+                                        <div class="node-counter text-crimson">0 Events</div>
+                                    </div>
+
+                                    <div class="mitre-node node-tactic" data-tactic="execution">
+                                        <div class="node-header-row">
+                                            <span class="node-title">Execution</span>
+                                            <span class="node-id-badge">TA0002</span>
+                                        </div>
+                                        <div class="node-counter text-amber">0 Events</div>
+                                    </div>
+
+                                    <div class="mitre-node node-tactic" data-tactic="defense-evasion">
+                                        <div class="node-header-row">
+                                            <span class="node-title">Defense Evasion</span>
+                                            <span class="node-id-badge">TA0005</span>
+                                        </div>
+                                        <div class="node-counter text-amber">0 Events</div>
+                                    </div>
+
+                                    <div class="mitre-node node-tactic" data-tactic="credential-access">
+                                        <div class="node-header-row">
+                                            <span class="node-title">Credential Access</span>
+                                            <span class="node-id-badge">TA0006</span>
+                                        </div>
+                                        <div class="node-counter text-crimson">0 Events</div>
+                                    </div>
+
+                                    <div class="mitre-node node-tactic" data-tactic="c2">
+                                        <div class="node-header-row">
+                                            <span class="node-title">Command &amp; Control</span>
+                                            <span class="node-id-badge">TA0011</span>
+                                        </div>
+                                        <div class="node-counter text-crimson">0 Events</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Interactive SVG Connection Canvas -->
+                            <div class="mitre-canvas-wrap">
+                                <svg class="mitre-svg-canvas" id="mitre-svg-canvas"></svg>
+                            </div>
+
+                            <!-- Techniques Column -->
+                            <div class="mitre-column col-techniques">
+                                <div class="column-header">MAPPED TECHNIQUES</div>
+                                <div class="mitre-nodes-list">
+                                    <div class="mitre-node node-technique" data-tech="t1046">
+                                        <div class="tech-header">
+                                            <span class="tech-id">T1046</span>
+                                            <span class="tech-sev badge-low">LOW</span>
+                                        </div>
+                                        <div class="tech-name">Network Service Sweep</div>
+                                        <div class="node-counter text-muted">0 Incidents</div>
+                                    </div>
+
+                                    <div class="mitre-node node-technique" data-tech="t1059">
+                                        <div class="tech-header">
+                                            <span class="tech-id">T1059.001</span>
+                                            <span class="tech-sev badge-high">HIGH</span>
+                                        </div>
+                                        <div class="tech-name">PowerShell Scripting</div>
+                                        <div class="node-counter text-muted">0 Incidents</div>
+                                    </div>
+
+                                    <div class="mitre-node node-technique" data-tech="t1070">
+                                        <div class="tech-header">
+                                            <span class="tech-id">T1070</span>
+                                            <span class="tech-sev badge-med">MED</span>
+                                        </div>
+                                        <div class="tech-name">Indicator Removal</div>
+                                        <div class="node-counter text-muted">0 Incidents</div>
+                                    </div>
+
+                                    <div class="mitre-node node-technique" data-tech="t1110">
+                                        <div class="tech-header">
+                                            <span class="tech-id">T1110</span>
+                                            <span class="tech-sev badge-crit">CRIT</span>
+                                        </div>
+                                        <div class="tech-name">Password Spraying</div>
+                                        <div class="node-counter text-muted">0 Incidents</div>
+                                    </div>
+
+                                    <div class="mitre-node node-technique" data-tech="t1071">
+                                        <div class="tech-header">
+                                            <span class="tech-id">T1071.004</span>
+                                            <span class="tech-sev badge-crit">CRIT</span>
+                                        </div>
+                                        <div class="tech-name">DNS Exfiltration</div>
+                                        <div class="node-counter text-muted">0 Incidents</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Air-Gapped Geo-Threat Map (100% Offline SVG/Canvas) -->
+                    <div class="shadcn-card geo-threat-card">
+                        <div class="card-title-row">
+                            <div>
+                                <h3 class="card-title">Air-Gapped Geo-Threat Matrix</h3>
+                                <p class="card-subtitle">Inbound Threat Geolocation, Foreign ASNs &amp; Protected Enclave</p>
+                            </div>
+                            <span class="badge-secondary">OFFLINE VECTOR</span>
+                        </div>
+
+                        <div class="geo-map-container">
+                            <svg class="geo-world-svg" id="geo-world-svg" viewBox="0 0 800 420">
+                                <defs>
+                                    <!-- Tactical Map Grid Lines -->
+                                    <pattern id="grid-pattern" width="32" height="32" patternUnits="userSpaceOnUse">
+                                        <path d="M 32 0 L 0 0 0 32" fill="none" stroke="rgba(255, 255, 255, 0.025)" stroke-width="1"/>
+                                    </pattern>
+                                    <filter id="glow-crit" x="-20%" y="-20%" width="140%" height="140%">
+                                        <feGaussianBlur stdDeviation="3" result="blur" />
+                                        <feMerge>
+                                            <feMergeNode in="blur" />
+                                            <feMergeNode in="SourceGraphic" />
+                                        </feMerge>
+                                    </filter>
+                                    <radialGradient id="ocean-vignette" cx="50%" cy="50%" r="60%">
+                                        <stop offset="0%" stop-color="#0c0d12"/>
+                                        <stop offset="100%" stop-color="#060608"/>
+                                    </radialGradient>
+                                </defs>
+                                
+                                <!-- Background & Grid -->
+                                <rect width="100%" height="100%" fill="url(#ocean-vignette)"/>
+                                <rect width="100%" height="100%" fill="url(#grid-pattern)"/>
+
+                                <!-- Tactical Latitude / Longitude Lines -->
+                                <g class="tactical-graticule" stroke="rgba(255, 255, 255, 0.04)" stroke-width="0.75" stroke-dasharray="3 4">
+                                    <!-- Latitudes -->
+                                    <line x1="0" y1="70" x2="800" y2="70" />
+                                    <line x1="0" y1="140" x2="800" y2="140" />
+                                    <line x1="0" y1="210" x2="800" y2="210" stroke="rgba(249, 115, 22, 0.12)" stroke-width="1" />
+                                    <line x1="0" y1="280" x2="800" y2="280" />
+                                    <line x1="0" y1="350" x2="800" y2="350" />
+                                    <!-- Longitudes -->
+                                    <line x1="133" y1="0" x2="133" y2="420" />
+                                    <line x1="267" y1="0" x2="267" y2="420" />
+                                    <line x1="400" y1="0" x2="400" y2="420" stroke="rgba(56, 189, 248, 0.1)" stroke-width="1" />
+                                    <line x1="533" y1="0" x2="533" y2="420" />
+                                    <line x1="667" y1="0" x2="667" y2="420" />
+                                </g>
+
+                                <!-- Detailed Geographic World Map Continents -->
+                                <g class="world-map-paths" fill="#13141a" stroke="#252632" stroke-width="0.9" stroke-linejoin="round">
+                                    <!-- North America -->
+                                    <path d="M 40 45 C 55 35, 75 40, 95 48 C 115 42, 135 36, 160 40 C 180 38, 205 35, 225 45 C 240 52, 255 45, 260 60 C 265 72, 245 78, 235 88 C 228 95, 235 105, 252 108 C 260 115, 248 130, 242 142 C 238 155, 225 168, 218 162 C 205 158, 192 165, 182 178 C 172 195, 185 208, 215 212 C 230 216, 238 225, 234 232 C 228 235, 220 226, 210 218 C 190 205, 175 190, 162 175 C 150 162, 138 140, 126 122 C 115 105, 95 88, 70 80 C 50 75, 32 60, 40 45 Z" />
+                                    
+                                    <!-- Greenland -->
+                                    <path d="M 280 22 C 305 16, 335 18, 350 32 C 358 45, 345 68, 332 75 C 315 72, 292 65, 282 48 C 275 35, 272 25, 280 22 Z" />
+                                    
+                                    <!-- Iceland -->
+                                    <path d="M 368 54 C 378 50, 385 55, 382 65 C 375 70, 366 65, 368 54 Z" />
+
+                                    <!-- Caribbean Islands -->
+                                    <path d="M 235 168 C 248 165, 258 172, 252 178 C 242 180, 232 174, 235 168 Z" />
+                                    <path d="M 262 176 C 272 175, 276 182, 268 185 C 260 184, 258 178, 262 176 Z" />
+
+                                    <!-- South America -->
+                                    <path d="M 234 232 C 255 222, 282 225, 305 235 C 325 245, 338 260, 332 280 C 326 300, 305 330, 288 355 C 275 375, 262 400, 252 405 C 244 398, 246 372, 248 350 C 250 325, 235 298, 226 270 C 218 248, 222 238, 234 232 Z" />
+                                    
+                                    <!-- Europe & Scandinavia -->
+                                    <path d="M 390 98 C 402 85, 418 82, 430 72 C 445 62, 458 45, 448 35 C 438 48, 428 65, 415 78 C 405 82, 388 90, 375 98 C 368 112, 376 126, 388 128 C 400 124, 415 120, 425 128 C 432 135, 442 122, 432 112 C 420 105, 405 102, 390 98 Z" />
+                                    
+                                    <!-- British Isles & Ireland -->
+                                    <path d="M 382 72 C 392 68, 396 76, 390 88 C 384 94, 378 85, 382 72 Z" />
+                                    <path d="M 370 78 C 376 74, 378 82, 373 88 C 368 88, 366 82, 370 78 Z" />
+
+                                    <!-- Africa & Madagascar -->
+                                    <path d="M 372 135 C 410 130, 450 135, 480 142 C 500 162, 520 180, 526 195 C 510 225, 492 265, 475 305 C 460 335, 442 350, 434 345 C 425 320, 415 275, 395 235 C 380 205, 355 180, 365 155 C 368 145, 368 138, 372 135 Z" />
+                                    <path d="M 508 268 C 518 260, 524 278, 516 310 C 508 315, 502 292, 508 268 Z" />
+
+                                    <!-- Asia & Eurasia -->
+                                    <path d="M 458 45 C 520 35, 595 34, 670 42 C 730 48, 775 62, 778 80 C 755 92, 725 108, 695 105 C 670 98, 650 108, 665 132 C 655 160, 630 185, 608 190 C 585 188, 570 215, 558 238 C 548 240, 542 210, 525 190 C 505 180, 480 152, 468 138 C 458 115, 452 75, 458 45 Z" />
+
+                                    <!-- Japan Archipelago -->
+                                    <path d="M 708 98 C 722 104, 728 118, 718 134 C 710 136, 702 122, 708 98 Z" />
+
+                                    <!-- Southeast Asia, Philippines & Indonesia -->
+                                    <path d="M 622 208 C 636 210, 638 222, 620 225 C 612 220, 615 212, 622 208 Z" />
+                                    <path d="M 648 222 C 672 218, 680 232, 656 242 C 642 238, 642 226, 648 222 Z" />
+                                    <path d="M 668 172 C 678 168, 682 180, 674 195 C 666 195, 662 182, 668 172 Z" />
+
+                                    <!-- Australia, Tasmania & New Zealand -->
+                                    <path d="M 660 268 C 698 252, 742 268, 752 305 C 748 340, 725 360, 688 358 C 658 348, 648 310, 650 288 C 652 278, 655 272, 660 268 Z" />
+                                    <path d="M 724 368 C 732 365, 735 374, 726 380 C 720 378, 718 372, 724 368 Z" />
+                                    <path d="M 772 332 C 782 328, 786 342, 778 360 C 772 358, 768 345, 772 332 Z" />
+                                    <path d="M 764 362 C 772 358, 774 374, 766 385 C 758 382, 758 370, 764 362 Z" />
+                                </g>
+
+                                <!-- Threat Origin Attack Nodes with Radar Pulsing -->
+                                <!-- 1. Netherlands (Amsterdam: x=402, y=94) -->
+                                <g class="threat-node" data-city="Amsterdam" data-asn="AS13335" style="cursor: pointer;" transform="translate(402, 94)">
+                                    <circle class="pulse-ring red" r="14"></circle>
+                                    <circle class="core-dot red" r="4.5"></circle>
+                                    <text x="8" y="-4" class="node-map-label">AMSTERDAM (AS13335)</text>
+                                </g>
+
+                                <!-- 2. Russia (St. Petersburg: x=458, y=76) -->
+                                <g class="threat-node" data-city="St. Petersburg" data-asn="AS9009" style="cursor: pointer;" transform="translate(458, 76)">
+                                    <circle class="pulse-ring red" r="16"></circle>
+                                    <circle class="core-dot red" r="5"></circle>
+                                    <text x="8" y="-4" class="node-map-label">ST. PETERSBURG (AS9009)</text>
+                                </g>
+
+                                <!-- 3. China (Beijing: x=642, y=122) -->
+                                <g class="threat-node" data-city="Beijing" data-asn="AS4134" style="cursor: pointer;" transform="translate(642, 122)">
+                                    <circle class="pulse-ring red" r="15"></circle>
+                                    <circle class="core-dot red" r="4.5"></circle>
+                                    <text x="8" y="-4" class="node-map-label">BEIJING (AS4134)</text>
+                                </g>
+
+                                <!-- 4. US East (Ashburn: x=220, y=122) -->
+                                <g class="threat-node" data-city="Ashburn" data-asn="AS15169" style="cursor: pointer;" transform="translate(220, 122)">
+                                    <circle class="pulse-ring orange" r="13"></circle>
+                                    <circle class="core-dot orange" r="4"></circle>
+                                    <text x="8" y="-4" class="node-map-label">ASHBURN (AS15169)</text>
+                                </g>
+
+                                <!-- 5. Germany (Frankfurt: x=418, y=104) -->
+                                <g class="threat-node" data-city="Frankfurt" data-asn="AS3320" style="cursor: pointer;" transform="translate(418, 104)">
+                                    <circle class="pulse-ring amber" r="11"></circle>
+                                    <circle class="core-dot amber" r="3.5"></circle>
+                                    <text x="8" y="-4" class="node-map-label">FRANKFURT (AS3320)</text>
+                                </g>
+
+                                <!-- Destination Target: SOC Protected Enclave (New Delhi: x=558, y=175) -->
+                                <g class="target-enclave" transform="translate(558, 175)">
+                                    <circle class="enclave-radar" r="24"></circle>
+                                    <circle class="enclave-ring" r="11"></circle>
+                                    <circle class="enclave-core" r="4.5"></circle>
+                                    <line x1="-16" y1="0" x2="16" y2="0" stroke="#10b981" stroke-width="1" opacity="0.6"/>
+                                    <line x1="0" y1="-16" x2="0" y2="16" stroke="#10b981" stroke-width="1" opacity="0.6"/>
+                                    <text x="16" y="4" class="enclave-text">PROTECTED ENCLAVE (10.0.0.5)</text>
+                                </g>
+
+                                <!-- Converging Laser Attack Trajectories -->
+                                <g class="laser-arcs">
+                                    <path d="M 402 94 Q 470 120 558 175" class="laser-line-crit" />
+                                    <path d="M 458 76 Q 500 115 558 175" class="laser-line-crit" />
+                                    <path d="M 642 122 Q 605 145 558 175" class="laser-line-crit" />
+                                    <path d="M 220 122 Q 380 85 558 175" class="laser-line-orange" />
+                                    <path d="M 418 104 Q 480 135 558 175" class="laser-line-amber" />
+                                </g>
+                            </svg>
+
+                            <!-- In-Canvas Tactical Telemetry Feed -->
+                            <div class="geo-asn-overlay">
+                                <!-- Populated dynamically from real telemetry -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Alert Severity Dual-View & Entropy Row -->
                 <div class="analytics-row">
-                    <!-- Left: AI Threat Matrix Scatter -->
+                    <!-- Left: Alert Severity Dual View (Donut + Trend Line) -->
                     <div class="shadcn-card chart-card flex-2">
                         <div class="card-title-row">
                             <div>
-                                <h3 class="card-title">AI Threat Anomaly Matrix (Port Entropy)</h3>
+                                <h3 class="card-title">Alert Rate Dynamics &amp; Severity Distribution</h3>
+                                <p class="card-subtitle">Real-Time Threat Volume Split Across Time</p>
+                            </div>
+                            <span class="badge-secondary">MULTI-SERIES</span>
+                        </div>
+                        <div class="dual-chart-container">
+                            <div class="dual-chart-donut">
+                                <canvas id="severityDonutChart"></canvas>
+                            </div>
+                            <div class="dual-chart-line">
+                                <canvas id="severityTrendChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: AI Threat Matrix Scatter -->
+                    <div class="shadcn-card chart-card flex-1">
+                        <div class="card-title-row">
+                            <div>
+                                <h3 class="card-title">AI Port Entropy Matrix</h3>
                                 <p class="card-subtitle">Unsupervised Isolation Forest (Contamination: 8%)</p>
                             </div>
                             <span class="badge-secondary">REAL-TIME ML</span>
@@ -134,28 +426,60 @@
                             <canvas id="threatScatterChart"></canvas>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Right: Log Source Distribution -->
-                    <div class="shadcn-card chart-card flex-1">
+                <!-- 3. ENTITY PROFILING & BREAKDOWN PANELS -->
+                <div class="profiling-grid">
+                    <!-- Panel 1: Top Contributing Devices -->
+                    <div class="shadcn-card profile-panel">
                         <div class="card-title-row">
                             <div>
-                                <h3 class="card-title">Ingestion by Log Source</h3>
-                                <p class="card-subtitle">10 Enterprise Vendor Schemas</p>
+                                <h3 class="card-title">Top Contributing Devices</h3>
+                                <p class="card-subtitle">Telemetry Ingress by Vendor Infrastructure</p>
                             </div>
-                            <span class="badge-secondary">MULTI-VENDOR</span>
+                            <span class="badge-outline">INGRESS</span>
                         </div>
-                        <div class="chart-box">
-                            <canvas id="vendorPieChart"></canvas>
+                        <div class="ranking-list" id="device-ranking-list">
+                            <!-- Injected dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Panel 2: Top Targeted / Offending Users -->
+                    <div class="shadcn-card profile-panel">
+                        <div class="card-title-row">
+                            <div>
+                                <h3 class="card-title">Top Targeted / Offending Identities</h3>
+                                <p class="card-subtitle">Anomalous Account Authentication Telemetry</p>
+                            </div>
+                            <span class="badge-destructive">RISK INDEX</span>
+                        </div>
+                        <div class="ranking-list" id="user-ranking-list">
+                            <!-- Injected dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Panel 3: Top Offenses / Incident Classifications -->
+                    <div class="shadcn-card profile-panel">
+                        <div class="card-title-row">
+                            <div>
+                                <h3 class="card-title">Top Incident Classifications</h3>
+                                <p class="card-subtitle">Itemized Attack Vector Distribution</p>
+                            </div>
+                            <span class="badge-outline">CLASSIFIED</span>
+                        </div>
+                        <div class="ranking-list" id="offense-ranking-list">
+                            <!-- Injected dynamically -->
                         </div>
                     </div>
                 </div>
 
-                <!-- Instant Search, Query Lake & Export Bar -->
+                <!-- 4. OPERATIONAL TELEMETRY & LIVE TIMELINE TABLES -->
+                <!-- Query Lake & Preset Filter Bar -->
                 <div class="shadcn-card filter-bar-card">
                     <div class="filter-top-row">
                         <div class="search-input-wrap">
                             <span class="search-prefix">QUERY:</span>
-                            <input type="text" id="query-lake-input" class="shadcn-input" placeholder="Search by IP, Port, Vendor, Event ID, or Action (e.g. 198.51, Blocked, Port 22)...">
+                            <input type="text" id="query-lake-input" class="shadcn-input" placeholder="Search by IP, Port, Vendor, Identity, Alert Name, or Action (e.g. 198.51, root, Blocked, T1110)...">
                         </div>
                         <button id="export-csv-btn" class="shadcn-btn btn-secondary">
                             <span>Export CSV</span>
@@ -173,30 +497,70 @@
                     </div>
                 </div>
 
-                <!-- Security Telemetry Table -->
+                <!-- Dynamic Interactive Filter Banner -->
+                <div id="active-filter-banner" class="active-filter-banner" style="display: none;">
+                    <div class="filter-banner-info">
+                        <span class="filter-banner-dot"></span>
+                        <span class="filter-banner-label">ACTIVE FILTER:</span>
+                        <span class="filter-banner-value" id="filter-banner-value">Tactic: Initial Access</span>
+                    </div>
+                    <button class="btn-clear-filter" id="btn-clear-filter">CLEAR FILTER [✕]</button>
+                </div>
+
+                <!-- Table 1: Active Security Alerts Table (Real-Time Triage) -->
                 <div class="shadcn-card table-wrapper-card">
                     <div class="card-title-row">
                         <div>
-                            <h3 class="card-title">Security Telemetry &amp; Adversarial Patterns</h3>
-                            <p class="card-subtitle">Normalized OCSF Event Stream</p>
+                            <h3 class="card-title">Active Security Alerts (Real-Time Triage)</h3>
+                            <p class="card-subtitle">Attributed Detections with MITRE Mapping &amp; Interactive Status</p>
                         </div>
-                        <span class="badge-destructive" id="outlier-count-badge">0 DETECTED</span>
+                        <span class="badge-destructive" id="active-alerts-count-badge">0 UNRESOLVED</span>
+                    </div>
+                    <div class="table-container">
+                        <table class="shadcn-table">
+                            <thead>
+                                <tr>
+                                    <th>TIME (UTC)</th>
+                                    <th>ALERT NAME &amp; MITRE TACTIC</th>
+                                    <th>SEVERITY</th>
+                                    <th>SOURCE ENDPOINT</th>
+                                    <th>DESTINATION ENDPOINT</th>
+                                    <th>TRIAGE STATUS</th>
+                                    <th>ACTION</th>
+                                </tr>
+                            </thead>
+                            <tbody id="alerts-table-body">
+                                <!-- Injected dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Table 2: Forensic Event Timeline -->
+                <div class="shadcn-card table-wrapper-card" style="margin-top: 20px;">
+                    <div class="card-title-row">
+                        <div>
+                            <h3 class="card-title">Forensic Event Timeline &amp; Policy Audit Stream</h3>
+                            <p class="card-subtitle">Sequential Ingestion Telemetry with Cryptographic Hashes (Click Row to Inspect)</p>
+                        </div>
+                        <span class="badge-secondary" id="timeline-count-badge">LIVE STREAMING</span>
                     </div>
                     <div class="table-container">
                         <table class="shadcn-table">
                             <thead>
                                 <tr>
                                     <th>TIMESTAMP</th>
-                                    <th>SOURCE VENDOR</th>
+                                    <th>NORMALIZED EVENT TYPE (OCSF)</th>
+                                    <th>IDENTITY / USER</th>
                                     <th>SOURCE IP:PORT</th>
                                     <th>DESTINATION IP:PORT</th>
                                     <th>DISPOSITION</th>
-                                    <th>ANOMALY SCORE</th>
+                                    <th>ACTION</th>
                                 </tr>
                             </thead>
-                            <tbody id="anomalies-table-body">
+                            <tbody id="timeline-table-body">
                                 <tr>
-                                    <td colspan="6" class="empty-state">No records found matching query. Stream live logs to inspect.</td>
+                                    <td colspan="7" class="empty-state">No records found matching query. Stream live logs to inspect.</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -444,26 +808,103 @@
                     </div>
 
                     <div class="inspector-columns">
+                        <!-- Left Pane: Raw Wire Archive -->
                         <div class="inspector-col">
-                            <div class="col-header">
-                                <span>RAW WIRE ARCHIVE (.log)</span>
-                                <span id="inspect-raw-title" class="text-muted">No file selected</span>
+                            <div class="inspector-col-titlebar">
+                                <div class="col-title-left">
+                                    <span class="col-type-tag raw-tag">RAW FORENSIC (.log)</span>
+                                    <span id="inspect-raw-title" class="col-filename-pill">No batch selected</span>
+                                </div>
+                                <button id="copy-inspect-raw-btn" class="btn-copy-mini">Copy Raw</button>
                             </div>
-                            <pre class="code-block" id="inspect-raw-content">Select a batch file above to view raw forensic records.</pre>
+                            <pre class="code-block raw-syntax" id="inspect-raw-content">Select a batch file from the dropdown above to inspect raw forensic records.</pre>
                         </div>
 
+                        <!-- Right Pane: Formatted OCSF JSON -->
                         <div class="inspector-col">
-                            <div class="col-header">
-                                <span>NORMALIZED OCSF SCRIPT (.json)</span>
-                                <span id="inspect-fmt-title" class="text-muted">No file selected</span>
+                            <div class="inspector-col-titlebar">
+                                <div class="col-title-left">
+                                    <span class="col-type-tag json-tag">NORMALIZED OCSF (.json)</span>
+                                    <span id="inspect-fmt-title" class="col-filename-pill">No batch selected</span>
+                                </div>
+                                <button id="copy-inspect-fmt-btn" class="btn-copy-mini">Copy JSON</button>
                             </div>
-                            <pre class="code-block json-syntax" id="inspect-fmt-content">Select a batch file above to view parsed JSON output.</pre>
+                            <pre class="code-block json-syntax" id="inspect-fmt-content">Select a batch file from the dropdown above to inspect parsed OCSF JSON records.</pre>
                         </div>
                     </div>
                 </div>
             </section>
 
         </main>
+    </div>
+
+    <!-- ==================================================== -->
+    <!-- DUAL-PANE FORENSIC INSPECTOR MODAL (SECTION 65B) -->
+    <!-- ==================================================== -->
+    <div id="forensic-modal" class="modal-overlay hidden">
+        <div class="modal-card">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <div class="modal-title-group">
+                    <div class="modal-title-badge">SECTION 65B FORENSIC INSPECTION</div>
+                    <h3 class="modal-title" id="modal-event-title">Event Inspection: <span id="modal-event-id" class="text-primary font-mono">uuid-00000000</span></h3>
+                    <p class="modal-subtitle">
+                        Timestamp: <span id="modal-event-time" class="text-foreground font-mono">2026-09-08 14:45:00 UTC</span> 
+                        &nbsp;|&nbsp; Hash Continuity: <span class="text-emerald font-semibold">VALIDATED</span>
+                    </p>
+                </div>
+                <button id="modal-close-btn" class="modal-close-btn">[ ESC / Close ]</button>
+            </div>
+
+            <!-- Modal Body (Dual-Pane) -->
+            <div class="modal-body-split">
+                <!-- Left Pane: Immutable Raw Payload & SHA-256 -->
+                <div class="modal-pane modal-pane-left">
+                    <div class="pane-header-row">
+                        <span class="pane-tag text-amber">1. IMMUTABLE RAW WIRE PAYLOAD</span>
+                        <span class="pane-meta">PROVENANCE LOCKED</span>
+                    </div>
+                    <div class="raw-payload-box" id="modal-raw-payload">
+                        Loading raw wire payload...
+                    </div>
+                    
+                    <div class="sha-digest-section">
+                        <div class="sha-label-row">
+                            <span class="sha-title">HARDWARE SHA-256 WIRE DIGEST:</span>
+                            <button id="modal-copy-sha-btn" class="btn-copy-mini">Copy Hash</button>
+                        </div>
+                        <div class="sha-code-box" id="modal-sha-digest">
+                            0000000000000000000000000000000000000000000000000000000000000000
+                        </div>
+                        <div class="cert-stamp">
+                            <span class="cert-dot"></span>
+                            <span>Section 65B Indian Evidence Act Validated Hash Chain</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Pane: Structured OCSF v1.1.0 JSON -->
+                <div class="modal-pane modal-pane-right">
+                    <div class="pane-header-row">
+                        <span class="pane-tag text-cyan">2. STANDARDIZED OCSF v1.1.0 JSON OBJECT</span>
+                        <button id="modal-copy-json-btn" class="btn-copy-mini">Copy JSON</button>
+                    </div>
+                    <pre class="json-code-box" id="modal-json-payload">
+                        Loading structured OCSF JSON...
+                    </pre>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="modal-footer">
+                <div class="footer-cert-note">
+                    Certified Cryptographic Log Entry &bull; Tamper-Evident Merkle Continuity
+                </div>
+                <button id="modal-dismiss-btn" class="shadcn-btn btn-secondary">
+                    <span>Close Inspector</span>
+                </button>
+            </div>
+        </div>
     </div>
 
     <script src="app.js"></script>

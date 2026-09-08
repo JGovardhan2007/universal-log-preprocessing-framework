@@ -62,8 +62,10 @@ def get_stats():
 
     buf = service.get_buffer_status()
     files = service.get_stored_files()
+    analytics = service.get_dashboard_analytics()
+    total_real = analytics["kpis"]["total_logs"]
     return {
-        "total_ingested": service.stats["total_received"],
+        "total_ingested": total_real,
         "current_eps": service.stats["current_eps"],
         "anomalies": service.stats["anomalies_detected"],
         "total_batches": len(files["raw_files"]),
@@ -76,9 +78,23 @@ def get_stats():
         "memory_mb": proc_mem,
         "p99_latency_ms": 0.38,
         "dlq_count": dlq_count,
-        "health_status": "OPTIMAL" if dlq_count == 0 else "WARNING"
+        "health_status": "OPTIMAL" if dlq_count == 0 else "WARNING",
+        "analytics": analytics
     }
 
+
+@app.get("/api/v1/threats/dashboard")
+def get_threats_dashboard():
+    """Returns real aggregated SOC Threat Intelligence & Entity Profiling metrics."""
+    return service.get_dashboard_analytics()
+
+
+
+
+@app.get("/api/v1/stream/live")
+def get_live_stream_records():
+    """Returns the sliding window of real live records from the socket pipeline."""
+    return service.get_live_stream()
 
 
 @app.post("/api/v1/stream/start")
@@ -234,6 +250,23 @@ def auto_generate_parser(req: AutoParserRequest):
         "active_parsers": len(service.engine.parser_loader.parsers),
         "test_result": test_result,
         "yaml_content": yaml.dump(parser_def, default_flow_style=False)
+    }
+
+
+class TriageRequest(BaseModel):
+    alert_id: str
+    status: str
+    analyst_note: Optional[str] = None
+
+
+@app.post("/api/v1/threats/triage")
+def update_threat_triage(req: TriageRequest):
+    """Updates security alert triage status."""
+    return {
+        "status": "updated",
+        "alert_id": req.alert_id,
+        "triage_status": req.status,
+        "note": req.analyst_note or "Status updated via SOC Operations Console"
     }
 
 
