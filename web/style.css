@@ -98,16 +98,20 @@ body {
 .brand-badge {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
+    height: 100%;
 }
 
 .brand-logo {
-    width: 24px;
-    height: 24px;
+    width: 28px !important;
+    height: 28px !important;
+    max-width: 28px !important;
+    max-height: 28px !important;
     border-radius: 6px;
     display: block;
     object-fit: contain;
-    box-shadow: 0 0 12px rgba(253, 251, 247, 0.15);
+    flex-shrink: 0;
+    box-shadow: 0 0 10px rgba(253, 251, 247, 0.12);
 }
 
 .brand-square {
