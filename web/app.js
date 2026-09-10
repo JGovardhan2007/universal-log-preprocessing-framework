@@ -1105,7 +1105,7 @@ function exportTelemetryToCsv() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `ulpf_soc_telemetry_${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '_')}.csv`;
+    a.download = `weed_soc_telemetry_${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '_')}.csv`;
     a.click();
     URL.revokeObjectURL(url);
 }

@@ -23,7 +23,7 @@ if PROJECT_ROOT not in sys.path:
 from core_engine.live_service import LiveLogPipelineService, RAW_STORAGE_DIR, FORMATTED_STORAGE_DIR
 
 app = FastAPI(
-    title="ULPF Cyber Web Application",
+    title="WEED Cyber Web Application",
     description="High-Performance Frontend & Forensic Ingestion Subsystem for NTRO 26156",
     version="2.0.0"
 )
