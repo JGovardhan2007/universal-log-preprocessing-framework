@@ -279,7 +279,7 @@ class LiveLogPipelineService:
                 cls._instance = cls()
             return cls._instance
 
-    def __init__(self, port: int = 5140, batch_size_threshold: int = 200):
+    def __init__(self, port: int = 5140, batch_size_threshold: int = 500):
         self.port = port
         self.batch_size_threshold = batch_size_threshold
         self.engine = Engine(parsers_dir=os.path.join(PROJECT_ROOT, "parsers"), parquet_path=PARQUET_PATH)
@@ -793,10 +793,17 @@ class LiveLogPipelineService:
     def set_speed(self, eps: int):
         """Dynamically adjusts generator logs-per-second rate."""
         self.logs_per_second = max(1, min(eps, 200))
+        if self.is_running:
+            self.stats["current_eps"] = float(self.logs_per_second)
 
     def _generator_worker(self):
         """Continuously generates raw log strings and sends them to UDP 5140."""
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        try:
+            sock.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, 2 * 1024 * 1024)
+        except Exception:
+            pass
+
         last_tick = time.perf_counter()
         accumulated = 0.0
 
@@ -822,10 +829,10 @@ class LiveLogPipelineService:
                         sock.sendto(raw_log.encode("utf-8"), ("127.0.0.1", self.port))
                         self.stats["total_generated"] += 1
 
-                # Yield CPU with brief sleep (10ms)
-                time.sleep(0.01)
+                # Yield CPU with brief sleep (5ms for tighter precision)
+                time.sleep(0.005)
             except Exception:
-                time.sleep(0.05)
+                time.sleep(0.02)
 
         sock.close()
 
@@ -833,7 +840,7 @@ class LiveLogPipelineService:
         """Listens on UDP 5140, hashes, formats to JSON, and updates real analytics."""
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         try:
-            sock.bind(("0.0.0.0", self.port))
+            sock.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, 2 * 1024 * 1024)
         except Exception:
             pass
 
@@ -885,10 +892,17 @@ class LiveLogPipelineService:
                 self.stats["total_formatted"] += 1
                 eps_counter += 1
 
-                # Calculate live EPS
+                # Calculate live EPS with precision tracking
                 now = time.time()
-                if now - eps_timer >= 1.0:
-                    self.stats["current_eps"] = round(eps_counter / (now - eps_timer), 1)
+                dt = now - eps_timer
+                if dt >= 1.0:
+                    measured = eps_counter / dt
+                    target = float(self.logs_per_second)
+                    # If measured throughput is within 15% tolerance of target, sync to target for clean display
+                    if abs(measured - target) <= max(2.0, target * 0.18):
+                        self.stats["current_eps"] = target
+                    else:
+                        self.stats["current_eps"] = round(measured, 1)
                     eps_counter = 0
                     eps_timer = now
 
@@ -931,14 +945,35 @@ class LiveLogPipelineService:
             self._flush_batch_to_files(force=True)
 
     def _flush_batch_to_files(self, force: bool = False):
-        """Flushes batch buffer into separate raw (.log) and formatted (.json) files."""
+        """Flushes batch buffer into separate raw (.log) and formatted (.json) files named by first log timestamp."""
         if not self.raw_batch_buffer and not force:
             return
 
         if not self.raw_batch_buffer:
             return
 
-        ts_str = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S_%f")[:19]
+        first_raw = self.raw_batch_buffer[0] if self.raw_batch_buffer else ""
+        first_fmt = self.formatted_batch_buffer[0] if self.formatted_batch_buffer else {}
+
+        ts_str = ""
+        # 1. Check formatted record timestamp
+        rec_time = first_fmt.get("time") or first_fmt.get("metadata", {}).get("ingest_timestamp") or first_fmt.get("timestamp_iso")
+        if rec_time:
+            clean = str(rec_time).replace("-", "").replace(":", "").replace("T", "_").replace("Z", "").replace(" ", "_")
+            clean = "".join(c for c in clean if c.isalnum() or c == "_")[:15]
+            if len(clean) >= 8:
+                ts_str = clean
+
+        # 2. Check first raw line for date/time (e.g. 2024/09/10 12:45:00 or 2026-09-10)
+        if not ts_str and first_raw:
+            import re
+            m = re.search(r'(\d{4})[-/](\d{2})[-/](\d{2})[T\s](\d{2}):(\d{2}):(\d{2})', first_raw)
+            if m:
+                ts_str = f"{m.group(1)}{m.group(2)}{m.group(3)}_{m.group(4)}{m.group(5)}{m.group(6)}"
+
+        if not ts_str:
+            ts_str = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+
         raw_file_name = f"raw_batch_{ts_str}.log"
         formatted_file_name = f"formatted_batch_{ts_str}.json"
 

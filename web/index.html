@@ -337,37 +337,18 @@
                 </div>
 
                 <!-- 6. OPERATIONAL LOGS & LIVE TIMELINE (ROW 6) -->
-                <!-- Query Filter Bar -->
-                <div class="shadcn-card filter-bar-card" style="margin-top: 20px;">
-                    <div class="filter-top-row">
-                        <div class="search-input-wrap">
-                            <span class="search-prefix">QUERY:</span>
-                            <input type="text" id="query-lake-input" class="shadcn-input" placeholder="Search by IP, Port, Vendor, User, Alert Name, or Action (e.g. 198.51, root, Blocked)...">
-                        </div>
-                        <button id="export-csv-btn" class="shadcn-btn btn-secondary">
-                            <span>Export CSV</span>
-                        </button>
-                    </div>
-
-                    <div class="filter-pills-row">
-                        <span class="filter-label">PRESETS:</span>
-                        <button class="pill-chip active" data-filter="all">All Events</button>
-                        <button class="pill-chip" data-filter="blocked">Blocked Only</button>
-                        <button class="pill-chip" data-filter="allowed">Allowed Only</button>
-                        <button class="pill-chip" data-filter="ssh">SSH (Port 22)</button>
-                        <button class="pill-chip" data-filter="web">Web (80/443)</button>
-                        <button class="pill-chip" data-filter="threat">High Threat (&gt;0.70)</button>
-                    </div>
-                </div>
-
-                <!-- Log Events Timeline -->
-                <div class="shadcn-card table-wrapper-card" style="margin-top: 14px;">
+                <div class="shadcn-card table-wrapper-card" style="margin-top: 20px;">
                     <div class="card-title-row">
                         <div>
                             <h3 class="card-title">Log Events Timeline</h3>
                             <p class="card-subtitle">Real-time stream of parsed log events (Click row to inspect)</p>
                         </div>
-                        <span class="badge-secondary" id="timeline-count-badge">LIVE STREAMING</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <button id="export-csv-btn" class="shadcn-btn btn-secondary" style="padding: 4px 10px; font-size: 11px;">
+                                <span>Export CSV</span>
+                            </button>
+                            <span class="badge-secondary" id="timeline-count-badge">LIVE STREAMING</span>
+                        </div>
                     </div>
                     <div class="table-container">
                         <table class="shadcn-table" id="timeline-table">
@@ -427,8 +408,8 @@
                             <select id="batch-size-select" class="shadcn-select">
                                 <option value="50">50 logs / file</option>
                                 <option value="100">100 logs / file</option>
-                                <option value="200" selected>200 logs / file</option>
-                                <option value="500">500 logs / file</option>
+                                <option value="200">200 logs / file</option>
+                                <option value="500" selected>500 logs / file</option>
                             </select>
                         </div>
                     </div>
@@ -438,7 +419,7 @@
                         <div class="buffer-box">
                             <div class="buffer-header">
                                 <span>Buffer Capacity</span>
-                                <span id="buffer-stat-text">0 / 200 (0%)</span>
+                                <span id="buffer-stat-text">0 / 500 (0%)</span>
                             </div>
                             <div class="buffer-track">
                                 <div class="buffer-bar" id="buffer-progress-fill" style="width: 0%;"></div>
@@ -565,6 +546,29 @@
                             </p>
                         </div>
                         <span class="badge-secondary">LOCAL STORAGE</span>
+                    </div>
+                </div>
+
+                <!-- DATABASE VAULT SEARCH & FILTER BAR -->
+                <div class="shadcn-card filter-bar-card" style="margin-top: 16px; margin-bottom: 20px;">
+                    <div class="filter-top-row">
+                        <div class="search-input-wrap">
+                            <span class="search-prefix">SEARCH DATABASE:</span>
+                            <input type="text" id="db-search-input" class="shadcn-input" placeholder="Search files by timestamp, filename, or log content (e.g. 2026-09-10, 198.51, Port 443, Cisco, Blocked)...">
+                        </div>
+                        <button id="db-refresh-files-btn" class="shadcn-btn btn-secondary">
+                            <span>Refresh Files</span>
+                        </button>
+                    </div>
+
+                    <div class="filter-pills-row">
+                        <span class="filter-label">PRESETS:</span>
+                        <button class="pill-chip active" data-db-filter="all">All Files</button>
+                        <button class="pill-chip" data-db-filter="raw">Raw (.log)</button>
+                        <button class="pill-chip" data-db-filter="json">Formatted (.json)</button>
+                        <button class="pill-chip" data-db-filter="500">500 Records</button>
+                        <button class="pill-chip" data-db-filter="today">Today</button>
+                        <span id="db-search-match-count" class="badge-secondary" style="margin-left: auto; font-family: var(--font-mono); font-size: 11px;">ALL FILES</span>
                     </div>
                 </div>
 
@@ -761,6 +765,6 @@
         </div>
     </div>
 
-    <script src="app.js"></script>
+    <script src="app.js?v=2.0.4"></script>
 </body>
 </html>

@@ -16,8 +16,15 @@ const state = {
     anomaliesCount: 0,
     batchesCount: 0,
     bufferRawCount: 0,
+    batchThreshold: 500,
     activeFilter: 'all',
     searchQuery: '',
+
+    // Database Vault Search & Filters
+    dbSearchQuery: '',
+    dbActiveFilter: 'all',
+    rawFilesList: [],
+    formattedFilesList: [],
     
     // Real Severity Counters
     sevCritical: 0,
@@ -95,6 +102,10 @@ const DOM = {
     studioYamlPreview: document.getElementById('studio-yaml-preview'),
     
     // Database Vault (Tab 3)
+    dbSearchInput: document.getElementById('db-search-input'),
+    dbRefreshFilesBtn: document.getElementById('db-refresh-files-btn'),
+    dbFilterChips: document.querySelectorAll('[data-db-filter]'),
+    dbSearchMatchCount: document.getElementById('db-search-match-count'),
     rawFilesTableBody: document.getElementById('raw-files-table-body'),
     fmtFilesTableBody: document.getElementById('fmt-files-table-body'),
     rawFilesCountBadge: document.getElementById('raw-files-count-badge'),
@@ -1236,10 +1247,12 @@ function initControls() {
 
     if (DOM.streamSpeedSelect) {
         state.speed = parseInt(DOM.streamSpeedSelect.value, 10) || 10;
+        state.currentEps = state.speed;
     }
 
     DOM.streamSpeedSelect.addEventListener('change', (e) => {
-        state.speed = parseInt(e.target.value, 10);
+        state.speed = parseInt(e.target.value, 10) || 10;
+        state.currentEps = state.speed;
         fetch('/api/v1/stream/speed', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -1248,10 +1261,16 @@ function initControls() {
         updateKpisUI();
     });
 
+    if (DOM.batchSizeSelect) {
+        state.batchThreshold = parseInt(DOM.batchSizeSelect.value, 10) || 500;
+    }
+
     DOM.batchSizeSelect.addEventListener('change', (e) => {
-        state.batchThreshold = parseInt(e.target.value, 10);
+        state.batchThreshold = parseInt(e.target.value, 10) || 500;
         updateBufferUI();
     });
+
+    initDatabaseSearch();
 
     DOM.flushNowBtn.addEventListener('click', async () => {
         try {
@@ -1438,7 +1457,7 @@ async function fetchLiveTelemetry() {
             state.batchThreshold = data.buffer_threshold || state.batchThreshold;
             updateBufferUI();
         }
-        if (data.speed !== undefined && DOM.streamSpeedSelect) {
+        if (data.speed !== undefined && DOM.streamSpeedSelect && !state.isStreaming) {
             state.speed = data.speed;
             DOM.streamSpeedSelect.value = String(data.speed);
         }
@@ -1471,18 +1490,84 @@ async function fetchLiveTelemetry() {
 }
 
 // -------------------------------------------------------------
-// 9. DATABASE VAULT BATCH INSPECTION & NO-CODE STUDIO
+// 9. DATABASE BATCH INSPECTION & REAL-TIME VAULT SEARCH
 // -------------------------------------------------------------
+function initDatabaseSearch() {
+    if (DOM.dbSearchInput) {
+        DOM.dbSearchInput.addEventListener('input', (e) => {
+            state.dbSearchQuery = e.target.value.toLowerCase().trim();
+            applyDatabaseFilters();
+        });
+    }
+
+    if (DOM.dbRefreshFilesBtn) {
+        DOM.dbRefreshFilesBtn.addEventListener('click', () => {
+            fetchStoredFiles();
+        });
+    }
+
+    if (DOM.dbFilterChips) {
+        DOM.dbFilterChips.forEach(chip => {
+            chip.addEventListener('click', () => {
+                DOM.dbFilterChips.forEach(c => c.classList.remove('active'));
+                chip.classList.add('active');
+                state.dbActiveFilter = chip.getAttribute('data-db-filter') || 'all';
+                applyDatabaseFilters();
+            });
+        });
+    }
+}
+
 async function fetchStoredFiles() {
     try {
         const res = await fetch('/api/v1/files');
         if (!res.ok) return;
         const data = await res.json();
 
-        renderFilesTable(data.raw_files, DOM.rawFilesTableBody, DOM.rawFilesCountBadge);
-        renderFilesTable(data.formatted_files, DOM.fmtFilesTableBody, DOM.fmtFilesCountBadge);
+        state.rawFilesList = data.raw_files || [];
+        state.formattedFilesList = data.formatted_files || [];
+
+        applyDatabaseFilters();
         populateBatchInspector(data.raw_files);
     } catch (e) {}
+}
+
+function applyDatabaseFilters() {
+    const q = (state.dbSearchQuery || '').toLowerCase().trim();
+    const filter = state.dbActiveFilter || 'all';
+
+    let filteredRaw = [...state.rawFilesList];
+    let filteredFmt = [...state.formattedFilesList];
+
+    if (q) {
+        filteredRaw = filteredRaw.filter(f => f.filename.toLowerCase().includes(q) || (f.timestamp && f.timestamp.toLowerCase().includes(q)));
+        filteredFmt = filteredFmt.filter(f => f.filename.toLowerCase().includes(q) || (f.timestamp && f.timestamp.toLowerCase().includes(q)));
+    }
+
+    if (filter === '500') {
+        filteredRaw = filteredRaw.filter(f => f.records >= 500);
+        filteredFmt = filteredFmt.filter(f => f.records >= 500);
+    } else if (filter === 'today') {
+        const todayStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+        filteredRaw = filteredRaw.filter(f => f.filename.includes(todayStr));
+        filteredFmt = filteredFmt.filter(f => f.filename.includes(todayStr));
+    }
+
+    if (filter === 'json') {
+        renderFilesTable([], DOM.rawFilesTableBody, DOM.rawFilesCountBadge);
+        renderFilesTable(filteredFmt, DOM.fmtFilesTableBody, DOM.fmtFilesCountBadge);
+    } else if (filter === 'raw') {
+        renderFilesTable(filteredRaw, DOM.rawFilesTableBody, DOM.rawFilesCountBadge);
+        renderFilesTable([], DOM.fmtFilesTableBody, DOM.fmtFilesCountBadge);
+    } else {
+        renderFilesTable(filteredRaw, DOM.rawFilesTableBody, DOM.rawFilesCountBadge);
+        renderFilesTable(filteredFmt, DOM.fmtFilesTableBody, DOM.fmtFilesCountBadge);
+    }
+
+    if (DOM.dbSearchMatchCount) {
+        const total = (filter === 'json' ? 0 : filteredRaw.length) + (filter === 'raw' ? 0 : filteredFmt.length);
+        DOM.dbSearchMatchCount.innerText = q ? `${total} MATCHING` : `${total} FILES`;
+    }
 }
 
 function renderFilesTable(files, tbody, badge) {
