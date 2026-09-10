@@ -18,8 +18,10 @@ extraction:
   patterns:
     # Pattern 1: Semicolon separated Key-Value pairs with action prefix
     - '^.*?(?:CheckPoint:\s+)?(?:\d+\w+\d+\s+[\d:]+\s+)?(?P<action>accept|drop|reject|block)\s+(?:.*?;)?\s*src:\s*(?P<src_ip>[\d\.]+);\s*s_port:\s*(?P<src_port>\d+);\s*dst:\s*(?P<dst_ip>[\d\.]+);\s*service:\s*(?P<dst_port>\d+);\s*proto:\s*(?P<proto>\w+);'
-    # Pattern 2: Generic Check Point key-value format
+    # Pattern 2: Generic Check Point key-value format (spaces)
     - 'src=(?P<src_ip>[\d\.]+)\s+dst=(?P<dst_ip>[\d\.]+)\s+s_port=(?P<src_port>\d+)\s+service=(?P<dst_port>\d+)\s+proto=(?P<proto>\w+)\s+action=(?P<action>\w+)'
+    # Pattern 3: Check Point pipe-delimited format
+    - 'action=(?P<action>\w+)\|src=(?P<src_ip>[\d\.]+)\|dst=(?P<dst_ip>[\d\.]+)\|proto=(?P<proto>\w+)\|s_port=(?P<src_port>\d+)\|service=(?P<dst_port>\d+)'
 
 field_mapping:
   class_uid: 4001

@@ -51,11 +51,7 @@ const DOM = {
     kpiSpeed: document.getElementById('kpi-speed'),
     velocitySparkline: document.getElementById('velocitySparkline'),
     
-    // MITRE SVG Canvas
-    mitreContainer: document.getElementById('mitre-flow-container'),
-    mitreSvgCanvas: document.getElementById('mitre-svg-canvas'),
-    
-    // Entity Ranking Lists
+    // Operational Tables & Dynamic Filter Banner
     deviceRankingList: document.getElementById('device-ranking-list'),
     userRankingList: document.getElementById('user-ranking-list'),
     offenseRankingList: document.getElementById('offense-ranking-list'),
@@ -154,7 +150,6 @@ async function computeRealSha256(str) {
 document.addEventListener('DOMContentLoaded', () => {
     initTabs();
     initExecutiveKpis();
-    initMitreFlow();
     initGeoThreatMapInteractivity();
     initCharts();
     initQueryLake();
@@ -184,8 +179,6 @@ function initTabs() {
 
             if (targetTab === 'database') {
                 fetchStoredFiles();
-            } else if (targetTab === 'dashboard') {
-                setTimeout(drawMitreConnections, 100);
             }
         });
     });
@@ -290,131 +283,143 @@ function updateVelocitySparkline(newEps) {
 }
 
 // -------------------------------------------------------------
-// 2. MITRE ATT&CK TACTIC-TO-TECHNIQUE FLOW
+// 2. ACETERNITY DYNAMIC WORLD MAP TELEMETRY
 // -------------------------------------------------------------
-const MITRE_MAPPINGS = [
-    { tactic: 'initial-access', tech: 't1046', color: '#10b981' },
-    { tactic: 'initial-access', tech: 't1110', color: '#ef4444' },
-    { tactic: 'execution', tech: 't1059', color: '#f97316' },
-    { tactic: 'defense-evasion', tech: 't1070', color: '#f59e0b' },
-    { tactic: 'credential-access', tech: 't1110', color: '#ef4444' },
-    { tactic: 'c2', tech: 't1071', color: '#ef4444' }
-];
+function renderDynamicGeoThreatMap(geoThreats) {
+    if (!geoThreats || !Array.isArray(geoThreats)) return;
 
-function initMitreFlow() {
-    window.addEventListener('resize', drawMitreConnections);
-    setTimeout(drawMitreConnections, 200);
+    // 1. Update in-canvas HUD Overlay smoothly without DOM thrashing
+    const overlay = document.querySelector('.geo-asn-overlay');
+    if (overlay) {
+        const top4 = geoThreats.slice(0, 4);
+        const overlaySig = top4.map(g => (g.asn || '').split(' ')[0]).join('|');
+        if (overlay.dataset.signature === overlaySig) {
+            // Update counts in place without wiping DOM
+            top4.forEach(g => {
+                const asnCode = (g.asn || '').split(' ')[0];
+                const row = overlay.querySelector(`.asn-row[data-asn="${asnCode}"]`);
+                if (row) {
+                    const countEl = row.querySelector('.asn-count');
+                    if (countEl) countEl.textContent = `${g.count.toLocaleString()} Attacks`;
+                }
+            });
+        } else {
+            overlay.dataset.signature = overlaySig;
+            overlay.innerHTML = top4.map((g, idx) => {
+                const badgeClass = idx === 0 ? 'badge-crit' : (idx === 1 ? 'badge-high' : 'badge-med');
+                const asnCode = (g.asn || '').split(' ')[0];
+                return `
+                    <div class="asn-row" data-asn="${asnCode}" data-full-asn="${g.asn}" data-loc="${g.location}">
+                        <span class="asn-pill ${badgeClass}">${asnCode}</span>
+                        <span class="asn-location">${g.location}</span>
+                        <span class="asn-count">${g.count.toLocaleString()} Attacks</span>
+                    </div>
+                `;
+            }).join('');
 
-    const nodes = document.querySelectorAll('.mitre-node');
-    nodes.forEach(node => {
-        node.addEventListener('mouseenter', () => {
-            const tactic = node.getAttribute('data-tactic');
-            const tech = node.getAttribute('data-tech');
-            highlightMitreConnections(tactic, tech);
-        });
-        node.addEventListener('mouseleave', () => {
-            if (state.customFilter && (state.customFilter.type === 'mitre_tactic' || state.customFilter.type === 'mitre_tech')) {
-                highlightMitreConnections(
-                    state.customFilter.type === 'mitre_tactic' ? state.customFilter.value : null,
-                    state.customFilter.type === 'mitre_tech' ? state.customFilter.value : null
-                );
-            } else {
-                drawMitreConnections();
+            overlay.querySelectorAll('.asn-row').forEach(row => {
+                row.addEventListener('click', () => {
+                    const asn = row.getAttribute('data-asn');
+                    const loc = row.getAttribute('data-loc');
+                    toggleFilter('geo_asn', asn, `Origin ASN: ${asn} (${loc})`);
+                });
+            });
+        }
+    }
+
+    // 2. Dynamically project SVG laser arcs & threat origin nodes
+    const laserGroup = document.getElementById('dynamic-laser-arcs');
+    const nodesGroup = document.getElementById('dynamic-threat-nodes');
+    if (!laserGroup || !nodesGroup) return;
+
+    // Destination target: New Delhi HQ (Lat: 28.6139, Lng: 77.2090) -> (571.6, 136.4)
+    const targetX = 572;
+    const targetY = 136;
+
+    const activeThreats = geoThreats.filter(g => g.lat != null && g.lng != null && g.count > 0).slice(0, 8);
+    if (activeThreats.length === 0) return;
+
+    // Check if the set of active threat ASNs and positions has changed
+    const threatsSig = activeThreats.map(g => `${(g.asn || '').split(' ')[0]}_${g.lat}_${g.lng}`).join('|');
+    if (laserGroup.dataset.signature === threatsSig) {
+        // Topology is unchanged: do NOT touch laserGroup at all!
+        // This preserves the CSS dashLaser animation running continuously without frame resets or flickering.
+        activeThreats.forEach(g => {
+            const asnCode = (g.asn || '').split(' ')[0];
+            const cityName = g.city || (g.location ? g.location.split(',')[0] : 'Remote Staging');
+            const node = nodesGroup.querySelector(`.threat-node[data-asn="${asnCode}"]`);
+            if (node) {
+                const label = node.querySelector('.node-map-label');
+                if (label) {
+                    label.textContent = `${cityName.toUpperCase()} (${g.count.toLocaleString()})`;
+                }
+                const pulseRing = node.querySelector('.pulse-ring');
+                if (pulseRing) {
+                    const pulseRadius = Math.min(22, Math.max(12, 10 + Math.round(Math.log10(g.count + 1) * 3)));
+                    pulseRing.setAttribute('r', pulseRadius);
+                }
             }
         });
+        return;
+    }
 
-        // Interactive Click to Filter
+    // Otherwise, rebuild SVG arcs and threat nodes for the new topology
+    laserGroup.dataset.signature = threatsSig;
+
+    let laserHtml = '';
+    let nodesHtml = '';
+
+    activeThreats.forEach((g, idx) => {
+        // Standard Equirectangular Projection to 800x400
+        const x = (g.lng + 180) * (800 / 360);
+        const y = (90 - g.lat) * (400 / 180);
+
+        const asnCode = (g.asn || '').split(' ')[0];
+        const cityName = g.city || (g.location ? g.location.split(',')[0] : 'Remote Staging');
+
+        // Dynamic Parabolic Arch (quadratic bezier curve)
+        const midX = (x + targetX) / 2;
+        const archHeight = Math.max(35, Math.min(85, Math.abs(x - targetX) * 0.18));
+        const midY = Math.min(y, targetY) - archHeight;
+
+        // Color coding by rank / severity
+        const colorClass = idx === 0 ? 'laser-line-crit' : (idx <= 2 ? 'laser-line-orange' : 'laser-line-amber');
+        const nodeColor = idx === 0 ? 'red' : (idx <= 2 ? 'orange' : 'amber');
+
+        const pulseRadius = Math.min(22, Math.max(12, 10 + Math.round(Math.log10(g.count + 1) * 3)));
+        const coreRadius = idx === 0 ? 4.5 : (idx <= 2 ? 4 : 3.5);
+
+        laserHtml += `
+            <path d="M ${x.toFixed(1)} ${y.toFixed(1)} Q ${midX.toFixed(1)} ${midY.toFixed(1)} ${targetX} ${targetY}" class="${colorClass}" data-asn="${asnCode}" />
+        `;
+
+        const labelY = y < 55 ? 14 : -5;
+        nodesHtml += `
+            <g class="threat-node" data-city="${escapeHtml(cityName)}" data-asn="${asnCode}" style="cursor: pointer;" transform="translate(${x.toFixed(1)}, ${y.toFixed(1)})">
+                <circle class="pulse-ring ${nodeColor}" r="${pulseRadius}"></circle>
+                <circle class="core-dot ${nodeColor}" r="${coreRadius}"></circle>
+                <text x="8" y="${labelY}" class="node-map-label">${escapeHtml(cityName.toUpperCase())} (${g.count.toLocaleString()})</text>
+            </g>
+        `;
+    });
+
+    laserGroup.innerHTML = laserHtml;
+    nodesGroup.innerHTML = nodesHtml;
+
+    // Attach dynamic click listeners
+    nodesGroup.querySelectorAll('.threat-node').forEach(node => {
         node.addEventListener('click', () => {
-            const tactic = node.getAttribute('data-tactic');
-            const tech = node.getAttribute('data-tech');
-            if (tactic) {
-                const title = node.querySelector('.node-title')?.innerText || tactic;
-                toggleFilter('mitre_tactic', tactic, `Tactic: ${title}`);
-            } else if (tech) {
-                const techId = node.querySelector('.tech-id')?.innerText || tech;
-                const techName = node.querySelector('.tech-name')?.innerText || '';
-                toggleFilter('mitre_tech', tech, `Technique: ${techId} (${techName})`);
+            const city = node.getAttribute('data-city');
+            const asn = node.getAttribute('data-asn');
+            if (asn) {
+                toggleFilter('geo_asn', asn, `Origin ASN: ${asn} (${city})`);
             }
         });
     });
 }
 
 function initGeoThreatMapInteractivity() {
-    const threatNodes = document.querySelectorAll('.threat-node');
-    threatNodes.forEach(node => {
-        node.addEventListener('click', () => {
-            const city = node.getAttribute('data-city');
-            const asn = node.getAttribute('data-asn');
-            if (asn) {
-                toggleFilter('geo_asn', asn, `Origin ASN: ${asn} (${city})`);
-            } else if (city) {
-                toggleFilter('geo_city', city, `Origin City: ${city}`);
-            }
-        });
-    });
-}
-
-function drawMitreConnections() {
-    const svg = DOM.mitreSvgCanvas;
-    if (!svg || !DOM.mitreContainer) return;
-
-    const containerRect = DOM.mitreContainer.getBoundingClientRect();
-    if (containerRect.width === 0) return;
-
-    svg.innerHTML = '';
-    const svgRect = svg.getBoundingClientRect();
-
-    MITRE_MAPPINGS.forEach(m => {
-        const tacticEl = document.querySelector(`.node-tactic[data-tactic="${m.tactic}"]`);
-        const techEl = document.querySelector(`.node-technique[data-tech="${m.tech}"]`);
-        
-        if (!tacticEl || !techEl) return;
-
-        const tRect = tacticEl.getBoundingClientRect();
-        const techRect = techEl.getBoundingClientRect();
-
-        const x1 = 0;
-        const y1 = tRect.top - svgRect.top + (tRect.height / 2);
-        const x2 = svgRect.width;
-        const y2 = techRect.top - svgRect.top + (techRect.height / 2);
-
-        const dx = (x2 - x1) / 2;
-        const pathData = `M ${x1} ${y1} C ${x1 + dx} ${y1}, ${x2 - dx} ${y2}, ${x2} ${y2}`;
-
-        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        path.setAttribute('d', pathData);
-        path.setAttribute('fill', 'none');
-        path.setAttribute('stroke', m.color);
-        path.setAttribute('stroke-width', '1.5');
-        path.setAttribute('stroke-opacity', '0.45');
-        path.classList.add('mitre-link');
-        path.setAttribute('data-tactic', m.tactic);
-        path.setAttribute('data-tech', m.tech);
-
-        svg.appendChild(path);
-    });
-
-    if (state.customFilter && (state.customFilter.type === 'mitre_tactic' || state.customFilter.type === 'mitre_tech')) {
-        highlightMitreConnections(
-            state.customFilter.type === 'mitre_tactic' ? state.customFilter.value : null,
-            state.customFilter.type === 'mitre_tech' ? state.customFilter.value : null
-        );
-    }
-}
-
-function highlightMitreConnections(tactic, tech) {
-    const links = document.querySelectorAll('.mitre-link');
-    links.forEach(l => {
-        const lTactic = l.getAttribute('data-tactic');
-        const lTech = l.getAttribute('data-tech');
-        if ((tactic && lTactic === tactic) || (tech && lTech === tech)) {
-            l.setAttribute('stroke-opacity', '1.0');
-            l.setAttribute('stroke-width', '3');
-        } else {
-            l.setAttribute('stroke-opacity', '0.1');
-            l.setAttribute('stroke-width', '1');
-        }
-    });
+    // Interactivity is dynamically bound on every telemetry ingest in renderDynamicGeoThreatMap()
 }
 
 // -------------------------------------------------------------
@@ -529,15 +534,36 @@ function initCharts() {
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const pt = context.raw;
+                            if (!pt) return '';
+                            const lines = [
+                                `Payload Entropy: ${pt.x} Bits`,
+                                `Target Port: ${pt.y}`,
+                                `Anomaly Score: ${Math.round((pt.score || 0) * 100)}%`
+                            ];
+                            if (pt.tag) lines.push(`Verdict: ${pt.tag}`);
+                            return lines;
+                        }
+                    }
+                }
+            },
             scales: {
                 x: {
-                    title: { display: true, text: 'Source Port Entropy', color: '#71717a', font: { size: 10 } },
+                    title: { display: true, text: 'Payload Shannon Entropy (Bits: 1.0 - 6.0)', color: '#71717a', font: { size: 10 } },
+                    min: 1.0,
+                    max: 6.0,
                     grid: { color: '#18181b' },
                     ticks: { color: '#71717a' }
                 },
                 y: {
-                    title: { display: true, text: 'Target Port', color: '#71717a', font: { size: 10 } },
+                    title: { display: true, text: 'Target Port (0 - 65535)', color: '#71717a', font: { size: 10 } },
+                    min: 0,
+                    max: 65535,
                     grid: { color: '#18181b' },
                     ticks: { color: '#71717a' }
                 }
@@ -653,105 +679,101 @@ function updateDashboardRealData(analytics) {
         updateTechCounter('.node-technique[data-tech="t1071"] .node-counter', techs['t1071']);
     }
 
-    // 3. Geo Threats ASN Overlay (Interactive)
+    // 3. Dynamic Geo-Threat Map & Live ASN Telemetry (100% Data-Driven)
     if (analytics.geo_threats && Array.isArray(analytics.geo_threats)) {
-        const overlay = document.querySelector('.geo-asn-overlay');
-        if (overlay) {
-            overlay.innerHTML = analytics.geo_threats.slice(0, 4).map((g, idx) => {
-                const badgeClass = idx === 0 ? 'badge-crit' : (idx === 1 ? 'badge-high' : 'badge-med');
-                return `
-                    <div class="asn-row" data-asn="${g.asn}" data-loc="${g.location}">
-                        <span class="asn-pill ${badgeClass}">${g.asn}</span>
-                        <span class="asn-location">${g.location}</span>
-                        <span class="asn-count">${g.count} Attacks</span>
-                    </div>
-                `;
-            }).join('');
+        renderDynamicGeoThreatMap(analytics.geo_threats);
+    }
 
-            overlay.querySelectorAll('.asn-row').forEach(row => {
-                row.addEventListener('click', () => {
-                    const asn = row.getAttribute('data-asn');
-                    const loc = row.getAttribute('data-loc');
-                    toggleFilter('geo_asn', asn, `Origin ASN: ${asn} (${loc})`);
+    // 4. Entity Profiling Panels (Interactive)
+    if (analytics.devices && DOM.deviceRankingList) {
+        const devSig = analytics.devices.map(d => `${d.name}:${d.records}:${d.percentage}`).join('|');
+        if (DOM.deviceRankingList.dataset.signature !== devSig) {
+            DOM.deviceRankingList.dataset.signature = devSig;
+            DOM.deviceRankingList.innerHTML = analytics.devices.map(d => `
+                <div class="ranking-item" data-device="${d.name}">
+                    <div class="ranking-top-row">
+                        <span class="ranking-name">${d.name}</span>
+                        <span class="ranking-meta">${d.records.toLocaleString()} Logs (${d.percentage}%)</span>
+                    </div>
+                    <div class="ranking-track">
+                        <div class="ranking-fill orange" style="width: ${d.percentage}%"></div>
+                    </div>
+                </div>
+            `).join('');
+
+            DOM.deviceRankingList.querySelectorAll('.ranking-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const dev = item.getAttribute('data-device');
+                    toggleFilter('device', dev, `Device: ${dev}`);
                 });
             });
         }
     }
 
-    // 4. Entity Profiling Panels (Interactive)
-    if (analytics.devices && DOM.deviceRankingList) {
-        DOM.deviceRankingList.innerHTML = analytics.devices.map(d => `
-            <div class="ranking-item" data-device="${d.name}">
-                <div class="ranking-top-row">
-                    <span class="ranking-name">${d.name}</span>
-                    <span class="ranking-meta">${d.records.toLocaleString()} Logs (${d.percentage}%)</span>
-                </div>
-                <div class="ranking-track">
-                    <div class="ranking-fill orange" style="width: ${d.percentage}%"></div>
-                </div>
-            </div>
-        `).join('');
-
-        DOM.deviceRankingList.querySelectorAll('.ranking-item').forEach(item => {
-            item.addEventListener('click', () => {
-                const dev = item.getAttribute('data-device');
-                toggleFilter('device', dev, `Device: ${dev}`);
-            });
-        });
-    }
-
     if (analytics.users && DOM.userRankingList) {
-        DOM.userRankingList.innerHTML = analytics.users.map(u => {
-            const fillClass = u.score > 90 ? 'crimson' : (u.score > 70 ? 'orange' : 'cyan');
-            return `
-                <div class="ranking-item" data-user="${u.name}">
-                    <div class="ranking-top-row">
-                        <span class="ranking-name">${u.name}</span>
-                        <span class="ranking-meta">Risk: ${u.score} (${u.severity}, ${u.events} ev)</span>
+        const userSig = analytics.users.map(u => `${u.name}:${u.score}:${u.events}`).join('|');
+        if (DOM.userRankingList.dataset.signature !== userSig) {
+            DOM.userRankingList.dataset.signature = userSig;
+            DOM.userRankingList.innerHTML = analytics.users.map(u => {
+                const fillClass = u.score > 90 ? 'crimson' : (u.score > 70 ? 'orange' : 'cyan');
+                return `
+                    <div class="ranking-item" data-user="${u.name}">
+                        <div class="ranking-top-row">
+                            <span class="ranking-name">${u.name}</span>
+                            <span class="ranking-meta">Risk: ${u.score} (${u.severity}, ${u.events} ev)</span>
+                        </div>
+                        <div class="ranking-track">
+                            <div class="ranking-fill ${fillClass}" style="width: ${u.score}%"></div>
+                        </div>
                     </div>
-                    <div class="ranking-track">
-                        <div class="ranking-fill ${fillClass}" style="width: ${u.score}%"></div>
-                    </div>
-                </div>
-            `;
-        }).join('');
+                `;
+            }).join('');
 
-        DOM.userRankingList.querySelectorAll('.ranking-item').forEach(item => {
-            item.addEventListener('click', () => {
-                const usr = item.getAttribute('data-user');
-                toggleFilter('user', usr, `User Identity: ${usr}`);
+            DOM.userRankingList.querySelectorAll('.ranking-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const usr = item.getAttribute('data-user');
+                    toggleFilter('user', usr, `User Identity: ${usr}`);
+                });
             });
-        });
+        }
     }
 
     if (analytics.offenses && DOM.offenseRankingList) {
-        DOM.offenseRankingList.innerHTML = analytics.offenses.map(o => {
-            const fillClass = o.percentage > 30 ? 'crimson' : (o.percentage > 15 ? 'orange' : 'cyan');
-            return `
-                <div class="ranking-item" data-offense="${o.name}">
-                    <div class="ranking-top-row">
-                        <span class="ranking-name">${o.name}</span>
-                        <span class="ranking-meta">${o.events} Events (${o.percentage}%)</span>
+        const offSig = analytics.offenses.map(o => `${o.name}:${o.events}:${o.percentage}`).join('|');
+        if (DOM.offenseRankingList.dataset.signature !== offSig) {
+            DOM.offenseRankingList.dataset.signature = offSig;
+            DOM.offenseRankingList.innerHTML = analytics.offenses.map(o => {
+                const fillClass = o.percentage > 30 ? 'crimson' : (o.percentage > 15 ? 'orange' : 'cyan');
+                return `
+                    <div class="ranking-item" data-offense="${o.name}">
+                        <div class="ranking-top-row">
+                            <span class="ranking-name">${o.name}</span>
+                            <span class="ranking-meta">${o.events} Events (${o.percentage}%)</span>
+                        </div>
+                        <div class="ranking-track">
+                            <div class="ranking-fill ${fillClass}" style="width: ${o.percentage}%"></div>
+                        </div>
                     </div>
-                    <div class="ranking-track">
-                        <div class="ranking-fill ${fillClass}" style="width: ${o.percentage}%"></div>
-                    </div>
-                </div>
-            `;
-        }).join('');
+                `;
+            }).join('');
 
-        DOM.offenseRankingList.querySelectorAll('.ranking-item').forEach(item => {
-            item.addEventListener('click', () => {
-                const off = item.getAttribute('data-offense');
-                toggleFilter('offense', off, `Attack: ${off}`);
+            DOM.offenseRankingList.querySelectorAll('.ranking-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const off = item.getAttribute('data-offense');
+                    toggleFilter('offense', off, `Attack: ${off}`);
+                });
             });
-        });
+        }
     }
 
     // 5. AI Threat Matrix Scatter Points
     if (analytics.scatter_points && scatterChart && analytics.scatter_points.length > 0) {
-        scatterChart.data.datasets[0].data = analytics.scatter_points;
-        scatterChart.update('none');
+        const scatterSig = JSON.stringify(analytics.scatter_points);
+        if (scatterChart._lastSig !== scatterSig) {
+            scatterChart._lastSig = scatterSig;
+            scatterChart.data.datasets[0].data = analytics.scatter_points;
+            scatterChart.update('none');
+        }
     }
 
     // 6. Recent Alerts (Real Data Population)
@@ -792,7 +814,6 @@ function updateDashboardRealData(analytics) {
 // 5. OPERATIONAL TELEMETRY & LIVE TABLES
 // -------------------------------------------------------------
 function renderAlertsTable() {
-    DOM.alertsTableBody.innerHTML = '';
     let filteredAlerts = state.activeAlerts;
 
     if (state.customFilter) {
@@ -813,6 +834,7 @@ function renderAlertsTable() {
             );
         } else if (type === 'geo_asn') {
             filteredAlerts = filteredAlerts.filter(a =>
+                (a.asn || '').toLowerCase().includes(vLower) ||
                 (a.src || '').includes(value) ||
                 (a.raw || '').toLowerCase().includes(vLower)
             );
@@ -834,6 +856,15 @@ function renderAlertsTable() {
         }
     }
 
+    const filterKey = state.customFilter ? `${state.customFilter.type}:${state.customFilter.value}` : 'all';
+    const alertSig = `${filterKey}|` + filteredAlerts.map(a => `${a.time}_${a.name}_${a.status}_${a.severity}`).join(';');
+    if (DOM.alertsTableBody.dataset.signature === alertSig) {
+        return;
+    }
+    DOM.alertsTableBody.dataset.signature = alertSig;
+
+    DOM.alertsTableBody.innerHTML = '';
+
     if (filteredAlerts.length === 0) {
         DOM.alertsTableBody.innerHTML = '<tr><td colspan="7" class="empty-state">No alerts matching active filter.</td></tr>';
         DOM.activeAlertsCountBadge.innerText = `0 MATCHES`;
@@ -846,8 +877,16 @@ function renderAlertsTable() {
         const statusClass = a.status === 'OPEN' ? 'status-open' : (a.status === 'UNDER REVIEW' ? 'status-review' : 'status-resolved');
 
         tr.innerHTML = `
-            <td>${a.time}</td>
-            <td><b>${a.name}</b> <span class="text-muted">(${a.tactic})</span></td>
+            <td><code>${a.time}</code></td>
+            <td>
+                <div class="alert-info-cell">
+                    <div class="alert-primary-line">
+                        <span class="alert-name-bold">${escapeHtml(a.name)}</span>
+                        <span class="alert-tactic-muted">(${escapeHtml(a.tactic)})</span>
+                    </div>
+                    ${a.primary_tag ? `<div class="alert-xai-tag-wrapper"><span class="xai-mini-tag ${a.severity === 'Critical' ? 'crit' : ''}">${escapeHtml(a.primary_tag)}</span></div>` : ''}
+                </div>
+            </td>
             <td><span class="${sevClass}">${a.severity.toUpperCase()}</span></td>
             <td><code>${a.src}</code></td>
             <td><code>${a.dst}</code></td>
@@ -965,6 +1004,7 @@ function renderTimelineTable() {
             );
         } else if (type === 'geo_asn') {
             filtered = filtered.filter(r =>
+                (r.asn || '').toLowerCase().includes(vLower) ||
                 (r.src_ip || '').includes(value) ||
                 (r.raw || '').toLowerCase().includes(vLower)
             );
@@ -1001,11 +1041,20 @@ function renderTimelineTable() {
 
     if (filtered.length === 0) {
         DOM.timelineTableBody.innerHTML = '<tr><td colspan="7" class="empty-state">No telemetry records matching active filter.</td></tr>';
+        DOM.timelineTableBody.dataset.signature = 'empty';
         return;
     }
 
+    const displayList = filtered.slice(0, 15);
+    const filterKey = `${state.activeFilter}|${state.searchQuery}|${state.customFilter ? state.customFilter.type + ':' + state.customFilter.value : ''}`;
+    const timelineSig = `${filterKey}|` + displayList.map(r => `${r.id || r.timeStr}_${r.src_ip}_${r.disposition}`).join(';');
+    if (DOM.timelineTableBody.dataset.signature === timelineSig) {
+        return;
+    }
+    DOM.timelineTableBody.dataset.signature = timelineSig;
+
     DOM.timelineTableBody.innerHTML = '';
-    filtered.slice(0, 15).forEach((item, idx) => {
+    displayList.forEach((item, idx) => {
         const tr = document.createElement('tr');
         const disp = item.disposition || 'Allowed';
         const dispClass = disp.toLowerCase() === 'blocked' ? 'blocked' : 'allowed';
@@ -1116,6 +1165,40 @@ async function openForensicModalFromRecord(item) {
     };
 
     DOM.modalJsonPayload.innerText = JSON.stringify(ocsfJson, null, 2);
+
+    // Populate AI Multi-Model Ensemble Diagnostics in Modal
+    const iforestEl = document.getElementById('modal-ai-iforest');
+    const ocsvmEl = document.getElementById('modal-ai-ocsvm');
+    const entropyEl = document.getElementById('modal-ai-entropy');
+    const jitterEl = document.getElementById('modal-ai-jitter');
+    const xaiEl = document.getElementById('modal-ai-xai');
+    const verdictEl = document.getElementById('modal-ai-verdict');
+
+    const aiBreakdown = item.ai_breakdown || {
+        iforest_score: item.anomaly_score ? (item.anomaly_score * 0.9).toFixed(2) : '0.12',
+        ocsvm_score: item.anomaly_score ? (item.anomaly_score * 0.85).toFixed(2) : '0.10',
+        entropy: item.entropy || 3.12,
+        jitter_score: '0.15'
+    };
+
+    if (iforestEl) iforestEl.innerText = `Score: ${aiBreakdown.iforest_score}`;
+    if (ocsvmEl) ocsvmEl.innerText = `Score: ${aiBreakdown.ocsvm_score}`;
+    if (entropyEl) entropyEl.innerText = `${aiBreakdown.entropy} Bits`;
+    if (jitterEl) jitterEl.innerText = `Score: ${aiBreakdown.jitter_score}`;
+
+    const tags = item.xai_tags || (item.primary_tag ? [item.primary_tag] : ['Normal Baseline Conformance']);
+    if (xaiEl) xaiEl.innerText = `Consensus Verdict: ${tags.join(' | ')}`;
+
+    if (verdictEl) {
+        const isAnomaly = (item.anomaly_score || 0) > 0.65;
+        verdictEl.innerText = isAnomaly ? 'ANOMALY DETECTED' : 'BASELINE NORMAL';
+        if (isAnomaly) {
+            verdictEl.classList.remove('benign');
+        } else {
+            verdictEl.classList.add('benign');
+        }
+    }
+
     DOM.forensicModal.classList.remove('hidden');
 }
 
@@ -1129,10 +1212,14 @@ function openForensicModalFromAlert(alert) {
         dst_ip: (alert.dst || '').split(':')[0],
         dst_port: parseInt((alert.dst || '').split(':')[1] || 0, 10),
         disposition: "Blocked",
-        anomaly_score: alert.severity === 'Critical' ? 0.95 : 0.80,
+        anomaly_score: alert.ai_breakdown ? alert.ai_breakdown.composite_score : (alert.severity === 'Critical' ? 0.95 : 0.80),
         timeStr: alert.time,
         sha256: alert.sha256,
-        ocsf: alert.ocsf
+        ocsf: alert.ocsf,
+        entropy: alert.entropy,
+        xai_tags: alert.xai_tags,
+        primary_tag: alert.primary_tag,
+        ai_breakdown: alert.ai_breakdown
     };
     openForensicModalFromRecord(item);
 }
@@ -1147,6 +1234,10 @@ function closeForensicModal() {
 function initControls() {
     DOM.streamToggleBtn.addEventListener('click', toggleStream);
 
+    if (DOM.streamSpeedSelect) {
+        state.speed = parseInt(DOM.streamSpeedSelect.value, 10) || 10;
+    }
+
     DOM.streamSpeedSelect.addEventListener('change', (e) => {
         state.speed = parseInt(e.target.value, 10);
         fetch('/api/v1/stream/speed', {
@@ -1154,6 +1245,7 @@ function initControls() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ eps: state.speed })
         }).catch(() => {});
+        updateKpisUI();
     });
 
     DOM.batchSizeSelect.addEventListener('change', (e) => {
@@ -1209,11 +1301,16 @@ function toggleStream() {
         DOM.streamToggleBtn.classList.add('running');
         startStreamTimer();
 
+        if (DOM.streamSpeedSelect) {
+            state.speed = parseInt(DOM.streamSpeedSelect.value, 10) || 10;
+        }
+
         fetch('/api/v1/stream/start', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ eps: state.speed })
         }).catch(() => {});
+        updateKpisUI();
     } else {
         DOM.streamBtnIcon.innerText = '▶';
         DOM.streamBtnLabel.innerText = 'Start Live Stream';
@@ -1221,6 +1318,7 @@ function toggleStream() {
         clearInterval(state.streamTimer);
 
         fetch('/api/v1/stream/stop', { method: 'POST' }).catch(() => {});
+        updateKpisUI();
     }
 }
 
@@ -1230,11 +1328,24 @@ function startStreamTimer() {
 }
 
 async function fetchAndRenderLiveStream() {
-    if (!state.isStreaming && state.currentTab !== 'streamer') return;
+    if (!state.isStreaming || state.currentTab !== 'streamer') return;
     try {
         const res = await fetch('/api/v1/stream/live');
         if (!res.ok) return;
-        const records = await res.json();
+        const payload = await res.json();
+        const records = Array.isArray(payload) ? payload : (payload.records || []);
+
+        if (payload.buffer) {
+            state.bufferRawCount = payload.buffer.raw_count;
+            state.batchThreshold = payload.buffer.threshold || state.batchThreshold;
+            updateBufferUI();
+        }
+
+        if (payload.current_eps !== undefined) {
+            state.currentEps = payload.current_eps;
+            updateKpisUI();
+        }
+
         if (!records || records.length === 0) return;
 
         // Render latest 8 wire logs from socket receiver
@@ -1253,23 +1364,43 @@ async function fetchAndRenderLiveStream() {
         `).join('');
 
         DOM.processedCounterBadge.innerText = `EVENTS COMMITTED: ${records.length}`;
-        
-        fetchLiveTelemetry();
     } catch (e) {}
 }
 
 function updateKpisUI() {
     DOM.kpiTotalLogs.innerText = state.totalIngested.toLocaleString();
-    DOM.kpiSpeed.innerText = `${state.isStreaming ? state.speed.toFixed(1) : '0.0'} EPS`;
+    
+    // Display actual live measured EPS when streaming, or setpoint if just started
+    const measuredRate = state.currentEps > 0 ? state.currentEps : state.speed;
+    const dispEps = state.isStreaming ? measuredRate.toFixed(1) : '0.0';
+    DOM.kpiSpeed.innerText = `${dispEps} EPS`;
+
+    const actualEpsEl = document.getElementById('stream-measured-eps');
+    if (actualEpsEl) {
+        actualEpsEl.innerText = `ACTUAL: ${dispEps} EPS`;
+    }
     
     if (DOM.sevCountCritical) DOM.sevCountCritical.innerText = state.sevCritical.toLocaleString();
     if (DOM.sevCountHigh) DOM.sevCountHigh.innerText = state.sevHigh.toLocaleString();
     if (DOM.sevCountMedium) DOM.sevCountMedium.innerText = state.sevMedium.toLocaleString();
     if (DOM.sevCountLow) DOM.sevCountLow.innerText = state.sevLow.toLocaleString();
 
+    // Populate Severity Mini-Ribbon in Alert Rate Dynamics Card
+    const ribCrit = document.getElementById('ribbon-crit');
+    const ribHigh = document.getElementById('ribbon-high');
+    const ribMed = document.getElementById('ribbon-med');
+    const ribLow = document.getElementById('ribbon-low');
+    if (ribCrit) ribCrit.innerText = state.sevCritical.toLocaleString();
+    if (ribHigh) ribHigh.innerText = state.sevHigh.toLocaleString();
+    if (ribMed) ribMed.innerText = state.sevMedium.toLocaleString();
+    if (ribLow) ribLow.innerText = state.sevLow.toLocaleString();
+
     if (severityDonutChart) {
-        severityDonutChart.data.datasets[0].data = [state.sevCritical, state.sevHigh, state.sevMedium, state.sevLow];
-        severityDonutChart.update('none');
+        const d = severityDonutChart.data.datasets[0].data;
+        if (d[0] !== state.sevCritical || d[1] !== state.sevHigh || d[2] !== state.sevMedium || d[3] !== state.sevLow) {
+            severityDonutChart.data.datasets[0].data = [state.sevCritical, state.sevHigh, state.sevMedium, state.sevLow];
+            severityDonutChart.update('none');
+        }
     }
 }
 
@@ -1298,15 +1429,29 @@ async function fetchLiveTelemetry() {
             DOM.connStatusBadge.style.color = '#34d399';
         }
 
-        state.currentEps = data.current_eps || state.currentEps;
+        if (data.current_eps !== undefined) {
+            state.currentEps = data.current_eps;
+            updateVelocitySparkline(state.currentEps);
+        }
+        if (data.buffer_raw_count !== undefined) {
+            state.bufferRawCount = data.buffer_raw_count;
+            state.batchThreshold = data.buffer_threshold || state.batchThreshold;
+            updateBufferUI();
+        }
+        if (data.speed !== undefined && DOM.streamSpeedSelect) {
+            state.speed = data.speed;
+            DOM.streamSpeedSelect.value = String(data.speed);
+        }
         state.anomaliesCount = data.anomalies || state.anomaliesCount;
         state.batchesCount = data.total_batches || state.batchesCount;
-        state.isStreaming = data.is_running || state.isStreaming;
+        state.isStreaming = data.is_running !== undefined ? data.is_running : state.isStreaming;
 
         if (DOM.healthCpu) DOM.healthCpu.innerText = `${data.cpu_percent || '0.0'}%`;
         if (DOM.healthRam) DOM.healthRam.innerText = `${data.memory_mb || '0'} MB`;
         if (DOM.healthLatency) DOM.healthLatency.innerText = `${data.p99_latency_ms || '<0.5'}ms`;
         if (DOM.healthDlq) DOM.healthDlq.innerText = `${data.dlq_count || 0}`;
+
+        updateKpisUI();
 
         // Ingest Real-Time Analytics from Server
         if (data.analytics) {
@@ -1341,23 +1486,32 @@ async function fetchStoredFiles() {
 }
 
 function renderFilesTable(files, tbody, badge) {
+    if (!tbody) return;
     if (!files || files.length === 0) {
         tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No files stored yet.</td></tr>';
-        badge.innerText = '0 FILES';
+        if (badge) badge.innerText = '0 FILES';
+        tbody.dataset.signature = 'empty';
         return;
     }
 
-    badge.innerText = `${files.length} FILES`;
+    if (badge) badge.innerText = `${files.length} FILES`;
+
+    const fileSig = files.map(f => `${f.filename}_${f.records}_${f.size_kb}`).join(';');
+    if (tbody.dataset.signature === fileSig) {
+        return;
+    }
+    tbody.dataset.signature = fileSig;
+
     tbody.innerHTML = '';
     files.forEach(f => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td><code title="${f.filename}">${f.filename}</code></td>
-            <td><b>${f.records}</b></td>
-            <td>${f.size_kb} KB</td>
-            <td>${f.timestamp}</td>
-            <td>
-                <a href="/api/v1/files/download?filename=${encodeURIComponent(f.filename)}" class="btn-download-sm" download="${f.filename}">
+            <td><code title="${escapeHtml(f.filename)}">${escapeHtml(f.filename)}</code></td>
+            <td style="text-align: center;"><b>${f.records}</b></td>
+            <td style="text-align: right; font-family: var(--font-mono);">${f.size_kb} KB</td>
+            <td style="text-align: center; font-family: var(--font-mono); font-size: 11px; color: #a1a1aa;">${escapeHtml(f.timestamp)}</td>
+            <td style="text-align: center;">
+                <a href="/api/v1/files/download?filename=${encodeURIComponent(f.filename)}" class="btn-download-sm" download="${escapeHtml(f.filename)}">
                     DOWNLOAD
                 </a>
             </td>

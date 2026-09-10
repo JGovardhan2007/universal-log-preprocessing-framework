@@ -93,8 +93,13 @@ def get_threats_dashboard():
 
 @app.get("/api/v1/stream/live")
 def get_live_stream_records():
-    """Returns the sliding window of real live records from the socket pipeline."""
-    return service.get_live_stream()
+    """Returns the sliding window of real live records from the socket pipeline with buffer telemetry."""
+    return {
+        "records": service.get_live_stream(),
+        "buffer": service.get_buffer_status(),
+        "current_eps": service.stats["current_eps"],
+        "speed": service.logs_per_second
+    }
 
 
 @app.post("/api/v1/stream/start")
@@ -276,8 +281,8 @@ if os.path.exists(WEB_DIR):
 
 if __name__ == "__main__":
     print("\n" + "="*70)
-    print("  🌐 ULPF Enterprise Web Application & REST Server")
-    print("  👉 Open in Browser: http://localhost:8080  or  http://127.0.0.1:8080")
+    print("  [ULPF] Enterprise Web Application & REST Server")
+    print("  [CONSOLE] Open in Browser: http://localhost:8080 or http://127.0.0.1:8080")
     print("="*70 + "\n")
     uvicorn.run(app, host="0.0.0.0", port=8080)
 

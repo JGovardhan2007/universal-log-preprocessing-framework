@@ -1,53 +1,50 @@
 # ==============================================================================
-# Universal Log Pre-processing Framework (ULPF) - Production Containerfile
-# Problem Statement ID: 26156 (Air-Gapped Containerized Image)
+# Universal Log Pre-processing Framework (ULPF) - Production Container
+# Compliant with NTRO Problem Statement 26156 & OCSF v1.1.0 Standard
 # ==============================================================================
+FROM python:3.12-slim
 
-FROM python:3.12-slim-bookworm
+# System metadata
+LABEL maintainer="ULPF Development Team"
+LABEL description="Universal Log Pre-processing Framework with 4-Model AI Ensemble, Section 65B Forensics, and SOC Web Console"
 
-# Set container environment variables
-ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1 \
-    DEBIAN_FRONTEND=noninteractive \
-    ULPF_ENV=production
+# Set environment flags
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    DEBIAN_FRONTEND=noninteractive
 
-# Install essential build & networking packages
+# Install core runtime dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
-    gcc \
-    g++ \
-    libsnappy-dev \
+    build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-# Set working directory
 WORKDIR /app
 
-# Copy dependency requirements
-COPY requirements.txt .
-COPY dashboard/requirements.txt dashboard_requirements.txt
-COPY test_tools/requirements.txt test_requirements.txt
+# Install Python dependencies
+COPY requirements.txt /app/requirements.txt
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
-# Install all Python dependencies into the image
-RUN pip install --no-cache-dir -r requirements.txt \
-    && pip install --no-cache-dir -r dashboard_requirements.txt \
-    && pip install --no-cache-dir -r test_requirements.txt \
-    && pip install --no-cache-dir kafka-python-ng pytest
+# Copy source tree and configuration assets
+COPY core_engine /app/core_engine
+COPY parsers /app/parsers
+COPY schemas /app/schemas
+COPY rules /app/rules
+COPY tests /app/tests
+COPY web /app/web
+COPY data /app/data
 
-# Copy codebase
-COPY . .
+# Ensure data directories exist for dual-buffer and forensic outputs
+RUN mkdir -p /app/data/raw /app/data/formatted /app/data/dlq
 
-# Create persistent storage directories
-RUN mkdir -p data/lake data/dlq data/incoming sample_logs
+# Expose Web Console / REST API (8080) and Wire Syslog UDP Intake (5140)
+EXPOSE 8080/tcp
+EXPOSE 5140/udp
 
-# Expose all operational ports:
-# 5140/udp - Syslog Wire Ingest
-# 8000/tcp - REST Ingestion API
-# 8501/tcp - Streamlit SOC Forensic Control Center
-EXPOSE 5140/udp 8000/tcp 8501/tcp
+# Healthcheck to verify FastAPI service uptime
+HEALTHCHECK --interval=15s --timeout=5s --start-period=10s --retries=3 \
+    CMD curl -f http://localhost:8080/api/v1/stats || exit 1
 
-# Healthcheck
-HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8000/api/v1/health || exit 1
-
-# Default Entrypoint: Launch ULPF Production Engine
-CMD ["python", "run_engine.py", "--port", "5140", "--api-port", "8000", "--dashboard"]
+# Launch production server daemon
+CMD ["python", "core_engine/web_server.py"]

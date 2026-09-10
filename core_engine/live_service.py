@@ -27,6 +27,7 @@ from core_engine.engine import Engine
 from test_tools.stress_tester import generate_extended_synthetic_log, SUPPORTED_VENDORS
 from test_tools.log_generator import generate_attack_log
 from core_engine.geoip_resolver import GeoIPResolver
+from core_engine.ai_analyzer import AIAnalyzer
 
 RAW_STORAGE_DIR = os.path.join(PROJECT_ROOT, "data", "storage", "raw")
 FORMATTED_STORAGE_DIR = os.path.join(PROJECT_ROOT, "data", "storage", "formatted")
@@ -283,6 +284,7 @@ class LiveLogPipelineService:
         self.batch_size_threshold = batch_size_threshold
         self.engine = Engine(parsers_dir=os.path.join(PROJECT_ROOT, "parsers"), parquet_path=PARQUET_PATH)
         self.geo_resolver = GeoIPResolver()
+        self.ai_analyzer = AIAnalyzer.get_instance()
 
         # Threading flags
         self.is_running = False
@@ -528,13 +530,30 @@ class LiveLogPipelineService:
         else:
             asn_key = "AS13335 (Cloudflare)"
 
+        # Run Multi-Model AI Ensemble Inference (Isolation Forest + One-Class SVM + Shannon Entropy + Temporal Jitter)
+        ai_res = self.ai_analyzer.analyze_log(raw_str, rec)
+
         return {
             "alert_name": alert_name,
             "tactic": tactic,
             "tactic_name": tactic_name,
             "tech_id": tech_id,
             "severity": severity,
-            "anomaly_score": score,
+            "anomaly_score": ai_res["composite_score"],
+            "entropy": ai_res["entropy"],
+            "iforest_score": ai_res["iforest_score"],
+            "ocsvm_score": ai_res["ocsvm_score"],
+            "jitter_score": ai_res["jitter_score"],
+            "xai_tags": ai_res["xai_tags"],
+            "primary_tag": ai_res["primary_tag"],
+            "ai_breakdown": {
+                "entropy": ai_res["entropy"],
+                "iforest_score": ai_res["iforest_score"],
+                "ocsvm_score": ai_res["ocsvm_score"],
+                "jitter_score": ai_res["jitter_score"],
+                "composite_score": ai_res["composite_score"],
+                "xai_tags": ai_res["xai_tags"]
+            },
             "user": user,
             "vendor": vendor,
             "offense": offense,
@@ -581,17 +600,21 @@ class LiveLogPipelineService:
             off = threat["offense"]
             self.analytics["offense_counts"][off] = self.analytics["offense_counts"].get(off, 0) + 1
 
-            # Scatter Points
+            # Scatter Points (Real Shannon Entropy vs Destination Port)
             self.analytics["scatter_points"].append({
-                "x": int(threat["src_port"]) if str(threat["src_port"]).isdigit() else 51234,
+                "x": threat["entropy"],
                 "y": int(threat["dst_port"]) if str(threat["dst_port"]).isdigit() else 22,
-                "score": threat["anomaly_score"]
+                "score": threat["anomaly_score"],
+                "tag": threat["primary_tag"],
+                "tags": threat["xai_tags"],
+                "src": f"{threat['src_ip']}:{threat['src_port']}",
+                "dst": f"{threat['dst_ip']}:{threat['dst_port']}"
             })
 
             time_str = datetime.now(timezone.utc).strftime("%H:%M:%S")
 
             # Active Alerts (for Critical / High)
-            if threat["severity"] in ("Critical", "High") or threat["anomaly_score"] > 0.70:
+            if threat["severity"] in ("Critical", "High") or threat["anomaly_score"] > 0.65:
                 self.stats["anomalies_detected"] += 1
                 self.analytics["recent_alerts"].appendleft({
                     "id": f"ALT-{random.randint(1000, 9999)}",
@@ -605,14 +628,26 @@ class LiveLogPipelineService:
                     "raw": raw_str,
                     "user": threat["user"],
                     "vendor": threat["vendor"],
+                    "asn": threat["asn_key"],
                     "sha256": sha256_key,
-                    "ocsf": rec
+                    "ocsf": rec,
+                    "entropy": threat["entropy"],
+                    "xai_tags": threat["xai_tags"],
+                    "primary_tag": threat["primary_tag"],
+                    "ai_breakdown": {
+                        "entropy": threat["entropy"],
+                        "iforest_score": threat["iforest_score"],
+                        "ocsvm_score": threat["ocsvm_score"],
+                        "jitter_score": threat["jitter_score"],
+                        "composite_score": threat["anomaly_score"]
+                    }
                 })
 
             # Timeline
             self.analytics["recent_timeline"].appendleft({
                 "timeStr": time_str,
                 "vendor": threat["vendor"],
+                "asn": threat["asn_key"],
                 "user": threat["user"],
                 "src_ip": threat["src_ip"],
                 "src_port": threat["src_port"],
@@ -623,8 +658,19 @@ class LiveLogPipelineService:
                 "alert_name": threat["alert_name"],
                 "raw": raw_str,
                 "sha256": sha256_key,
-                "ocsf": rec
+                "ocsf": rec,
+                "entropy": threat["entropy"],
+                "xai_tags": threat["xai_tags"],
+                "primary_tag": threat["primary_tag"],
+                "ai_breakdown": {
+                    "entropy": threat["entropy"],
+                    "iforest_score": threat["iforest_score"],
+                    "ocsvm_score": threat["ocsvm_score"],
+                    "jitter_score": threat["jitter_score"],
+                    "composite_score": threat["anomaly_score"]
+                }
             })
+            return threat
 
     def get_dashboard_analytics(self) -> Dict[str, Any]:
         """Returns live, aggregated real data for all dashboard cards in O(1) time."""
@@ -658,21 +704,28 @@ class LiveLogPipelineService:
                 pct = round((count / total_off) * 100, 1)
                 offenses_list.append({"name": off, "events": count, "percentage": pct})
 
-            # Format Geo ASN Feed (100% Real Aggregation)
+            # Format Geo ASN Feed (100% Real Aggregation with Geographic Coordinates)
             geo_location_map = {
-                "AS9009 (M247 Europe)": "St. Petersburg, RU",
-                "AS4134 (Chinanet)": "Beijing, CN",
-                "AS13335 (Cloudflare)": "Amsterdam, NL",
-                "AS15169 (Google Cloud)": "Ashburn, US",
-                "AS3320 (Deutsche Telekom)": "Frankfurt, DE",
-                "AS2516 (KDDI Japan)": "Tokyo, JP",
-                "AS2856 (BT Group UK)": "London, UK",
-                "AS28573 (Claro Brazil)": "São Paulo, BR"
+                "AS9009 (M247 Europe)": {"location": "St. Petersburg, RU", "city": "St. Petersburg", "lat": 59.9311, "lng": 30.3609},
+                "AS4134 (Chinanet)": {"location": "Beijing, CN", "city": "Beijing", "lat": 39.9042, "lng": 116.4074},
+                "AS13335 (Cloudflare)": {"location": "Amsterdam, NL", "city": "Amsterdam", "lat": 52.3676, "lng": 4.9041},
+                "AS15169 (Google Cloud)": {"location": "Ashburn, US", "city": "Ashburn", "lat": 39.0438, "lng": -77.4874},
+                "AS3320 (Deutsche Telekom)": {"location": "Frankfurt, DE", "city": "Frankfurt", "lat": 50.1109, "lng": 8.6821},
+                "AS2516 (KDDI Japan)": {"location": "Tokyo, JP", "city": "Tokyo", "lat": 35.6762, "lng": 139.6503},
+                "AS2856 (BT Group UK)": {"location": "London, UK", "city": "London", "lat": 51.5074, "lng": -0.1278},
+                "AS28573 (Claro Brazil)": {"location": "São Paulo, BR", "city": "São Paulo", "lat": -23.5505, "lng": -46.6333}
             }
             geo_list = []
             for asn, count in sorted(self.analytics["geo_asn_counts"].items(), key=lambda x: x[1], reverse=True):
-                loc = geo_location_map.get(asn, "Global Ingress")
-                geo_list.append({"asn": asn, "location": loc, "count": count})
+                meta = geo_location_map.get(asn, {"location": "Global Ingress", "city": "Global Ingress", "lat": 48.8566, "lng": 2.3522})
+                geo_list.append({
+                    "asn": asn,
+                    "location": meta["location"],
+                    "city": meta["city"],
+                    "lat": meta["lat"],
+                    "lng": meta["lng"],
+                    "count": count
+                })
 
             return {
                 "kpis": {
@@ -710,7 +763,8 @@ class LiveLogPipelineService:
                 "offenses": offenses_list,
                 "scatter_points": list(self.analytics["scatter_points"]),
                 "recent_alerts": list(self.analytics["recent_alerts"])[:15],
-                "recent_timeline": list(self.analytics["recent_timeline"])[:25]
+                "recent_timeline": list(self.analytics["recent_timeline"])[:25],
+                "ensemble_status": self.ai_analyzer.get_ensemble_status()
             }
 
     def start(self, eps: int = 10):
@@ -743,19 +797,35 @@ class LiveLogPipelineService:
     def _generator_worker(self):
         """Continuously generates raw log strings and sends them to UDP 5140."""
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        last_tick = time.perf_counter()
+        accumulated = 0.0
 
         while self.is_running:
             try:
-                raw_log = generate_diverse_cyber_telemetry()
+                now = time.perf_counter()
+                dt = now - last_tick
+                last_tick = now
 
-                # Send raw string over UDP to local port 5140
-                sock.sendto(raw_log.encode("utf-8"), ("127.0.0.1", self.port))
-                self.stats["total_generated"] += 1
+                # Guard against huge bursts if thread was paused or delayed
+                if dt > 0.5:
+                    dt = 0.05
 
-                # Rate limiting sleep based on configured logs_per_second
-                time.sleep(1.0 / self.logs_per_second)
+                accumulated += dt * self.logs_per_second
+
+                logs_to_send = int(accumulated)
+                if logs_to_send > 0:
+                    accumulated -= logs_to_send
+                    for _ in range(logs_to_send):
+                        if not self.is_running:
+                            break
+                        raw_log = generate_diverse_cyber_telemetry()
+                        sock.sendto(raw_log.encode("utf-8"), ("127.0.0.1", self.port))
+                        self.stats["total_generated"] += 1
+
+                # Yield CPU with brief sleep (10ms)
+                time.sleep(0.01)
             except Exception:
-                time.sleep(0.1)
+                time.sleep(0.05)
 
         sock.close()
 
@@ -785,16 +855,21 @@ class LiveLogPipelineService:
                 formatted_record = self.engine.process_single(raw_str.encode("utf-8"))
 
                 # Step 3: Ingest into Real-Time SOC Threat Analytics
-                self._ingest_analytics_record(raw_str, formatted_record, sha256_key, is_historical=False)
+                threat = self._ingest_analytics_record(raw_str, formatted_record, sha256_key, is_historical=False) or {}
 
                 # Step 4: Append to Live Stream Queue for Page 2
                 stream_item = {
                     "timestamp": datetime.now(timezone.utc).strftime("%H:%M:%S.%f")[:-3],
                     "raw_string": raw_str,
+                    "sha256": sha256_key,
                     "sha256_key": sha256_key,
                     "formatted_json": formatted_record,
-                    "vendor": formatted_record.get("vendor", "Generic"),
-                    "disposition": formatted_record.get("disposition", "Unknown")
+                    "vendor": threat.get("vendor", formatted_record.get("vendor", "Generic")),
+                    "disposition": threat.get("disposition", formatted_record.get("disposition", "Unknown")),
+                    "entropy": threat.get("entropy", 3.5),
+                    "xai_tags": threat.get("xai_tags", []),
+                    "primary_tag": threat.get("primary_tag", ""),
+                    "ai_breakdown": threat.get("ai_breakdown", {})
                 }
                 self.live_stream_queue.append(stream_item)
 
@@ -811,12 +886,16 @@ class LiveLogPipelineService:
                 eps_counter += 1
 
                 # Calculate live EPS
-                if time.time() - eps_timer >= 1.0:
-                    self.stats["current_eps"] = round(eps_counter / (time.time() - eps_timer), 1)
+                now = time.time()
+                if now - eps_timer >= 1.0:
+                    self.stats["current_eps"] = round(eps_counter / (now - eps_timer), 1)
                     eps_counter = 0
-                    eps_timer = time.time()
+                    eps_timer = now
 
             except socket.timeout:
+                now = time.time()
+                if now - eps_timer >= 2.0:
+                    self.stats["current_eps"] = 0.0
                 with self.batch_lock:
                     if self.raw_batch_buffer and (time.time() - self.last_flush_time > 30.0):
                         self._flush_batch_to_files()
