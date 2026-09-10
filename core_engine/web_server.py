@@ -136,6 +136,13 @@ def list_files():
     return service.get_stored_files()
 
 
+@app.get("/api/v1/database/search")
+@app.get("/api/v1/files/search")
+def search_database_files(q: str = ""):
+    """Deep full-text search across stored raw logs and formatted JSON datasets."""
+    return service.search_stored_files(q)
+
+
 @app.get("/api/v1/files/content")
 def get_file_content(filename: str):
     """Fetches side-by-side content for the selected batch."""

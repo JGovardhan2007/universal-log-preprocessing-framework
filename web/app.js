@@ -165,6 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initCharts();
     initQueryLake();
     initControls();
+    initDatabaseSearch();
     initStudioDrawer();
     initForensicModal();
     
@@ -1492,17 +1493,34 @@ async function fetchLiveTelemetry() {
 // -------------------------------------------------------------
 // 9. DATABASE BATCH INSPECTION & REAL-TIME VAULT SEARCH
 // -------------------------------------------------------------
+let dbSearchDebounceTimer = null;
+
 function initDatabaseSearch() {
     if (DOM.dbSearchInput) {
         DOM.dbSearchInput.addEventListener('input', (e) => {
-            state.dbSearchQuery = e.target.value.toLowerCase().trim();
-            applyDatabaseFilters();
+            state.dbSearchQuery = e.target.value.trim();
+            clearTimeout(dbSearchDebounceTimer);
+            dbSearchDebounceTimer = setTimeout(() => {
+                executeDatabaseSearch();
+            }, 250);
+        });
+
+        DOM.dbSearchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                clearTimeout(dbSearchDebounceTimer);
+                state.dbSearchQuery = e.target.value.trim();
+                executeDatabaseSearch();
+            }
         });
     }
 
     if (DOM.dbRefreshFilesBtn) {
         DOM.dbRefreshFilesBtn.addEventListener('click', () => {
-            fetchStoredFiles();
+            if (state.dbSearchQuery) {
+                executeDatabaseSearch();
+            } else {
+                fetchStoredFiles();
+            }
         });
     }
 
@@ -1516,6 +1534,33 @@ function initDatabaseSearch() {
             });
         });
     }
+
+    if (DOM.batchInspectorSelect) {
+        DOM.batchInspectorSelect.addEventListener('change', (e) => {
+            if (e.target.value) {
+                inspectBatchFile(e.target.value);
+            }
+        });
+    }
+
+    // Copy buttons in Inspector
+    const copyRawBtn = document.getElementById('copy-inspect-raw-btn');
+    if (copyRawBtn && DOM.inspectRawContent) {
+        copyRawBtn.addEventListener('click', () => {
+            navigator.clipboard.writeText(DOM.inspectRawContent.innerText || '');
+            copyRawBtn.innerText = 'Copied!';
+            setTimeout(() => { copyRawBtn.innerText = 'Copy Raw'; }, 1500);
+        });
+    }
+
+    const copyFmtBtn = document.getElementById('copy-inspect-fmt-btn');
+    if (copyFmtBtn && DOM.inspectFmtContent) {
+        copyFmtBtn.addEventListener('click', () => {
+            navigator.clipboard.writeText(DOM.inspectFmtContent.innerText || '');
+            copyFmtBtn.innerText = 'Copied!';
+            setTimeout(() => { copyFmtBtn.innerText = 'Copy JSON'; }, 1500);
+        });
+    }
 }
 
 async function fetchStoredFiles() {
@@ -1526,23 +1571,53 @@ async function fetchStoredFiles() {
 
         state.rawFilesList = data.raw_files || [];
         state.formattedFilesList = data.formatted_files || [];
+        state.searchTerms = [];
 
         applyDatabaseFilters();
-        populateBatchInspector(data.raw_files);
+        populateBatchInspector(state.rawFilesList);
+
+        if (state.rawFilesList.length > 0 && (!DOM.inspectRawTitle || DOM.inspectRawTitle.innerText === 'No batch selected')) {
+            inspectBatchFile(state.rawFilesList[0].filename);
+        }
     } catch (e) {}
 }
 
+async function executeDatabaseSearch() {
+    const q = (state.dbSearchQuery || '').trim();
+    if (!q) {
+        state.searchTerms = [];
+        return fetchStoredFiles();
+    }
+
+    try {
+        const res = await fetch(`/api/v1/database/search?q=${encodeURIComponent(q)}`);
+        if (!res.ok) return;
+        const data = await res.json();
+
+        state.rawFilesList = data.raw_files || [];
+        state.formattedFilesList = data.formatted_files || [];
+        state.searchTerms = data.search_terms || [q];
+
+        applyDatabaseFilters();
+        populateBatchInspector(state.rawFilesList);
+
+        if (state.rawFilesList.length > 0) {
+            const firstFile = state.rawFilesList[0].filename;
+            if (DOM.batchInspectorSelect) {
+                DOM.batchInspectorSelect.value = firstFile;
+            }
+            inspectBatchFile(firstFile);
+        }
+    } catch (e) {
+        console.error('Database search failed:', e);
+    }
+}
+
 function applyDatabaseFilters() {
-    const q = (state.dbSearchQuery || '').toLowerCase().trim();
     const filter = state.dbActiveFilter || 'all';
 
     let filteredRaw = [...state.rawFilesList];
     let filteredFmt = [...state.formattedFilesList];
-
-    if (q) {
-        filteredRaw = filteredRaw.filter(f => f.filename.toLowerCase().includes(q) || (f.timestamp && f.timestamp.toLowerCase().includes(q)));
-        filteredFmt = filteredFmt.filter(f => f.filename.toLowerCase().includes(q) || (f.timestamp && f.timestamp.toLowerCase().includes(q)));
-    }
 
     if (filter === '500') {
         filteredRaw = filteredRaw.filter(f => f.records >= 500);
@@ -1566,7 +1641,7 @@ function applyDatabaseFilters() {
 
     if (DOM.dbSearchMatchCount) {
         const total = (filter === 'json' ? 0 : filteredRaw.length) + (filter === 'raw' ? 0 : filteredFmt.length);
-        DOM.dbSearchMatchCount.innerText = q ? `${total} MATCHING` : `${total} FILES`;
+        DOM.dbSearchMatchCount.innerText = state.dbSearchQuery ? `${total} MATCHING` : `${total} FILES`;
     }
 }
 
@@ -1590,6 +1665,16 @@ function renderFilesTable(files, tbody, badge) {
     tbody.innerHTML = '';
     files.forEach(f => {
         const tr = document.createElement('tr');
+        tr.style.cursor = 'pointer';
+        tr.addEventListener('click', (e) => {
+            if (e.target.tagName !== 'A') {
+                const rawName = f.filename.endsWith('.json') ? f.filename.replace('formatted_batch_', 'raw_batch_').replace('.json', '.log') : f.filename;
+                if (DOM.batchInspectorSelect) {
+                    DOM.batchInspectorSelect.value = rawName;
+                }
+                inspectBatchFile(rawName);
+            }
+        });
         tr.innerHTML = `
             <td><code title="${escapeHtml(f.filename)}">${escapeHtml(f.filename)}</code></td>
             <td style="text-align: center;"><b>${f.records}</b></td>
@@ -1606,7 +1691,12 @@ function renderFilesTable(files, tbody, badge) {
 }
 
 function populateBatchInspector(rawFiles) {
-    if (!rawFiles || rawFiles.length === 0) return;
+    if (!DOM.batchInspectorSelect) return;
+    if (!rawFiles || rawFiles.length === 0) {
+        DOM.batchInspectorSelect.innerHTML = '<option value="">No matching batches</option>';
+        return;
+    }
+    const currentVal = DOM.batchInspectorSelect.value;
     DOM.batchInspectorSelect.innerHTML = '<option value="">Select a batch file to inspect...</option>';
     rawFiles.forEach(f => {
         const opt = document.createElement('option');
@@ -1614,21 +1704,50 @@ function populateBatchInspector(rawFiles) {
         opt.innerText = `${f.filename} (${f.records} records, ${f.size_kb} KB)`;
         DOM.batchInspectorSelect.appendChild(opt);
     });
+    if (currentVal && rawFiles.some(f => f.filename === currentVal)) {
+        DOM.batchInspectorSelect.value = currentVal;
+    }
+}
+
+function highlightSearchInText(rawText, terms) {
+    if (!rawText) return '';
+    let escaped = escapeHtml(rawText);
+    if (!terms || terms.length === 0) return escaped;
+
+    const validTerms = [...new Set(terms.map(t => String(t).trim()))]
+        .filter(t => t.length >= 2)
+        .sort((a, b) => b.length - a.length);
+
+    for (const term of validTerms) {
+        try {
+            const escapedTerm = escapeHtml(term).replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
+            const regex = new RegExp(`(${escapedTerm})`, 'gi');
+            escaped = escaped.replace(regex, '<mark class="search-highlight">$1</mark>');
+        } catch (e) {}
+    }
+    return escaped;
 }
 
 async function inspectBatchFile(filename) {
-    const fmtFilename = filename.replace('raw_batch_', 'formatted_batch_').replace('.log', '.json');
-    DOM.inspectRawTitle.innerText = filename;
-    DOM.inspectRawTitle.title = filename;
-    DOM.inspectFmtTitle.innerText = fmtFilename;
-    DOM.inspectFmtTitle.title = fmtFilename;
+    if (!filename) return;
+    const rawFilename = filename.endsWith('.json') ? filename.replace('formatted_batch_', 'raw_batch_').replace('.json', '.log') : filename;
+    const fmtFilename = rawFilename.replace('raw_batch_', 'formatted_batch_').replace('.log', '.json');
+
+    if (DOM.inspectRawTitle) {
+        DOM.inspectRawTitle.innerText = rawFilename;
+        DOM.inspectRawTitle.title = rawFilename;
+    }
+    if (DOM.inspectFmtTitle) {
+        DOM.inspectFmtTitle.innerText = fmtFilename;
+        DOM.inspectFmtTitle.title = fmtFilename;
+    }
 
     try {
-        const res = await fetch(`/api/v1/files/content?filename=${filename}`);
+        const res = await fetch(`/api/v1/files/content?filename=${encodeURIComponent(rawFilename)}`);
         if (!res.ok) return;
         const data = await res.json();
         
-        DOM.inspectRawContent.innerText = data.raw_content || 'No raw content found';
+        let rawContent = data.raw_content || 'No raw content found';
         
         let formattedText = '';
         if (typeof data.formatted_content === 'object' && data.formatted_content !== null) {
@@ -1642,12 +1761,35 @@ async function inspectBatchFile(filename) {
         } else {
             formattedText = 'No JSON content found';
         }
-        DOM.inspectFmtContent.innerText = formattedText;
+
+        const terms = (state.searchTerms && state.searchTerms.length > 0) 
+            ? state.searchTerms 
+            : (state.dbSearchQuery ? [state.dbSearchQuery] : []);
+
+        if (terms.length > 0 && state.dbSearchQuery) {
+            DOM.inspectRawContent.innerHTML = highlightSearchInText(rawContent, terms);
+            DOM.inspectFmtContent.innerHTML = highlightSearchInText(formattedText, terms);
+
+            setTimeout(() => {
+                const markFmt = DOM.inspectFmtContent.querySelector('mark.search-highlight');
+                if (markFmt) {
+                    markFmt.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                const markRaw = DOM.inspectRawContent.querySelector('mark.search-highlight');
+                if (markRaw) {
+                    markRaw.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 60);
+        } else {
+            DOM.inspectRawContent.innerText = rawContent;
+            DOM.inspectFmtContent.innerText = formattedText;
+        }
     } catch (e) {
-        DOM.inspectRawContent.innerText = 'Failed to load file content.';
-        DOM.inspectFmtContent.innerText = 'Failed to load file content.';
+        if (DOM.inspectRawContent) DOM.inspectRawContent.innerText = 'Failed to load file content.';
+        if (DOM.inspectFmtContent) DOM.inspectFmtContent.innerText = 'Failed to load file content.';
     }
 }
+
 
 function initStudioDrawer() {
     if (DOM.toggleStudioBtn) {

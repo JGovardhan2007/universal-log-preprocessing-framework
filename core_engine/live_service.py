@@ -349,8 +349,8 @@ class LiveLogPipelineService:
             "recent_timeline": deque(maxlen=40)
         }
 
-        # Pre-populate analytics from stored historical batch files
-        self._init_historical_analytics()
+        # Pre-populate analytics from stored historical batch files in background thread for instant startup
+        threading.Thread(target=self._init_historical_analytics, daemon=True).start()
 
     def _init_historical_analytics(self):
         """Scans existing formatted JSON batch files to initialize real baseline metrics."""
@@ -1045,3 +1045,136 @@ class LiveLogPipelineService:
             "raw_files": raw_files,
             "formatted_files": formatted_files
         }
+
+    def search_stored_files(self, query: str) -> Dict[str, Any]:
+        """
+        Deep full-text search across stored raw (.log) and formatted (.json) files.
+        Matches by filename, timestamp, and inner payload contents (event_id, IP, port, vendor, action).
+        Automatically pairs matched raw and formatted files so dual-pane inspector works seamlessly.
+        """
+        raw_query = (query or "").strip()
+        all_files = self.get_stored_files()
+        if not raw_query:
+            return all_files
+
+        clean_q = raw_query.lower()
+
+        # Build prioritized search targets
+        search_terms = set()
+
+        # 1. Exact query as entered
+        search_terms.add(clean_q)
+
+        # 2. Trim quotes, commas, brackets: e.g. '"event_id": "value",' -> 'event_id": "value'
+        trimmed = clean_q.strip('"\' ,;{}[]')
+        if trimmed:
+            search_terms.add(trimmed)
+
+        # 3. If key-value pair, extract the specific value (and discard generic schema keys)
+        COMMON_KEYS = {
+            "event_id", "timestamp", "timestamp_iso", "time", "metadata", "class_uid", 
+            "class_name", "category_uid", "category_name", "activity_id", "activity_name", 
+            "src_endpoint", "dst_endpoint", "connection_info", "raw_event", "raw_event_hash", 
+            "hash_algorithm", "unmapped", "disposition", "disposition_id"
+        }
+        if ":" in trimmed:
+            parts = trimmed.split(":", 1)
+            val = parts[1].strip('"\' ,;{}[]')
+            if len(val) >= 2:
+                search_terms.add(val)
+                search_terms.add(val.replace('\\', ''))
+
+        # 4. Extract specific tokens like UUIDs, IPs, ports, words >= 3 chars
+        import re
+        tokens = re.findall(r'[a-zA-Z0-9\._-]{3,}', clean_q)
+        for t in tokens:
+            if t not in COMMON_KEYS and (not t.isdigit() or len(t) >= 2):
+                search_terms.add(t)
+
+        # Filter out empty or 1-char terms unless that's all there was
+        search_terms = {t for t in search_terms if len(t) >= 2}
+        if not search_terms:
+            search_terms.add(clean_q)
+
+        matched_raw_map = {}
+        matched_fmt_map = {}
+
+        raw_by_base = {}
+        for f in all_files.get("raw_files", []):
+            base = f["filename"].replace("raw_batch_", "").replace(".log", "")
+            raw_by_base[base] = f
+
+        fmt_by_base = {}
+        for f in all_files.get("formatted_files", []):
+            base = f["filename"].replace("formatted_batch_", "").replace(".json", "")
+            fmt_by_base[base] = f
+
+        # 1. Search Raw Log Files
+        for f in all_files.get("raw_files", []):
+            fname = f["filename"].lower()
+            fts = (f.get("timestamp") or "").lower()
+            base = f["filename"].replace("raw_batch_", "").replace(".log", "")
+
+            # Match on filename or timestamp
+            if any(term in fname or term in fts for term in search_terms):
+                matched_raw_map[base] = f
+                continue
+
+            # Deep search in raw content
+            fpath = f.get("path")
+            if fpath and os.path.exists(fpath):
+                try:
+                    with open(fpath, "r", encoding="utf-8", errors="ignore") as fp:
+                        content = fp.read().lower()
+                        if any(term in content for term in search_terms):
+                            matched_raw_map[base] = f
+                except Exception:
+                    continue
+
+        # 2. Search Formatted JSON Files
+        for f in all_files.get("formatted_files", []):
+            fname = f["filename"].lower()
+            fts = (f.get("timestamp") or "").lower()
+            base = f["filename"].replace("formatted_batch_", "").replace(".json", "")
+
+            # Match on filename or timestamp
+            if any(term in fname or term in fts for term in search_terms):
+                matched_fmt_map[base] = f
+                continue
+
+            # Deep search in formatted JSON content
+            fpath = f.get("path")
+            if fpath and os.path.exists(fpath):
+                try:
+                    with open(fpath, "r", encoding="utf-8", errors="ignore") as fp:
+                        content = fp.read().lower()
+                        if any(term in content for term in search_terms):
+                            matched_fmt_map[base] = f
+                except Exception:
+                    continue
+
+        # Pair correlated batches so dual-pane inspector and both tables show the matched batch
+        all_matched_bases = set(matched_raw_map.keys()) | set(matched_fmt_map.keys())
+
+        final_raw = []
+        final_fmt = []
+
+        for base in sorted(all_matched_bases, reverse=True):
+            if base in raw_by_base:
+                final_raw.append(raw_by_base[base])
+            elif base in matched_raw_map:
+                final_raw.append(matched_raw_map[base])
+
+            if base in fmt_by_base:
+                final_fmt.append(fmt_by_base[base])
+            elif base in matched_fmt_map:
+                final_fmt.append(matched_fmt_map[base])
+
+        return {
+            "raw_files": final_raw,
+            "formatted_files": final_fmt,
+            "query": raw_query,
+            "search_terms": list(search_terms),
+            "total_matches": len(final_raw) + len(final_fmt)
+        }
+
