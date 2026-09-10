@@ -4,97 +4,98 @@
 
 ---
 
-## 🌟 Executive Summary
+## Executive Summary
 
-The **Universal Log Pre-processing Framework (ULPF)** is an enterprise-grade, high-performance security ingestion and normalization pipeline designed for mission-critical, air-gapped defense networks. It bridges heterogeneous multi-vendor log sources (firewalls, operating systems, cloud containers, intrusion detection systems, and network security monitors) into a unified, vendor-agnostic **OCSF v1.1.0 (Class 4001: Network Activity)** schema while enforcing **bit-for-bit forensic provenance (Section 65B Indian Evidence Act / BSA 2023)**.
+The **Universal Log Pre-processing Framework (ULPF)** is an enterprise-grade, high-performance security ingestion, parsing, and normalization pipeline built for mission-critical, air-gapped cyber defense operations. It unifies heterogeneous multi-vendor log sources (firewalls, operating systems, cloud environments, intrusion detection systems, and network security appliances) into a standardized, vendor-agnostic **OCSF v1.1.0 (Class 4001: Network Activity)** schema while enforcing **bit-for-bit forensic provenance (Section 65B Indian Evidence Act / BSA 2023)**.
 
 ---
 
-## 🎯 NTRO Expected Solutions Matrix (Requirements Coverage)
+## NTRO Expected Solutions Matrix (Requirements Coverage)
 
 | NTRO Requirement | ULPF Architectural Implementation | Status |
 | :--- | :--- | :---: |
-| **a) Zero Information Loss** | Full raw wire string preserved untouched in `raw_data` attribute alongside pre-parsing SHA-256 hash. | ✅ **Active** |
-| **b) Attribute Extraction** | 3-Tier cascade extracts source/dest IPs, ports, protocols, user domains, disposition, and payload telemetry. | ✅ **Active** |
-| **c) Common Event Taxonomy** | Standardizes all multi-vendor events to **OCSF v1.1.0 (Class 4001 Network Activity)**. | ✅ **Active** |
-| **d) Traceability & Provenance** | Pre-parsing hardware **SHA-256** digital signature bound to RFC 4122 `event_id` UUIDv4. | ✅ **Active** |
-| **e) Plug-and-Play Onboarding** | Declarative YAML parser definitions in `/parsers/` with zero-restart hot-reloading in $<1\text{ second}$. | ✅ **Active** |
-| **f) Unified Visibility** | Modern **Shadcn Dark Zinc UI** running at 60 FPS with real-time multi-vendor visual analytics. | ✅ **Active** |
-| **g) SIEM & Data Lake Integration** | High-performance **Apache Parquet (Snappy)** columnar lake + Apache Kafka pub/sub streaming connector. | ✅ **Active** |
-| **h) AI/ML-Ready Analytics** | Unsupervised **Scikit-Learn Isolation Forest** threat detector computing port entropy anomaly scores. | ✅ **Active** |
-| **i) Reduced Parser Effort** | In-page **No-Code Parser Onboarding Studio** that auto-generates YAML parsers from 1 sample log. | ✅ **Active** |
-| **j) Air-Gapped Network Ready** | 100% self-contained offline execution. Zero external internet or cloud dependencies. | ✅ **Active** |
-| **k) Containerized Packaging** | Multi-stage **Docker & Docker Compose** deployment with Kafka & Zookeeper orchestration. | ✅ **Active** |
+| **a) Zero Information Loss** | Full raw wire string preserved untouched in `raw_data` attribute alongside pre-parsing SHA-256 hash. | **Active** |
+| **b) Attribute Extraction** | 3-Tier cascade extracts source/dest IPs, ports, protocols, user accounts, disposition, and payload telemetry. | **Active** |
+| **c) Common Event Taxonomy** | Standardizes all multi-vendor events to **OCSF v1.1.0 (Class 4001 Network Activity)**. | **Active** |
+| **d) Traceability & Provenance** | Pre-parsing hardware **SHA-256** digital signature bound to RFC 4122 `event_id` UUIDv4. | **Active** |
+| **e) Plug-and-Play Onboarding** | Declarative YAML parser definitions in `/parsers/` with zero-restart hot-reloading in under 1 second. | **Active** |
+| **f) Unified Visibility** | Modern **Dark Charcoal / Obsidian UI** running at 60 FPS with real-time multi-vendor visual analytics. | **Active** |
+| **g) SIEM & Data Lake Integration** | High-performance **Apache Parquet (Snappy)** columnar lake + Apache Kafka pub/sub streaming connector. | **Active** |
+| **h) AI/ML-Ready Analytics** | Multi-model ensemble (Isolation Forest + One-Class SVM + Shannon Entropy + Temporal Jitter). | **Active** |
+| **i) Reduced Parser Effort** | In-page **No-Code Parser Studio** that auto-generates declarative YAML parsers from a single sample log. | **Active** |
+| **j) Air-Gapped Network Ready** | 100% self-contained offline execution. Zero external internet or cloud dependencies. | **Active** |
+| **k) Containerized Packaging** | Multi-stage **Docker & Docker Compose** deployment with Kafka & Zookeeper orchestration. | **Active** |
 
 ---
 
-## 🏗️ System Architecture
+## System Architecture
 
 ULPF implements a **Hybrid Dual-Engine Architecture**:
 
-```
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│                        UNIVERSAL LOG PRE-PROCESSING FRAMEWORK                          │
-├──────────────────────────────────────────┬─────────────────────────────────────────────┤
-│   1. RUST WIRE DAEMON (core-engine/)     │   2. PYTHON & ML SUBSYSTEM (core_engine/)   │
-├──────────────────────────────────────────┼─────────────────────────────────────────────┤
-│ • Native Tokio Async Socket (Port 5140)  │ • 10 Declarative YAML Hot-Reload Parsers    │
-│ • Zero-Copy Wire SHA-256 Hasher          │ • Scikit-Learn Isolation Forest AI Model    │
-│ • Bare-Metal >100,000 EPS Throughput     │ • Columnar Snappy Parquet Rolling Lake      │
-│ • Sub-millisecond p99 latency            │ • Apache Kafka Connector & REST API Webhook │
-│ • For bare-metal edge deployments        │ • Shadcn Dark Zinc 60FPS Reactive Web App   │
-└──────────────────────────────────────────┴─────────────────────────────────────────────┘
+```text
++----------------------------------------------------------------------------------------+
+|                        UNIVERSAL LOG PRE-PROCESSING FRAMEWORK                          |
++------------------------------------------+---------------------------------------------+
+|   1. RUST WIRE DAEMON (core-engine/)     |   2. PYTHON & ML SUBSYSTEM (core_engine/)   |
++------------------------------------------+---------------------------------------------+
+| - Native Tokio Async Socket (Port 5140)  | - 10 Declarative YAML Hot-Reload Parsers    |
+| - Zero-Copy Wire SHA-256 Hasher          | - Multi-Model AI Ensemble (IForest + OCSVM) |
+| - Bare-Metal >100,000 EPS Throughput     | - Columnar Snappy Parquet Rolling Lake      |
+| - Sub-millisecond p99 latency            | - Apache Kafka Connector & REST API Server  |
+| - Optimized for edge capture devices     | - Dark Obsidian 60FPS Reactive Web Console  |
++------------------------------------------+---------------------------------------------+
 ```
 
 ---
 
-## 🔄 3-Tier Zero-Drop Classification Cascade
+## 3-Tier Zero-Drop Classification Cascade
 
 To guarantee that **0% of logs are ever dropped**, the ingestion pipeline processes events through a 3-tier hierarchy:
 
-```
+```text
 [ INCOMING RAW LOG (Syslog UDP 5140 / REST / Kafka / File Tailer) ]
-                          │
-         ┌────────────────┴────────────────┐
-         ▼                                 ▼
+                          |
+         +----------------+----------------+
+         |                                 |
+         v                                 v
 [ SHA-256 DIGITAL DIGEST ]        [ RFC 4122 UUIDv4 EVENT ID ]
-         │                                 │
-         └────────────────┬────────────────┘
-                          │
-                          ▼
+         |                                 |
+         +----------------+----------------+
+                          |
+                          v
         [ TIER 1: DECLARATIVE YAML SIGNATURE MATCH ]
-        Evaluates 10 hot-reloading vendor signatures
-                          │
-             ┌────────────┴────────────┐
+        Evaluates hot-reloading vendor signatures
+                          |
+             +------------+------------+
           MATCH?                    NO MATCH?
-             │                             │
-             ▼                             ▼
+             |                             |
+             v                             v
      [ EXTRACT FIELDS ]         [ TIER 2: STRUCTURAL DISCOVERY ]
-                                • Native JSON (json.loads)
-                                • Key-Value Pairs (k=v, k="v")
-                                • Delimited CSV/TSV/Pipe
-                                • CEF / LEEF Standard Format
-                                           │
-                                ┌──────────┴──────────┐
+                                - Native JSON (json.loads)
+                                - Key-Value Pairs (k=v, k="v")
+                                - Delimited CSV/TSV/Pipe
+                                - CEF / LEEF Standard Formats
+                                           |
+                                +----------+----------+
                              MATCH?                NO MATCH?
-                                │                         │
-                                ▼                         ▼
+                                |                         |
+                                v                         v
                         [ EXTRACT FIELDS ]     [ TIER 3: HEURISTIC REGEX ]
                                                Extracts IPs, Ports, Protocols,
                                                and Disposition tokens
-                                                          │
-                                ┌─────────────────────────┘
-                                ▼
+                                                          |
+                                +-------------------------+
+                                v
                [ OCSF v1.1.0 NORMALIZATION LAYER ]
                Maps 25+ attributes to Class 4001
-                                │
-                                ▼
-               [ COLUMNAR PARQUET LAKE + JSON / LOG VAULT ]
+                                |
+                                v
+               [ COLUMNAR PARQUET LAKE + DUAL-FILE STORAGE ]
 ```
 
 ---
 
-## 📦 Active Vendor Parser Registry (`/parsers/`)
+## Active Vendor Parser Registry (`/parsers/`)
 
 | Vendor / Platform | Source Format | Parser File | Key Mapped Attributes |
 | :--- | :--- | :--- | :--- |
@@ -111,46 +112,57 @@ To guarantee that **0% of logs are ever dropped**, the ingestion pipeline proces
 
 ---
 
-## 🛡️ Legal Provenance & Forensic Chain-of-Custody
+## Legal Provenance & Forensic Chain-of-Custody
 
-To satisfy strict court admissibility requirements under **Section 65B of the Indian Evidence Act (Bharatiya Sakshya Adhiniyam / BSA 2023)**:
-1. **Pre-Parsing Hashing:** Every packet is cryptographically hashed with **SHA-256** the exact microsecond it hits the socket, before any parsing or transformation.
-2. **Immutable Binding:** The resulting hash digest is permanently stored in the `metadata.hash` attribute alongside the unedited raw wire bytes in `raw_data`.
-3. **Forensic Audit Script:** [`test_tools/audit_chain_of_custody.py`](test_tools/audit_chain_of_custody.py) provides 100% automated verification, recomputing and validating hashes across Parquet and JSON files.
-
----
-
-## 💻 Shadcn Dark Zinc Web Application
-
-The frontend is built on the **Shadcn UI Dark Zinc Design System** with zero external frontend dependencies, running at **60 FPS** on `http://localhost:8080`:
-
-```
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│ ULPF v1.1     [ Dashboard ]  [ Live Streamer ]  [ Database Vault ]    CPU: 0.0%  RAM: 48M  │
-├────────────────────────────────────────────────────────────────────────────────────────┤
-│ 1. DASHBOARD:        • 4 KPI Cards (Total Logs, EPS Speed, Anomalies, Committed Batches)│
-│                      • Real-Time AI Threat Anomaly Scatter Matrix (Port Entropy)       │
-│                      • Multi-Vendor Log Distribution Donut Chart                       │
-│                      • Query Lake & Instant Filter Bar ([ ALL ], [ BLOCKED ], [ SSH ]) │
-│                      • 1-Click [ Export CSV ] for Incident Triage Reports              │
-├────────────────────────────────────────────────────────────────────────────────────────┤
-│ 2. LIVE STREAMER:    • Unified 60FPS Terminal Canvas (Zero page flickering)            │
-│                      • Top Left: Raw Wire Ingress || Top Right: Hardware SHA-256 Digest│
-│                      • Bottom Half: Color-Coded OCSF JSON Output Script                │
-│                      • Slide-Down No-Code Vendor Onboarding Studio Drawer              │
-│                      • Dynamic Speed Slider (5 to 50 EPS) & Dual-Buffer Fill Gauge     │
-├────────────────────────────────────────────────────────────────────────────────────────┤
-│ 3. DATABASE VAULT:   • Real-Time Directory Tables for .log (raw) and .json (formatted) │
-│                      • 1-Click [ DOWNLOAD ] Buttons on Every Batch File                │
-│                      • Side-by-Side Dual-File Content Inspector                        │
-└────────────────────────────────────────────────────────────────────────────────────────┘
-```
+To satisfy court admissibility requirements under **Section 65B of the Indian Evidence Act (Bharatiya Sakshya Adhiniyam / BSA 2023)**:
+1. **Pre-Parsing Hashing:** Every packet is cryptographically hashed with **SHA-256** the instant it hits the socket, before any parsing or transformation.
+2. **Immutable Binding:** The resulting hash digest is permanently stored in the `metadata.sha256_hash` attribute alongside the unedited raw wire bytes in `raw_data`.
+3. **Forensic Audit Script:** `test_tools/audit_chain_of_custody.py` recomputes and verifies hashes across Parquet and JSON files to guarantee mathematical integrity.
 
 ---
 
-## 📊 Stress Test & Benchmark Performance
+## Dual-File Storage Subsystem & Database Search
 
-Benchmarked via [`test_tools/stress_100k_benchmark.py`](test_tools/stress_100k_benchmark.py) under high-concurrency synthetic load:
+All ingested telemetry is automatically written into persistent dual archives located in `data/storage/`:
+- **Raw Text Archives (`data/storage/raw/raw_batch_YYYYMMDD_HHMMSS_mmm.log`)**: Bit-for-bit preserved original log lines.
+- **Normalized Datasets (`data/storage/formatted/formatted_batch_YYYYMMDD_HHMMSS_mmm.json`)**: OCSF v1.1.0 compliant JSON arrays.
+
+### Storage Conventions
+- **Capacity**: Default configured to 500 lines per batch file.
+- **Naming Timestamp**: Batch files are named using the precise timestamp of the first log line in the batch for intuitive chronological sorting and retrieval.
+
+### Deep Payload Search Engine (`/api/v1/database/search`)
+The Database tab includes a full-text payload search bar powered by a high-speed backend search engine:
+- **Record-Level Queries**: Search across any UUID, `event_id`, IP address, port, vendor name, disposition, or raw log substring (e.g. `"event_id": "ed13eef3-2313-4f42-87f1-1e5e2db04b0e",`).
+- **Batch Pairing**: Whenever a match is found in a formatted `.json` file, its corresponding `.log` raw archive is automatically paired in the search results (and vice-versa).
+- **Auto-Selection & Highlight Inspection**: Selecting or retrieving a matching batch automatically populates the side-by-side inspector, highlights all matching search terms with gold indicators, and centers the matching line in the viewport.
+
+---
+
+## Web Application Console
+
+The web interface is hosted on `http://localhost:8080` and features a clean, high-contrast dark aesthetic:
+
+- **Dashboard**:
+  - Executive KPIs (Total Logs Ingested, Ingestion Speed in EPS, Active Anomalies, Committed Batches).
+  - Severity Breakdown Cards (Critical, High, Medium, Low) with interactive drill-down filtering.
+  - Multi-Model Threat Matrix and real-time MITRE ATT&CK technique distribution.
+  - Query Lake filter bar with instant CSV export.
+- **Live Stream**:
+  - 60 FPS split-screen terminal display: Raw Wire Logs, Hardware SHA-256 Digests, and Normalized OCSF JSON.
+  - Speed selector (10 EPS to 1,000 EPS) and Dual-Buffer Fill Gauge.
+  - Manual buffer flush trigger.
+  - Slide-out No-Code Parser Studio for hot-reloading new YAML definitions.
+- **Database**:
+  - Dual file tables for Raw Log Files (`.log`) and Formatted JSON Files (`.json`).
+  - Deep content search bar with preset filters (`All Files`, `Raw (.log)`, `Formatted (.json)`, `500 Records`, `Today`).
+  - Side-by-Side Dual-File Content Inspector with search hit highlighting and 1-click copy buttons.
+
+---
+
+## Stress Test & Benchmark Performance
+
+Benchmarked via `test_tools/stress_100k_benchmark.py` under high-concurrency synthetic load:
 
 | Metric | Result | Benchmark Standard |
 | :--- | :---: | :--- |
@@ -160,19 +172,19 @@ Benchmarked via [`test_tools/stress_100k_benchmark.py`](test_tools/stress_100k_b
 | **Packet Loss Rate** | **0.00%** | Zero dropped packets |
 | **p99 Processing Latency** | **< 0.85 ms** | Sub-millisecond end-to-end normalization |
 | **Parquet Compression Ratio** | **88.2%** | Snappy Columnar Encoding vs Raw Text |
-| **Automated Test Coverage** | **52 / 52 Passed (100%)** | Full unit and integration validation |
+| **Automated Test Coverage** | **56 / 56 Passed (100%)** | Full unit and integration validation |
 
 ---
 
-## 🚀 Quickstart & Installation
+## Quickstart & Installation
 
 ### 1. Prerequisites
-* Python 3.12+ (or Docker Engine)
-* Windows / Linux / macOS
+- Python 3.12+ (or Docker Engine)
+- Windows, Linux, or macOS
 
 ### 2. Local Setup
 ```bash
-# Clone the repository
+# Clone repository
 git clone https://github.com/JGovardhan2007/universal-log-preprocessing-framework.git
 cd universal-log-preprocessing-framework
 
@@ -193,7 +205,7 @@ python core_engine/web_server.py
 ```
 Open **`http://localhost:8080`** in your browser.
 
-### 4. Run Test Suites
+### 4. Run Automated Tests
 ```bash
 pytest tests -v
 ```
@@ -210,7 +222,23 @@ python test_tools/audit_chain_of_custody.py
 
 ---
 
-## 🐳 Docker Container Deployment
+## REST API Reference
+
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET` | `/api/v1/stats` | Returns real-time ingestion velocity, buffer stats, and threat analytics counters. |
+| `POST` | `/api/v1/stream/config` | Configures generator speed (EPS) and buffer thresholds. |
+| `POST` | `/api/v1/stream/flush` | Forces immediate dual-buffer flush to `.log` and `.json` disk files. |
+| `GET` | `/api/v1/files` | Lists all stored raw `.log` and formatted `.json` files. |
+| `GET` | `/api/v1/database/search?q={query}` | Deep full-text search across stored log files and JSON payloads. |
+| `GET` | `/api/v1/files/content?filename={name}` | Retrieves side-by-side raw text and formatted JSON records for a batch. |
+| `GET` | `/api/v1/files/download?filename={name}` | Downloads a specific stored archive file. |
+| `POST` | `/api/v1/parsers/auto-generate` | Scaffolds and hot-reloads a new declarative YAML parser definition. |
+| `POST` | `/api/v1/threats/triage` | Updates alert triage status with analyst notes. |
+
+---
+
+## Docker Container Deployment
 
 Deploy the entire stack (ULPF + Apache Kafka + Zookeeper) in an air-gapped container:
 
@@ -224,7 +252,7 @@ docker-compose ps
 
 ---
 
-## 🗂️ Codebase Directory Map
+## Codebase Directory Map
 
 ```text
 ULPF/
@@ -234,9 +262,11 @@ ULPF/
 │   ├── ocsf_normalizer.py       # OCSF v1.1.0 Taxonomy Mapper
 │   ├── hasher.py                # SHA-256 Wire Hasher (Section 65B)
 │   ├── sink_writer.py           # Columnar Parquet Lake & DLQ Writer
-│   ├── live_service.py          # Continuous UDP 5140 Ingestion & Dual-Buffer
+│   ├── live_service.py          # Continuous Ingestion, AI Ensemble & Deep Search
+│   ├── geoip_resolver.py        # Offline GeoIP and ASN Resolution Engine
+│   ├── ai_analyzer.py           # Multi-Model AI Ensemble (Isolation Forest + OCSVM)
 │   ├── kafka_ingestion.py       # Apache Kafka Streaming Connector
-│   └── web_server.py            # FastAPI High-Performance Web Server
+│   └── web_server.py            # Production FastAPI Web Server & API Subsystem
 │
 ├── core-engine/                 # High-Speed Rust Bare-Metal Daemon
 │   ├── Cargo.toml               # Tokio & SHA-256 Crate Dependencies
@@ -255,19 +285,17 @@ ULPF/
 │   ├── suricata_ids.yaml        # Suricata Alert Parser
 │   └── validate_parsers.py      # Parser Unit Test & Linter SDK
 │
-├── web/                         # Modern Shadcn Dark Zinc Frontend (Port 8080)
-│   ├── index.html               # 3-Page Unified Interface
-│   ├── style.css                # Shadcn Dark Zinc 60FPS CSS
-│   └── app.js                   # Reactive Client Controller & Visualizer
-│
-├── dashboard/                   # SOC Analysis & ML Subsystem
-│   ├── app.py                   # Streamlit SOC Dashboard
-│   └── ai_anomaly.py            # Scikit-Learn Isolation Forest Anomaly ML
+├── web/                         # Dark Obsidian Cyber Web Application (Port 8080)
+│   ├── index.html               # 3-Tab Interface (Dashboard, Live Stream, Database)
+│   ├── style.css                # Dark Zinc 60FPS Styling System
+│   ├── app.js                   # Client Controller, Deep Search & Inspector
+│   ├── logo.svg                 # WEED Application Logo
+│   └── favicon.svg              # Favicon Asset
 │
 ├── data/                        # Persistent Storage Lake
 │   ├── stream_buffer.parquet    # Live Columnar OLAP Database
-│   ├── storage/raw/             # Raw Forensic .log Batch Archives
-│   ├── storage/formatted/       # Formatted OCSF .json Batch Datasets
+│   ├── storage/raw/             # Raw Forensic .log Batch Archives (500 records/file)
+│   ├── storage/formatted/       # Formatted OCSF .json Batch Datasets (500 records/file)
 │   └── lake/                    # Historical Partitioned Rolling Lake
 │
 ├── test_tools/                  # Stress Testing & Benchmarks
@@ -276,14 +304,14 @@ ULPF/
 │   ├── adversarial_campaign.py  # Adversarial Attack Simulation Suite
 │   └── audit_chain_of_custody.py# Section 65B Mathematical Auditor
 │
-├── tests/                       # Automated Test Suites (52 / 52 Passed)
-├── Dockerfile                   # Platform-Independent Multi-Stage Container
+├── tests/                       # Automated Test Suites (56 / 56 Passed)
+├── Dockerfile                   # Multi-Stage Production Container
 ├── docker-compose.yml           # Complete ULPF + Kafka + Zookeeper Stack
 └── requirements.txt             # Centralized Dependencies Manifest
 ```
 
 ---
 
-## 📜 License & Acknowledgments
+## License & Acknowledgments
 Developed for the **National Technical Research Organisation (NTRO)** / **NCIIPC**.  
 Built in compliance with the **Open Cybersecurity Schema Framework (OCSF)** and **Section 65B of the Indian Evidence Act / Bharatiya Sakshya Adhiniyam (BSA 2023)**.
