@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WEED | Universal Log Pre-processing &amp; Threat Intelligence Framework</title>
+    <title>WEED | Universal Log Preprocessing &amp; Monitoring Framework</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <!-- Fonts: Inter & JetBrains Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -11,34 +11,34 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="style.css?v=2.0.2">
+    <link rel="stylesheet" href="style.css?v=2.0.3">
 </head>
 <body class="bg-background text-foreground antialiased selection:bg-primary/20">
 
     <div class="app-layout">
         
-        <!-- Top Navigation Bar (Shadcn Minimalist Header) -->
+        <!-- Top Navigation Bar (Minimalist Header) -->
         <header class="shadcn-header">
             <div class="header-container">
                 <div class="header-left">
                     <div class="brand-badge">
                         <img src="logo.svg" alt="WEED Logo" class="brand-logo" width="28" height="28" style="width: 28px !important; height: 28px !important; max-width: 28px !important; max-height: 28px !important; flex-shrink: 0; display: inline-block; vertical-align: middle; border-radius: 6px;">
                         <span class="brand-title">WEED</span>
-                        <span class="brand-sub">v2.0-SOC</span>
+                        <span class="brand-sub">v2.0</span>
                     </div>
                 </div>
 
                 <!-- Center Segmented Tabs Control -->
                 <nav class="shadcn-tabs">
                     <button class="tab-trigger active" data-tab="dashboard">
-                        <span>Threat Intelligence</span>
+                        <span>Dashboard</span>
                     </button>
                     <button class="tab-trigger" data-tab="streamer">
-                        <span>Live Streamer</span>
+                        <span>Live Stream</span>
                         <span class="tab-indicator-dot"></span>
                     </button>
                     <button class="tab-trigger" data-tab="database">
-                        <span>Database Vault</span>
+                        <span>Database</span>
                     </button>
                 </nav>
 
@@ -51,64 +51,64 @@
         <main class="main-content">
             
             <!-- ==================================================== -->
-            <!-- TAB 1: SOC THREAT INTELLIGENCE DASHBOARD -->
+            <!-- TAB 1: DASHBOARD OVERVIEW -->
             <!-- ==================================================== -->
             <section id="tab-dashboard" class="tab-content active">
                 
-                <!-- 1. TOP SEVERITY & INGESTION STRIP (EXECUTIVE KPIS) -->
+                <!-- 1. TOP SEVERITY & INGESTION STRIP (METRIC OVERVIEW) -->
                 <div class="executive-kpi-strip">
                     <!-- Critical (Red) -->
                     <div class="shadcn-card sev-card sev-critical">
                         <div class="sev-header">
                             <span class="sev-badge badge-crit">CRITICAL</span>
-                            <span class="sev-meta">P1 DETECTIONS</span>
+                            <span class="sev-meta">CRITICAL ALERTS</span>
                         </div>
                         <div class="sev-value" id="sev-count-critical">0</div>
-                        <div class="sev-caption">Immediate Mitigation Required</div>
+                        <div class="sev-caption">Requires Immediate Action</div>
                     </div>
 
                     <!-- High (Orange) -->
                     <div class="shadcn-card sev-card sev-high">
                         <div class="sev-header">
                             <span class="sev-badge badge-high">HIGH</span>
-                            <span class="sev-meta">P2 EXPLOITS</span>
+                            <span class="sev-meta">HIGH ALERTS</span>
                         </div>
                         <div class="sev-value" id="sev-count-high">0</div>
-                        <div class="sev-caption">Privilege &amp; Policy Abuse</div>
+                        <div class="sev-caption">Policy Violations &amp; Attacks</div>
                     </div>
 
                     <!-- Medium (Amber) -->
                     <div class="shadcn-card sev-card sev-medium">
                         <div class="sev-header">
                             <span class="sev-badge badge-med">MEDIUM</span>
-                            <span class="sev-meta">P3 SUSPICIOUS</span>
+                            <span class="sev-meta">MEDIUM ALERTS</span>
                         </div>
                         <div class="sev-value" id="sev-count-medium">0</div>
-                        <div class="sev-caption">Port Scans &amp; Lateral Probing</div>
+                        <div class="sev-caption">Suspicious Activity &amp; Probing</div>
                     </div>
 
                     <!-- Low (Emerald) -->
                     <div class="shadcn-card sev-card sev-low">
                         <div class="sev-header">
                             <span class="sev-badge badge-low">LOW</span>
-                            <span class="sev-meta">P4 TELEMETRY</span>
+                            <span class="sev-meta">LOW ALERTS</span>
                         </div>
                         <div class="sev-value" id="sev-count-low">0</div>
-                        <div class="sev-caption">Reconnaissance &amp; Scan Noise</div>
+                        <div class="sev-caption">Informational Events &amp; Noise</div>
                     </div>
 
-                    <!-- Ingestion Velocity & Live Sparkline Card -->
+                    <!-- Ingestion Rate & Live Sparkline Card -->
                     <div class="shadcn-card velocity-card">
                         <div class="velocity-header">
                             <div>
-                                <span class="stat-label">Ingestion Velocity &amp; Volume</span>
+                                <span class="stat-label">Ingestion Rate &amp; Volume</span>
                                 <div class="velocity-numbers">
                                     <span class="stat-value" id="kpi-total-logs">0</span>
                                     <span class="rate-badge" id="kpi-speed">0.0 EPS</span>
                                 </div>
                             </div>
                             <div class="sparkline-wrapper">
-                                <div class="sparkline-label">VELOCITY TREND (PAST HOUR)</div>
+                                <div class="sparkline-label">VOLUME TREND (PAST HOUR)</div>
                                 <canvas id="velocitySparkline" width="180" height="42"></canvas>
                             </div>
                         </div>
@@ -117,14 +117,14 @@
 
                 <!-- 2. AIR-GAPPED GEO-THREAT MATRIX & SEVERITY DYNAMICS (ROW 2) -->
                 <div class="analytics-double-grid">
-                    <!-- Left: Clean Aceternity Dotted Vector Geo-Threat Matrix -->
+                    <!-- Left: Clean Dotted Vector Map -->
                     <div class="shadcn-card geo-threat-card">
                         <div class="card-title-row">
                             <div>
-                                <h3 class="card-title">Air-Gapped Geo-Threat Matrix</h3>
-                                <p class="card-subtitle">Inbound Threat Geolocation, Foreign ASNs &amp; Protected Enclave</p>
+                                <h3 class="card-title">Geographic Threat Map</h3>
+                                <p class="card-subtitle">Real-Time Traffic Origins &amp; Destination Server</p>
                             </div>
-                            <span class="badge-secondary">ACETERNITY DOTTED VECTOR</span>
+                            <span class="badge-secondary">GLOBAL MAP</span>
                         </div>
 
                         <div class="geo-map-container">
@@ -150,7 +150,7 @@
                                     </linearGradient>
                                 </defs>
 
-                                <!-- Authentic Aceternity Dotted World Map Base -->
+                                <!-- Dotted World Map Base -->
                                 <image href="world_dots.svg" x="0" y="0" width="800" height="400" preserveAspectRatio="none" />
 
                                 <!-- Tactical Lat/Long Graticule Lines -->
@@ -167,38 +167,38 @@
                                     <line x1="667" y1="0" x2="667" y2="400" />
                                 </g>
 
-                                <!-- Dynamic Laser Attack Arcs (Spawned dynamically from active threat ASNs) -->
+                                <!-- Dynamic Laser Attack Arcs -->
                                 <g id="dynamic-laser-arcs"></g>
 
-                                <!-- Dynamic Threat Origin Radar Nodes (Spawned dynamically from active threat ASNs) -->
+                                <!-- Dynamic Threat Origin Radar Nodes -->
                                 <g id="dynamic-threat-nodes"></g>
 
-                                <!-- Destination Target: SOC Protected Enclave (New Delhi HQ: 572, 136) -->
+                                <!-- Destination Target: Central Server (New Delhi: 572, 136) -->
                                 <g class="target-enclave" id="target-enclave" transform="translate(572, 136)">
                                     <circle class="enclave-radar" r="18"/>
                                     <circle class="enclave-ring" r="8"/>
                                     <circle class="enclave-core" r="3"/>
                                     <line x1="-12" y1="0" x2="12" y2="0" stroke="#10b981" stroke-width="1" opacity="0.8"/>
                                     <line x1="0" y1="-12" x2="0" y2="12" stroke="#10b981" stroke-width="1" opacity="0.8"/>
-                                    <text x="14" y="-5" class="enclave-text">PROTECTED ENCLAVE (NEW DELHI HQ)</text>
+                                    <text x="14" y="-5" class="enclave-text">CENTRAL SERVER (NEW DELHI)</text>
                                 </g>
                             </svg>
 
-                            <!-- In-Canvas Tactical Telemetry Feed (Floating HUD) -->
+                            <!-- In-Canvas Telemetry Feed -->
                             <div class="geo-asn-overlay">
                                 <!-- Populated dynamically from real telemetry -->
                             </div>
                         </div>
                     </div>
 
-                    <!-- Right: Alert Rate Dynamics & Severity Distribution (Donut + Trend Line + Ribbon) -->
+                    <!-- Right: Alerts & Severity Distribution -->
                     <div class="shadcn-card chart-card chart-card-fill">
                         <div class="card-title-row">
                             <div>
-                                <h3 class="card-title">Alert Rate Dynamics &amp; Severity Distribution</h3>
-                                <p class="card-subtitle">Real-Time Threat Volume Split Across Time</p>
+                                <h3 class="card-title">Alerts &amp; Severity Distribution</h3>
+                                <p class="card-subtitle">Event Volume and Trends by Severity</p>
                             </div>
-                            <span class="badge-secondary">MULTI-SERIES</span>
+                            <span class="badge-secondary">LIVE CHARTS</span>
                         </div>
                         <div class="dual-chart-container">
                             <div class="dual-chart-donut">
@@ -208,56 +208,56 @@
                                 <canvas id="severityTrendChart"></canvas>
                             </div>
                         </div>
-                        <!-- Mini Metric Ribbon: Fills Card Bottom Gracefully -->
+                        <!-- Mini Metric Ribbon -->
                         <div class="severity-mini-ribbon">
                             <div class="ribbon-item">
                                 <span class="ribbon-indicator crit"></span>
-                                <span class="ribbon-label">CRIT P1:</span>
+                                <span class="ribbon-label">Critical:</span>
                                 <span class="ribbon-val" id="ribbon-crit">0</span>
                             </div>
                             <div class="ribbon-item">
                                 <span class="ribbon-indicator high"></span>
-                                <span class="ribbon-label">HIGH P2:</span>
+                                <span class="ribbon-label">High:</span>
                                 <span class="ribbon-val" id="ribbon-high">0</span>
                             </div>
                             <div class="ribbon-item">
                                 <span class="ribbon-indicator med"></span>
-                                <span class="ribbon-label">MED P3:</span>
+                                <span class="ribbon-label">Medium:</span>
                                 <span class="ribbon-val" id="ribbon-med">0</span>
                             </div>
                             <div class="ribbon-item">
                                 <span class="ribbon-indicator low"></span>
-                                <span class="ribbon-label">LOW P4:</span>
+                                <span class="ribbon-label">Low:</span>
                                 <span class="ribbon-val" id="ribbon-low">0</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- 3. AI THREAT ENTROPY & INGESTION DISTRIBUTION (ROW 3) -->
+                <!-- 3. ANOMALY DETECTION & LOG SOURCES (ROW 3) -->
                 <div class="analytics-row" style="margin-top: 20px;">
-                    <!-- Left: AI Threat Matrix Scatter (60% width) -->
+                    <!-- Left: Anomaly Detection Scatter (60% width) -->
                     <div class="shadcn-card chart-card flex-2">
                         <div class="card-title-row">
                             <div>
-                                <h3 class="card-title">AI Shannon Entropy &amp; Port Matrix</h3>
-                                <p class="card-subtitle">4-Model ML Ensemble: Isolation Forest + One-Class SVM + Shannon Bits</p>
+                                <h3 class="card-title">Port &amp; Anomaly Score Distribution</h3>
+                                <p class="card-subtitle">Destination Port vs. Payload Anomaly Score</p>
                             </div>
-                            <span class="badge-secondary">REAL-TIME ML</span>
+                            <span class="badge-secondary">ANOMALY SCORES</span>
                         </div>
                         <div class="chart-box">
                             <canvas id="threatScatterChart"></canvas>
                         </div>
                     </div>
 
-                    <!-- Right: Multi-Vendor Ingestion Distribution (40% width) -->
+                    <!-- Right: Log Sources Distribution (40% width) -->
                     <div class="shadcn-card profile-panel flex-1">
                         <div class="card-title-row">
                             <div>
-                                <h3 class="card-title">Multi-Vendor Ingestion Ingress</h3>
-                                <p class="card-subtitle">Diverse Appliance Extraction &amp; Taxonomy Normalization</p>
+                                <h3 class="card-title">Logs by Log Source / Device</h3>
+                                <p class="card-subtitle">Distribution of Ingested Systems</p>
                             </div>
-                            <span class="badge-outline">TIER 1 VENDORS</span>
+                            <span class="badge-outline">ACTIVE SOURCES</span>
                         </div>
                         <div class="ranking-list" id="device-ranking-list">
                             <!-- Injected dynamically -->
@@ -276,25 +276,25 @@
                     <button class="btn-clear-filter" id="btn-clear-filter">CLEAR FILTER [✕]</button>
                 </div>
 
-                <!-- Active Security Alerts Table (Real-Time Triage) -->
+                <!-- Active Security Alerts Table -->
                 <div class="shadcn-card table-wrapper-card" style="margin-top: 20px;">
                     <div class="card-title-row">
                         <div>
-                            <h3 class="card-title">Active Security Alerts (Real-Time Triage)</h3>
-                            <p class="card-subtitle">Prioritized Threats with Explainable AI (XAI) Tags &amp; 1-Click Forensic Inspector</p>
+                            <h3 class="card-title">Security Alerts</h3>
+                            <p class="card-subtitle">List of detected security alerts with details (Click row to inspect)</p>
                         </div>
-                        <span class="badge-destructive" id="active-alerts-count-badge">0 UNRESOLVED</span>
+                        <span class="badge-destructive" id="active-alerts-count-badge">0 ALERTS</span>
                     </div>
                     <div class="table-container">
                         <table class="shadcn-table" id="alerts-table">
                             <thead>
                                 <tr>
                                     <th>TIME (UTC)</th>
-                                    <th>ALERT NAME &amp; MITRE TACTIC</th>
+                                    <th>ALERT NAME &amp; CATEGORY</th>
                                     <th>SEVERITY</th>
-                                    <th>SOURCE ENDPOINT</th>
-                                    <th>DESTINATION ENDPOINT</th>
-                                    <th>TRIAGE STATUS</th>
+                                    <th>SOURCE IP:PORT</th>
+                                    <th>DESTINATION IP:PORT</th>
+                                    <th>STATUS</th>
                                     <th>ACTION</th>
                                 </tr>
                             </thead>
@@ -305,30 +305,30 @@
                     </div>
                 </div>
 
-                <!-- 5. TARGETED IDENTITIES & INCIDENT CLASSIFICATIONS (ROW 5) -->
+                <!-- 5. TOP USERS & INCIDENT CLASSIFICATIONS (ROW 5) -->
                 <div class="analytics-double-grid" style="margin-top: 20px;">
-                    <!-- Panel 1: Top Targeted / Offending Users -->
+                    <!-- Panel 1: Top Users -->
                     <div class="shadcn-card profile-panel">
                         <div class="card-title-row">
                             <div>
-                                <h3 class="card-title">Top Targeted / Offending Identities</h3>
-                                <p class="card-subtitle">Anomalous Account Authentication Telemetry</p>
+                                <h3 class="card-title">Top User Accounts</h3>
+                                <p class="card-subtitle">Activity and Login Anomalies by User</p>
                             </div>
-                            <span class="badge-destructive">RISK INDEX</span>
+                            <span class="badge-destructive">RANK</span>
                         </div>
                         <div class="ranking-list" id="user-ranking-list">
                             <!-- Injected dynamically -->
                         </div>
                     </div>
 
-                    <!-- Panel 2: Top Offenses / Incident Classifications -->
+                    <!-- Panel 2: Top Alert Categories -->
                     <div class="shadcn-card profile-panel">
                         <div class="card-title-row">
                             <div>
-                                <h3 class="card-title">Top Incident Classifications</h3>
-                                <p class="card-subtitle">Itemized Attack Vector Distribution</p>
+                                <h3 class="card-title">Top Alert Categories</h3>
+                                <p class="card-subtitle">Most Frequent Alert Types</p>
                             </div>
-                            <span class="badge-outline">CLASSIFIED</span>
+                            <span class="badge-outline">COUNT</span>
                         </div>
                         <div class="ranking-list" id="offense-ranking-list">
                             <!-- Injected dynamically -->
@@ -336,13 +336,13 @@
                     </div>
                 </div>
 
-                <!-- 6. OPERATIONAL TELEMETRY & LIVE TIMELINE TABLES (ROW 6) -->
-                <!-- Query Lake & Preset Filter Bar -->
+                <!-- 6. OPERATIONAL LOGS & LIVE TIMELINE (ROW 6) -->
+                <!-- Query Filter Bar -->
                 <div class="shadcn-card filter-bar-card" style="margin-top: 20px;">
                     <div class="filter-top-row">
                         <div class="search-input-wrap">
                             <span class="search-prefix">QUERY:</span>
-                            <input type="text" id="query-lake-input" class="shadcn-input" placeholder="Search by IP, Port, Vendor, Identity, Alert Name, or Action (e.g. 198.51, root, Blocked, T1110)...">
+                            <input type="text" id="query-lake-input" class="shadcn-input" placeholder="Search by IP, Port, Vendor, User, Alert Name, or Action (e.g. 198.51, root, Blocked)...">
                         </div>
                         <button id="export-csv-btn" class="shadcn-btn btn-secondary">
                             <span>Export CSV</span>
@@ -360,12 +360,12 @@
                     </div>
                 </div>
 
-                <!-- Forensic Event Timeline -->
+                <!-- Log Events Timeline -->
                 <div class="shadcn-card table-wrapper-card" style="margin-top: 14px;">
                     <div class="card-title-row">
                         <div>
-                            <h3 class="card-title">Forensic Event Timeline &amp; Policy Audit Stream</h3>
-                            <p class="card-subtitle">Sequential Ingestion Telemetry with Cryptographic Hashes (Click Row to Inspect)</p>
+                            <h3 class="card-title">Log Events Timeline</h3>
+                            <p class="card-subtitle">Real-time stream of parsed log events (Click row to inspect)</p>
                         </div>
                         <span class="badge-secondary" id="timeline-count-badge">LIVE STREAMING</span>
                     </div>
@@ -374,11 +374,11 @@
                             <thead>
                                 <tr>
                                     <th>TIMESTAMP</th>
-                                    <th>NORMALIZED EVENT TYPE (OCSF)</th>
-                                    <th>IDENTITY / USER</th>
+                                    <th>EVENT TYPE</th>
+                                    <th>USER</th>
                                     <th>SOURCE IP:PORT</th>
                                     <th>DESTINATION IP:PORT</th>
-                                    <th>DISPOSITION</th>
+                                    <th>ACTION (STATUS)</th>
                                     <th>ACTION</th>
                                 </tr>
                             </thead>
@@ -434,10 +434,10 @@
                     </div>
 
                     <div class="ctrl-group-right">
-                        <!-- Dual Buffer Live Progress -->
+                        <!-- Buffer Live Progress -->
                         <div class="buffer-box">
                             <div class="buffer-header">
-                                <span>Dual-Buffer Capacity</span>
+                                <span>Buffer Capacity</span>
                                 <span id="buffer-stat-text">0 / 200 (0%)</span>
                             </div>
                             <div class="buffer-track">
@@ -446,17 +446,17 @@
                         </div>
 
                         <button id="flush-now-btn" class="shadcn-btn btn-secondary">
-                            <span>Flush to Disk Now</span>
+                            <span>Save to Disk Now</span>
                         </button>
                     </div>
                 </div>
 
-                <!-- Slide-Down No-Code Vendor Onboarding Studio -->
+                <!-- Slide-Down Vendor Onboarding Studio -->
                 <div id="parser-studio-drawer" class="shadcn-card studio-card hidden">
                     <div class="card-title-row">
                         <div>
-                            <h3 class="card-title">No-Code Vendor Onboarding Studio</h3>
-                            <p class="card-subtitle">Automated Declarative YAML Scaffolder &amp; Hot-Reload Engine</p>
+                            <h3 class="card-title">Add New Log Parser</h3>
+                            <p class="card-subtitle">Create custom parser rules from a sample log line</p>
                         </div>
                         <button id="close-studio-btn" class="btn-ghost-sm">[ Close ]</button>
                     </div>
@@ -464,26 +464,26 @@
                         <div class="form-row">
                             <div class="form-col">
                                 <label>Vendor Name:</label>
-                                <input type="text" id="studio-vendor-input" class="shadcn-input" placeholder="e.g. Juniper, SonicWall, Kubernetes...">
+                                <input type="text" id="studio-vendor-input" class="shadcn-input" placeholder="e.g. Juniper, Cisco, Linux...">
                             </div>
                             <div class="form-col">
                                 <label>Product / Service:</label>
-                                <input type="text" id="studio-product-input" class="shadcn-input" placeholder="e.g. SRX_Firewall, Audit_Log...">
+                                <input type="text" id="studio-product-input" class="shadcn-input" placeholder="e.g. Firewall, Auth_Log...">
                             </div>
                         </div>
                         <div class="form-field-full">
                             <label>Sample Raw Log String (1 Line):</label>
-                            <textarea id="studio-log-input" class="shadcn-textarea" placeholder="Paste single raw wire log line here..."></textarea>
+                            <textarea id="studio-log-input" class="shadcn-textarea" placeholder="Paste single raw log line here..."></textarea>
                         </div>
                         <div class="studio-action-row">
                             <button id="studio-generate-btn" class="shadcn-btn btn-primary">
-                                <span>Generate &amp; Hot-Reload Parser</span>
+                                <span>Generate &amp; Save Parser</span>
                             </button>
                             <span id="studio-status-msg" class="studio-status-text"></span>
                         </div>
                         <div id="studio-preview-box" class="studio-preview-box hidden">
                             <div class="preview-header">
-                                <span>Generated Declarative YAML Definition</span>
+                                <span>Generated YAML Definition</span>
                                 <span id="studio-preview-file">vendor_product.yaml</span>
                             </div>
                             <pre class="code-block" id="studio-yaml-preview"></pre>
@@ -491,14 +491,14 @@
                     </div>
                 </div>
 
-                <!-- UNIFIED 60FPS TERMINAL CANVAS -->
+                <!-- UNIFIED LOG STREAM TERMINAL -->
                 <div class="shadcn-card terminal-card">
                     <div class="terminal-titlebar">
                         <div class="window-controls">
                             <span class="win-dot red"></span>
                             <span class="win-dot yellow"></span>
                             <span class="win-dot green"></span>
-                            <span class="win-title">WEED Ingestion Terminal</span>
+                            <span class="win-title">WEED Log Stream Terminal</span>
                         </div>
                         <div class="terminal-meta">
                             <span class="meta-tag">RFC 5424 / OCSF 1.1</span>
@@ -510,8 +510,8 @@
                     <div class="terminal-top-split">
                         <div class="terminal-pane col-raw">
                             <div class="pane-titlebar">
-                                <span class="pane-heading">1. Raw Wire Payload Ingress (Port 5140)</span>
-                                <span class="pane-subtag">CONTINUOUS STREAM</span>
+                                <span class="pane-heading">1. Raw Log Ingestion</span>
+                                <span class="pane-subtag">LIVE STREAM</span>
                             </div>
                             <div class="stream-viewport" id="raw-stream-viewport">
                                 <!-- Raw items dynamically injected -->
@@ -520,8 +520,8 @@
 
                         <div class="terminal-pane col-sha">
                             <div class="pane-titlebar">
-                                <span class="pane-heading">2. Hardware SHA-256 Wire Digest</span>
-                                <span class="pane-subtag">SECTION 65B PROVENANCE</span>
+                                <span class="pane-heading">2. SHA-256 Hash Verification</span>
+                                <span class="pane-subtag">INTEGRITY CHECK</span>
                             </div>
                             <div class="stream-viewport" id="sha-stream-viewport">
                                 <!-- SHA items dynamically injected -->
@@ -532,15 +532,15 @@
                     <!-- TRANSITION DIVIDER -->
                     <div class="terminal-transition-bar">
                         <div class="trans-line"></div>
-                        <span class="trans-label">Normalization Transition Layer — Mapping to OCSF Taxonomy</span>
+                        <span class="trans-label">Data Normalization &amp; Formatting Layer</span>
                         <div class="trans-line"></div>
                     </div>
 
                     <!-- BOTTOM HALF: FORMATTED OCSF JSON OUTPUT -->
                     <div class="terminal-bottom-section">
                         <div class="pane-titlebar">
-                            <span class="pane-heading">3. Standardized OCSF JSON Output (Class 4001: Network Activity)</span>
-                            <span class="pane-subtag" id="processed-counter-badge">EVENTS COMMITTED: 0</span>
+                            <span class="pane-heading">3. Standardized JSON Output (OCSF Format)</span>
+                            <span class="pane-subtag" id="processed-counter-badge">EVENTS PROCESSED: 0</span>
                         </div>
                         <div class="json-viewport" id="json-stream-viewport">
                             <!-- JSON items dynamically injected -->
@@ -551,20 +551,20 @@
 
 
             <!-- ==================================================== -->
-            <!-- TAB 3: DATABASE VAULT -->
+            <!-- TAB 3: DATABASE -->
             <!-- ==================================================== -->
             <section id="tab-database" class="tab-content">
                 
                 <div class="shadcn-card vault-summary-card">
                     <div class="card-title-row">
                         <div>
-                            <h3 class="card-title">Dual-File Storage Subsystem &amp; Parquet Data Lake</h3>
+                            <h3 class="card-title">Log Storage &amp; File Archives</h3>
                             <p class="card-subtitle">
-                                Every batch constraint automatically flushes into two immutable artifacts: 
-                                an untouched <code>.log</code> raw forensic archive and a normalized <code>.json</code> OCSF dataset.
+                                Logs are automatically saved in two formats: 
+                                an untouched <code>.log</code> raw text archive and a normalized <code>.json</code> dataset.
                             </p>
                         </div>
-                        <span class="badge-secondary">COLUMNAR STORAGE</span>
+                        <span class="badge-secondary">LOCAL STORAGE</span>
                     </div>
                 </div>
 
@@ -573,7 +573,7 @@
                     <!-- Raw Log Files -->
                     <div class="shadcn-card">
                         <div class="card-title-row">
-                            <h3 class="card-title">Raw Forensic Log Files (<code>.log</code>)</h3>
+                            <h3 class="card-title">Raw Log Files (<code>.log</code>)</h3>
                             <span class="badge-outline" id="raw-files-count-badge">0 FILES</span>
                         </div>
                         <div class="table-container">
@@ -597,7 +597,7 @@
                     <!-- Formatted JSON Files -->
                     <div class="shadcn-card">
                         <div class="card-title-row">
-                            <h3 class="card-title">Formatted OCSF JSON Files (<code>.json</code>)</h3>
+                            <h3 class="card-title">Formatted JSON Files (<code>.json</code>)</h3>
                             <span class="badge-outline" id="fmt-files-count-badge">0 FILES</span>
                         </div>
                         <div class="table-container">
@@ -623,8 +623,8 @@
                 <div class="shadcn-card inspector-card">
                     <div class="card-title-row">
                         <div>
-                            <h3 class="card-title">Dual-File Content Inspector</h3>
-                            <p class="card-subtitle">Side-by-side comparison of raw wire forensic bytes vs parsed OCSF JSON records</p>
+                            <h3 class="card-title">File Content Inspector</h3>
+                            <p class="card-subtitle">Side-by-side view of raw logs and formatted JSON records</p>
                         </div>
                         <div class="inspector-select-wrap">
                             <select id="batch-inspector-select" class="shadcn-select">
@@ -634,28 +634,28 @@
                     </div>
 
                     <div class="inspector-columns">
-                        <!-- Left Pane: Raw Wire Archive -->
+                        <!-- Left Pane: Raw Archive -->
                         <div class="inspector-col">
                             <div class="inspector-col-titlebar">
                                 <div class="col-title-left">
-                                    <span class="col-type-tag raw-tag">RAW FORENSIC (.log)</span>
+                                    <span class="col-type-tag raw-tag">RAW LOGS (.log)</span>
                                     <span id="inspect-raw-title" class="col-filename-pill">No batch selected</span>
                                 </div>
                                 <button id="copy-inspect-raw-btn" class="btn-copy-mini">Copy Raw</button>
                             </div>
-                            <pre class="code-block raw-syntax" id="inspect-raw-content">Select a batch file from the dropdown above to inspect raw forensic records.</pre>
+                            <pre class="code-block raw-syntax" id="inspect-raw-content">Select a batch file from the dropdown above to inspect raw records.</pre>
                         </div>
 
-                        <!-- Right Pane: Formatted OCSF JSON -->
+                        <!-- Right Pane: Formatted JSON -->
                         <div class="inspector-col">
                             <div class="inspector-col-titlebar">
                                 <div class="col-title-left">
-                                    <span class="col-type-tag json-tag">NORMALIZED OCSF (.json)</span>
+                                    <span class="col-type-tag json-tag">FORMATTED JSON (.json)</span>
                                     <span id="inspect-fmt-title" class="col-filename-pill">No batch selected</span>
                                 </div>
                                 <button id="copy-inspect-fmt-btn" class="btn-copy-mini">Copy JSON</button>
                             </div>
-                            <pre class="code-block json-syntax" id="inspect-fmt-content">Select a batch file from the dropdown above to inspect parsed OCSF JSON records.</pre>
+                            <pre class="code-block json-syntax" id="inspect-fmt-content">Select a batch file from the dropdown above to inspect formatted JSON records.</pre>
                         </div>
                     </div>
                 </div>
@@ -665,18 +665,18 @@
     </div>
 
     <!-- ==================================================== -->
-    <!-- DUAL-PANE FORENSIC INSPECTOR MODAL (SECTION 65B) -->
+    <!-- RECORD DETAILS MODAL -->
     <!-- ==================================================== -->
     <div id="forensic-modal" class="modal-overlay hidden">
         <div class="modal-card">
             <!-- Modal Header -->
             <div class="modal-header">
                 <div class="modal-title-group">
-                    <div class="modal-title-badge">SECTION 65B FORENSIC INSPECTION</div>
-                    <h3 class="modal-title" id="modal-event-title">Event Inspection: <span id="modal-event-id" class="text-primary font-mono">uuid-00000000</span></h3>
+                    <div class="modal-title-badge">LOG RECORD DETAILS</div>
+                    <h3 class="modal-title" id="modal-event-title">Log Record: <span id="modal-event-id" class="text-primary font-mono">uuid-00000000</span></h3>
                     <p class="modal-subtitle">
                         Timestamp: <span id="modal-event-time" class="text-foreground font-mono">2026-09-08 14:45:00 UTC</span> 
-                        &nbsp;|&nbsp; Hash Continuity: <span class="text-emerald font-semibold">VALIDATED</span>
+                        &nbsp;|&nbsp; Integrity Check: <span class="text-emerald font-semibold">VALIDATED</span>
                     </p>
                 </div>
                 <button id="modal-close-btn" class="modal-close-btn">[ ESC / Close ]</button>
@@ -684,19 +684,19 @@
 
             <!-- Modal Body (Dual-Pane) -->
             <div class="modal-body-split">
-                <!-- Left Pane: Immutable Raw Payload & SHA-256 -->
+                <!-- Left Pane: Raw Payload & SHA-256 -->
                 <div class="modal-pane modal-pane-left">
                     <div class="pane-header-row">
-                        <span class="pane-tag text-amber">1. IMMUTABLE RAW WIRE PAYLOAD</span>
-                        <span class="pane-meta">PROVENANCE LOCKED</span>
+                        <span class="pane-tag text-amber">1. RAW LOG PAYLOAD</span>
+                        <span class="pane-meta">ORIGINAL LOG</span>
                     </div>
                     <div class="raw-payload-box" id="modal-raw-payload">
-                        Loading raw wire payload...
+                        Loading raw payload...
                     </div>
                     
                     <div class="sha-digest-section">
                         <div class="sha-label-row">
-                            <span class="sha-title">HARDWARE SHA-256 WIRE DIGEST:</span>
+                            <span class="sha-title">SHA-256 HASH:</span>
                             <button id="modal-copy-sha-btn" class="btn-copy-mini">Copy Hash</button>
                         </div>
                         <div class="sha-code-box" id="modal-sha-digest">
@@ -704,23 +704,23 @@
                         </div>
                         <div class="cert-stamp">
                             <span class="cert-dot"></span>
-                            <span>Section 65B Indian Evidence Act Validated Hash Chain</span>
+                            <span>SHA-256 Validated Hash Chain</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Right Pane: Structured OCSF v1.1.0 JSON & AI Diagnostics -->
+                <!-- Right Pane: Structured JSON & AI Diagnostics -->
                 <div class="modal-pane modal-pane-right">
                     <div class="pane-header-row">
-                        <span class="pane-tag text-cyan">2. STANDARDIZED OCSF v1.1.0 JSON OBJECT</span>
+                        <span class="pane-tag text-cyan">2. FORMATTED JSON OBJECT</span>
                         <button id="modal-copy-json-btn" class="btn-copy-mini">Copy JSON</button>
                     </div>
 
-                    <!-- AI Multi-Model Forensic Breakdown Strip -->
+                    <!-- AI Multi-Model Breakdown Strip -->
                     <div class="ai-model-inspector-box" id="modal-ai-box">
                         <div class="ai-box-header">
-                            <span class="ai-box-title">4-MODEL ENSEMBLE CONSENSUS DIAGNOSTICS</span>
-                            <span class="ai-box-verdict-badge" id="modal-ai-verdict">ANOMALY DETECTED</span>
+                            <span class="ai-box-title">ANOMALY DETECTION MODELS</span>
+                            <span class="ai-box-verdict-badge" id="modal-ai-verdict">ANOMALY STATUS</span>
                         </div>
                         <div class="ai-models-grid">
                             <div class="ai-stat-card">
@@ -744,7 +744,7 @@
                     </div>
 
                     <pre class="json-code-box" id="modal-json-payload">
-                        Loading structured OCSF JSON...
+                        Loading formatted JSON...
                     </pre>
                 </div>
             </div>
@@ -752,10 +752,10 @@
             <!-- Modal Footer -->
             <div class="modal-footer">
                 <div class="footer-cert-note">
-                    Certified Cryptographic Log Entry &bull; Tamper-Evident Merkle Continuity
+                    Verified Log Entry &bull; Tamper-Evident Audit Trail
                 </div>
                 <button id="modal-dismiss-btn" class="shadcn-btn btn-secondary">
-                    <span>Close Inspector</span>
+                    <span>Close Details</span>
                 </button>
             </div>
         </div>
