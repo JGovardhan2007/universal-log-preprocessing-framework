@@ -168,10 +168,139 @@ document.addEventListener('DOMContentLoaded', () => {
     initDatabaseSearch();
     initStudioDrawer();
     initForensicModal();
+    initCardFullscreen();
     
     fetchLiveTelemetry();
     setInterval(fetchLiveTelemetry, 2500);
 });
+
+// -------------------------------------------------------------
+// CARD FULLSCREEN & POPUP MODAL ARCHITECTURE
+// -------------------------------------------------------------
+let activeFullscreenCard = null;
+
+function initCardFullscreen() {
+    let backdrop = document.getElementById('card-fullscreen-backdrop');
+    if (!backdrop) {
+        backdrop = document.createElement('div');
+        backdrop.id = 'card-fullscreen-backdrop';
+        backdrop.className = 'card-fullscreen-backdrop hidden';
+        document.body.appendChild(backdrop);
+    }
+
+    backdrop.addEventListener('click', closeCardFullscreen);
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && activeFullscreenCard) {
+            closeCardFullscreen();
+        }
+    });
+
+    const cards = document.querySelectorAll('.shadcn-card');
+    cards.forEach(card => {
+        // Exclude inline controls toolbars, filter bars, and the onboarding studio drawer
+        if (card.classList.contains('controls-card') || 
+            card.classList.contains('filter-bar-card') || 
+            card.id === 'parser-studio-drawer') {
+            return;
+        }
+
+        // Add close button if not already present
+        if (!card.querySelector('.card-fullscreen-close-btn')) {
+            const closeBtn = document.createElement('button');
+            closeBtn.className = 'card-fullscreen-close-btn';
+            closeBtn.type = 'button';
+            closeBtn.innerHTML = `
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+                <span>Exit Full Mode</span>
+                <kbd class="esc-kbd">ESC</kbd>
+            `;
+            closeBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                closeCardFullscreen();
+            });
+            card.appendChild(closeBtn);
+        }
+
+        // Add expand button if not already present
+        if (!card.querySelector('.card-expand-btn')) {
+            const expandBtn = document.createElement('button');
+            expandBtn.className = 'card-expand-btn';
+            expandBtn.type = 'button';
+            expandBtn.title = 'Open in Full Mode';
+            expandBtn.innerHTML = `
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 3 21 3 21 9"></polyline>
+                    <polyline points="9 21 3 21 3 15"></polyline>
+                    <line x1="21" y1="3" x2="14" y2="10"></line>
+                    <line x1="3" y1="21" x2="10" y2="14"></line>
+                </svg>
+            `;
+            expandBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                openCardFullscreen(card);
+            });
+            card.appendChild(expandBtn);
+        }
+
+        // Clicking anywhere on the card header or background opens full mode
+        card.addEventListener('click', (e) => {
+            if (card.classList.contains('card-fullscreen')) return;
+
+            // Don't intercept clicks on interactive sub-elements!
+            const interactive = e.target.closest(
+                'button, input, select, textarea, a, tr, td, th, canvas, svg, .pill-chip, .ranking-item, [data-db-filter], .geo-hud-bar, .win-dot, .card-expand-btn, .card-fullscreen-close-btn'
+            );
+            if (interactive) return;
+
+            openCardFullscreen(card);
+        });
+    });
+}
+
+function openCardFullscreen(card) {
+    if (!card || activeFullscreenCard === card) return;
+
+    if (activeFullscreenCard) {
+        closeCardFullscreen();
+    }
+
+    activeFullscreenCard = card;
+    card.classList.add('card-fullscreen');
+
+    const backdrop = document.getElementById('card-fullscreen-backdrop');
+    if (backdrop) backdrop.classList.remove('hidden');
+    document.body.classList.add('card-modal-open');
+
+    // Trigger chart resize & DOM redraw
+    setTimeout(() => {
+        window.dispatchEvent(new Event('resize'));
+        if (severityDonutChart) severityDonutChart.resize();
+        if (severityTrendChart) severityTrendChart.resize();
+        if (scatterChart) scatterChart.resize();
+    }, 60);
+}
+
+function closeCardFullscreen() {
+    if (!activeFullscreenCard) return;
+
+    activeFullscreenCard.classList.remove('card-fullscreen');
+    activeFullscreenCard = null;
+
+    const backdrop = document.getElementById('card-fullscreen-backdrop');
+    if (backdrop) backdrop.classList.add('hidden');
+    document.body.classList.remove('card-modal-open');
+
+    setTimeout(() => {
+        window.dispatchEvent(new Event('resize'));
+        if (severityDonutChart) severityDonutChart.resize();
+        if (severityTrendChart) severityTrendChart.resize();
+        if (scatterChart) scatterChart.resize();
+    }, 60);
+}
 
 // -------------------------------------------------------------
 // TAB NAVIGATION
@@ -181,6 +310,10 @@ function initTabs() {
         btn.addEventListener('click', () => {
             const targetTab = btn.getAttribute('data-tab');
             if (state.currentTab === targetTab) return;
+
+            if (activeFullscreenCard) {
+                closeCardFullscreen();
+            }
 
             DOM.navBtns.forEach(b => b.classList.remove('active'));
             DOM.tabPanes.forEach(p => p.classList.remove('active'));
