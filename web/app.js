@@ -1959,9 +1959,14 @@ function openComponentModal(card) {
 
     activeModalCard = card;
 
-    // Create lightweight placeholder slot to hold position in DOM
+    // Preserve height & width of the slot in original grid
+    const rect = card.getBoundingClientRect();
     activeModalPlaceholder = document.createElement('div');
     activeModalPlaceholder.className = 'component-placeholder-slot';
+    activeModalPlaceholder.style.width = `${rect.width}px`;
+    activeModalPlaceholder.style.height = `${rect.height}px`;
+    activeModalPlaceholder.style.display = 'block';
+    activeModalPlaceholder.style.visibility = 'hidden';
     card.parentNode.insertBefore(activeModalPlaceholder, card);
 
     // Extract title, subtitle and badge from the card
@@ -1983,20 +1988,22 @@ function openComponentModal(card) {
     popoutBody.appendChild(card);
 
     modal.classList.remove('hidden');
+    modal.style.setProperty('display', 'flex', 'important');
     document.body.classList.add('component-modal-open');
 
     triggerChartResizes();
 }
 
 function closeComponentModal() {
+    const modal = document.getElementById('component-popout-modal');
     if (!activeModalCard || !activeModalPlaceholder) {
-        const modal = document.getElementById('component-popout-modal');
-        if (modal) modal.classList.add('hidden');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.style.setProperty('display', 'none', 'important');
+        }
         document.body.classList.remove('component-modal-open');
         return;
     }
-
-    const modal = document.getElementById('component-popout-modal');
 
     // Move card back to its original slot
     activeModalPlaceholder.parentNode.insertBefore(activeModalCard, activeModalPlaceholder);
@@ -2005,7 +2012,10 @@ function closeComponentModal() {
     activeModalCard = null;
     activeModalPlaceholder = null;
 
-    if (modal) modal.classList.add('hidden');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.style.setProperty('display', 'none', 'important');
+    }
     document.body.classList.remove('component-modal-open');
 
     triggerChartResizes();
