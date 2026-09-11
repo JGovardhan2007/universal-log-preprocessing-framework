@@ -361,33 +361,14 @@ function triggerAttackLaser(attack) {
     headEl.appendChild(animMotion);
     group.appendChild(headEl);
 
-    // 3. Origin blast ring
-    const originRing = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    originRing.setAttribute('cx', srcX.toFixed(1));
-    originRing.setAttribute('cy', srcY.toFixed(1));
-    originRing.setAttribute('r', '3');
-    originRing.setAttribute('class', `origin-blast-ring ${sevClass}`);
-    group.appendChild(originRing);
-
     laserGroup.appendChild(group);
 
-    // 4. Target impact shockwave when projectile lands (~1.25s)
-    setTimeout(() => {
-        if (!laserGroup.contains(group)) return;
-        const impactRing = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        impactRing.setAttribute('cx', dstX.toFixed(1));
-        impactRing.setAttribute('cy', dstY.toFixed(1));
-        impactRing.setAttribute('r', '3');
-        impactRing.setAttribute('class', 'impact-shockwave');
-        group.appendChild(impactRing);
-    }, 1250);
-
-    // 5. Line and projectile disappear completely after sometime (decay out after 2.3s)
+    // Line and projectile disappear completely after arrival (decay out after 2.0s)
     setTimeout(() => {
         if (group && group.parentNode) {
             group.remove();
         }
-    }, 2300);
+    }, 2000);
 
     // 6. Update Bottom Geolocation HUD Box with Active Geolocation Details
     updateGeolocationHud(attack);
@@ -483,15 +464,12 @@ function renderDynamicGeoThreatMap(geoThreats, liveAttacks) {
                 const asnCode = (g.asn || '').split(' ')[0];
                 const cityName = g.city || (g.location ? g.location.split(',')[0] : 'Remote Staging');
                 const nodeColor = idx === 0 ? 'red' : (idx <= 2 ? 'orange' : 'amber');
-                const pulseRadius = Math.min(22, Math.max(12, 10 + Math.round(Math.log10(g.count + 1) * 3)));
-                const coreRadius = idx === 0 ? 4.5 : (idx <= 2 ? 4 : 3.5);
-                const labelY = y < 55 ? 14 : -5;
+                const coreRadius = idx === 0 ? 3.5 : (idx <= 2 ? 3 : 2.5);
 
                 nodesHtml += `
                     <g class="threat-node" data-city="${escapeHtml(cityName)}" data-asn="${asnCode}" style="cursor: pointer;" transform="translate(${x.toFixed(1)}, ${y.toFixed(1)})">
-                        <circle class="pulse-ring ${nodeColor}" r="${pulseRadius}"></circle>
+                        <title>${escapeHtml(cityName)} (${escapeHtml(asnCode)}) - ${g.count.toLocaleString()} Events</title>
                         <circle class="core-dot ${nodeColor}" r="${coreRadius}"></circle>
-                        <text x="8" y="${labelY}" class="node-map-label">${escapeHtml(cityName.toUpperCase())} (${g.count.toLocaleString()})</text>
                     </g>
                 `;
             });

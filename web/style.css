@@ -776,46 +776,17 @@ body {
     height: 100%;
 }
 
-.pulse-ring {
-    fill: none;
-    animation: radarPulse 2s infinite ease-out;
+.core-dot {
+    transition: transform 0.2s ease, filter 0.2s ease;
+    cursor: pointer;
 }
-.pulse-ring.red { stroke: #ef4444; }
-.pulse-ring.orange { stroke: #f97316; }
-.pulse-ring.amber { stroke: #f59e0b; }
-
+.core-dot:hover {
+    transform: scale(1.6);
+    filter: drop-shadow(0 0 6px currentColor);
+}
 .core-dot.red { fill: #ef4444; }
 .core-dot.orange { fill: #f97316; }
 .core-dot.amber { fill: #f59e0b; }
-
-@keyframes radarPulse {
-    0% { r: 4px; opacity: 1; stroke-width: 2px; }
-    100% { r: 20px; opacity: 0; stroke-width: 0.5px; }
-}
-
-.target-enclave .enclave-radar {
-    fill: rgba(16, 185, 129, 0.08);
-    stroke: #10b981;
-    stroke-dasharray: 3 3;
-}
-
-.target-enclave .enclave-ring {
-    fill: none;
-    stroke: #10b981;
-    stroke-width: 1.5;
-}
-
-.target-enclave .enclave-core {
-    fill: #10b981;
-    filter: drop-shadow(0 0 6px #10b981);
-}
-
-.target-enclave .enclave-text {
-    font-family: var(--font-mono);
-    font-size: 8.5px;
-    font-weight: 700;
-    fill: #34d399;
-}
 
 /* ==========================================================================
    CHECK POINT THREAT MAP BALLISTIC PROJECTILES & LASER ARCS
@@ -901,32 +872,6 @@ body {
     100% { opacity: 0; }
 }
 
-/* Destination Target Impact Shockwave */
-.impact-shockwave {
-    fill: none;
-    stroke: #10b981;
-    animation: impactShockwave 1.4s ease-out forwards;
-}
-@keyframes impactShockwave {
-    0% { r: 2px; opacity: 1; stroke-width: 3px; }
-    50% { opacity: 0.7; }
-    100% { r: 28px; opacity: 0; stroke-width: 0.5px; }
-}
-
-/* Origin Blast Ping */
-.origin-blast-ring {
-    fill: none;
-    animation: originBlast 1.2s ease-out forwards;
-}
-.origin-blast-ring.crit { stroke: #ef4444; }
-.origin-blast-ring.high { stroke: #f97316; }
-.origin-blast-ring.med { stroke: #f59e0b; }
-.origin-blast-ring.low { stroke: #38bdf8; }
-@keyframes originBlast {
-    0% { r: 3px; opacity: 1; stroke-width: 2.5px; }
-    100% { r: 24px; opacity: 0; stroke-width: 0.5px; }
-}
-
 .world-map-paths path {
     transition: fill 0.25s ease, stroke 0.25s ease, filter 0.25s ease;
 }
@@ -934,16 +879,6 @@ body {
     fill: #1e1f29;
     stroke: #3b3c4f;
     filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.15));
-}
-
-.node-map-label {
-    font-family: var(--font-mono);
-    font-size: 8px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    fill: #a1a1aa;
-    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.9));
-    pointer-events: none;
 }
 
 /* ==========================================================================
