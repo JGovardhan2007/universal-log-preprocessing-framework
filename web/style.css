@@ -2357,8 +2357,8 @@ mark.search-highlight {
 }
 
 /* ==========================================================================
-/* ==========================================================================
-   CLEAN CARD POPUP WINDOW ARCHITECTURE (ENTERPRISE MODAL)
+/*/* ==========================================================================
+   DEDICATED CARD POPUP WINDOW MODAL (ENTERPRISE WINDOW DIALOG)
    ========================================================================== */
 html.card-popup-open,
 body.card-popup-open {
@@ -2367,28 +2367,78 @@ body.card-popup-open {
     touch-action: none !important;
 }
 
-.global-popup-backdrop {
+.card-popup-overlay {
     position: fixed !important;
     top: 0 !important;
     left: 0 !important;
     right: 0 !important;
     bottom: 0 !important;
-    background: rgba(3, 5, 10, 0.82) !important;
-    backdrop-filter: blur(12px) !important;
-    -webkit-backdrop-filter: blur(12px) !important;
-    z-index: 1040 !important;
-    animation: popupFadeIn 0.22s ease-out !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 2000 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    overflow: hidden !important;
 }
 
-.global-popup-backdrop.hidden {
+.card-popup-overlay.hidden {
     display: none !important;
 }
 
-.global-popup-close-btn {
+.card-popup-backdrop {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    background: rgba(3, 5, 10, 0.84) !important;
+    backdrop-filter: blur(14px) !important;
+    -webkit-backdrop-filter: blur(14px) !important;
+    z-index: 2001 !important;
+    animation: popupFadeIn 0.2s ease-out !important;
+}
+
+.card-popup-window {
+    position: relative !important;
+    width: min(94vw, 1420px) !important;
+    height: min(88vh, 860px) !important;
+    background: #090d16 !important;
+    border: 1px solid rgba(56, 189, 248, 0.55) !important;
+    border-radius: 14px !important;
+    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.95), 0 0 50px rgba(56, 189, 248, 0.25) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    z-index: 2002 !important;
+    animation: cardPopupScaleIn 0.24s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    overscroll-behavior: contain !important;
+}
+
+@keyframes cardPopupScaleIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.95) translateY(12px);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes popupFadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+.card-popup-close-btn {
     position: absolute !important;
     top: 18px !important;
     right: 22px !important;
-    z-index: 50 !important;
+    z-index: 2010 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
     background: rgba(239, 68, 68, 0.18) !important;
     border: 1px solid rgba(239, 68, 68, 0.5) !important;
     color: #fca5a5 !important;
@@ -2398,22 +2448,20 @@ body.card-popup-open {
     padding: 6px 14px !important;
     border-radius: 8px !important;
     cursor: pointer !important;
-    display: flex !important;
-    align-items: center !important;
-    gap: 8px !important;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6) !important;
     transition: all 0.15s ease !important;
+    user-select: none !important;
 }
 
-.global-popup-close-btn:hover {
+.card-popup-close-btn:hover {
     background: rgba(239, 68, 68, 0.38) !important;
     border-color: #ef4444 !important;
     color: #ffffff !important;
+    box-shadow: 0 0 16px rgba(239, 68, 68, 0.5) !important;
     transform: translateY(-1px) !important;
-    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.5) !important;
 }
 
-.global-popup-close-btn .esc-tag {
+.card-popup-close-btn .close-esc-kbd {
     background: rgba(0, 0, 0, 0.55) !important;
     border: 1px solid rgba(255, 255, 255, 0.25) !important;
     border-radius: 4px !important;
@@ -2423,11 +2471,96 @@ body.card-popup-open {
     color: #fca5a5 !important;
 }
 
-.global-popup-close-btn.hidden {
-    display: none !important;
+.card-popup-content-slot {
+    flex: 1 !important;
+    min-height: 0 !important;
+    height: 100% !important;
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    position: relative !important;
 }
 
-/* Eligible cards hover indication in resting state */
+/* Styling for card when docked inside the popup modal */
+.card-popup-content-slot > .shadcn-card {
+    flex: 1 !important;
+    height: 100% !important;
+    max-height: 100% !important;
+    min-height: 0 !important;
+    width: 100% !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    padding: 24px 28px !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+    cursor: default !important;
+}
+
+.card-popup-content-slot > .shadcn-card .card-title-row {
+    padding-right: 140px !important;
+    flex-shrink: 0 !important;
+    margin-bottom: 16px !important;
+}
+
+.card-popup-content-slot .geo-threat-card {
+    min-height: 0 !important;
+    height: 100% !important;
+}
+
+.card-popup-content-slot .geo-map-container {
+    flex: 1 !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    position: relative !important;
+}
+
+.card-popup-content-slot .geo-world-svg {
+    width: 100% !important;
+    height: 100% !important;
+    max-height: calc(88vh - 170px) !important;
+}
+
+.card-popup-content-slot .dual-chart-container {
+    flex: 1 !important;
+    height: calc(88vh - 200px) !important;
+    min-height: 0 !important;
+    display: flex !important;
+    gap: 24px !important;
+}
+
+.card-popup-content-slot .dual-chart-donut,
+.card-popup-content-slot .dual-chart-line {
+    flex: 1 !important;
+    height: 100% !important;
+    position: relative !important;
+}
+
+.card-popup-content-slot .chart-box {
+    flex: 1 !important;
+    height: calc(88vh - 160px) !important;
+    min-height: 0 !important;
+    position: relative !important;
+}
+
+.card-popup-content-slot .ranking-list {
+    flex: 1 !important;
+    max-height: calc(88vh - 160px) !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain !important;
+}
+
+.card-popup-content-slot.table-wrapper-card .table-container,
+.card-popup-content-slot .table-container {
+    flex: 1 !important;
+    max-height: calc(88vh - 170px) !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain !important;
+}
+
+/* Hover indication for resting cards that can be opened */
 .popup-eligible-card {
     cursor: pointer;
     transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
@@ -2439,136 +2572,21 @@ body.card-popup-open {
     transform: translateY(-1px);
 }
 
-/* Card in Centered Modal Popup Mode */
-.shadcn-card.is-card-popup {
-    position: fixed !important;
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) !important;
-    width: min(94vw, 1420px) !important;
-    height: min(88vh, 860px) !important;
-    z-index: 1050 !important;
-    background: #090d16 !important;
-    border: 1px solid rgba(56, 189, 248, 0.55) !important;
-    border-radius: 14px !important;
-    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.95), 0 0 50px rgba(56, 189, 248, 0.25) !important;
-    display: flex !important;
-    flex-direction: column !important;
-    overflow: hidden !important;
-    padding: 24px 28px !important;
-    cursor: default !important;
-    overscroll-behavior: contain !important;
-    animation: popupModalEnter 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
-
-.popup-eligible-card.is-card-popup:hover {
-    transform: translate(-50%, -50%) !important;
-    border-color: rgba(56, 189, 248, 0.55) !important;
-    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.95), 0 0 50px rgba(56, 189, 248, 0.25) !important;
-}
-
-@keyframes popupModalEnter {
-    0% {
-        opacity: 0;
-        transform: translate(-50%, -46%) scale(0.95);
-    }
-    100% {
-        opacity: 1;
-        transform: translate(-50%, -50%) scale(1);
-    }
-}
-
-@keyframes popupFadeIn {
-    0% { opacity: 0; }
-    100% { opacity: 1; }
-}
-
-/* Specific layout adjustments inside popup */
-.shadcn-card.is-card-popup .card-title-row {
-    margin-bottom: 16px !important;
-    padding-right: 130px !important;
-    flex-shrink: 0 !important;
-}
-
-/* Geographic Threat Map inside popup */
-.shadcn-card.is-card-popup.geo-threat-card {
-    padding: 22px !important;
-}
-
-.shadcn-card.is-card-popup.geo-threat-card .geo-map-container {
-    flex: 1 !important;
-    min-height: 0 !important;
-    height: 100% !important;
-    width: 100% !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    position: relative !important;
-}
-
-.shadcn-card.is-card-popup.geo-threat-card .geo-world-svg {
-    max-height: calc(88vh - 170px) !important;
-    width: 100% !important;
-    height: 100% !important;
-}
-
-/* Charts inside popup */
-.shadcn-card.is-card-popup .dual-chart-container {
-    flex: 1 !important;
-    min-height: 0 !important;
-    height: calc(88vh - 200px) !important;
-    max-height: none !important;
-    display: flex !important;
-    gap: 24px !important;
-}
-
-.shadcn-card.is-card-popup .dual-chart-donut,
-.shadcn-card.is-card-popup .dual-chart-line {
-    flex: 1 !important;
-    min-height: 0 !important;
-    height: 100% !important;
-    position: relative !important;
-}
-
-.shadcn-card.is-card-popup .chart-box {
-    flex: 1 !important;
-    min-height: 0 !important;
-    height: calc(88vh - 160px) !important;
-    position: relative !important;
-}
-
-/* Ranking lists inside popup */
-.shadcn-card.is-card-popup .ranking-list {
-    flex: 1 !important;
-    min-height: 0 !important;
-    max-height: calc(88vh - 160px) !important;
-    overflow-y: auto !important;
-    overscroll-behavior: contain !important;
-}
-
-/* Tables inside popup */
-.shadcn-card.is-card-popup.table-wrapper-card .table-container {
-    flex: 1 !important;
-    min-height: 0 !important;
-    max-height: calc(88vh - 170px) !important;
-    overflow-y: auto !important;
-    overscroll-behavior: contain !important;
-}
-
 @media (max-width: 768px) {
-    .shadcn-card.is-card-popup {
+    .card-popup-window {
         width: 96vw !important;
         height: 92vh !important;
-        padding: 16px !important;
         border-radius: 10px !important;
     }
-    .global-popup-close-btn {
+    .card-popup-close-btn {
         top: 14px !important;
         right: 14px !important;
         padding: 5px 10px !important;
     }
-    .shadcn-card.is-card-popup .card-title-row {
+    .card-popup-content-slot > .shadcn-card {
+        padding: 16px !important;
+    }
+    .card-popup-content-slot > .shadcn-card .card-title-row {
         padding-right: 100px !important;
     }
 }
-

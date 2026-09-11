@@ -11,7 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="style.css?v=2.2.7">
+    <link rel="stylesheet" href="style.css?v=2.2.8">
     <style>
         /* Force robust styling for World Map and Geolocation HUD even if browser aggressively caches external CSS */
         .geo-threat-card {
@@ -118,6 +118,221 @@
         .attack-point-dot.src.med { fill: #f59e0b; filter: drop-shadow(0 0 6px #f59e0b); }
         .attack-point-dot.src.low { fill: #38bdf8; filter: drop-shadow(0 0 6px #38bdf8); }
         .attack-point-dot.dst { fill: #10b981; filter: drop-shadow(0 0 6px #10b981); }
+
+        /* ==========================================================================
+           DEDICATED CARD POPUP WINDOW MODAL (BULLETPROOF INLINE STYLES)
+           ========================================================================== */
+        html.card-popup-open,
+        body.card-popup-open {
+            overflow: hidden !important;
+            height: 100vh !important;
+            touch-action: none !important;
+        }
+
+        .card-popup-overlay {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            z-index: 2000 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            overflow: hidden !important;
+        }
+
+        .card-popup-overlay.hidden {
+            display: none !important;
+        }
+
+        .card-popup-backdrop {
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            background: rgba(3, 5, 10, 0.84) !important;
+            backdrop-filter: blur(14px) !important;
+            -webkit-backdrop-filter: blur(14px) !important;
+            z-index: 2001 !important;
+            animation: popupFadeIn 0.2s ease-out !important;
+        }
+
+        .card-popup-window {
+            position: relative !important;
+            width: min(94vw, 1420px) !important;
+            height: min(88vh, 860px) !important;
+            background: #090d16 !important;
+            border: 1px solid rgba(56, 189, 248, 0.55) !important;
+            border-radius: 14px !important;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.95), 0 0 50px rgba(56, 189, 248, 0.25) !important;
+            display: flex !important;
+            flex-direction: column !important;
+            overflow: hidden !important;
+            z-index: 2002 !important;
+            animation: cardPopupScaleIn 0.24s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            overscroll-behavior: contain !important;
+        }
+
+        @keyframes cardPopupScaleIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.95) translateY(12px);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        @keyframes popupFadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        .card-popup-close-btn {
+            position: absolute !important;
+            top: 18px !important;
+            right: 22px !important;
+            z-index: 2010 !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            background: rgba(239, 68, 68, 0.18) !important;
+            border: 1px solid rgba(239, 68, 68, 0.5) !important;
+            color: #fca5a5 !important;
+            font-family: var(--font-sans), sans-serif !important;
+            font-size: 12px !important;
+            font-weight: 600 !important;
+            padding: 6px 14px !important;
+            border-radius: 8px !important;
+            cursor: pointer !important;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6) !important;
+            transition: all 0.15s ease !important;
+            user-select: none !important;
+        }
+
+        .card-popup-close-btn:hover {
+            background: rgba(239, 68, 68, 0.38) !important;
+            border-color: #ef4444 !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 16px rgba(239, 68, 68, 0.5) !important;
+            transform: translateY(-1px) !important;
+        }
+
+        .card-popup-close-btn .close-esc-kbd {
+            background: rgba(0, 0, 0, 0.55) !important;
+            border: 1px solid rgba(255, 255, 255, 0.25) !important;
+            border-radius: 4px !important;
+            padding: 1px 5px !important;
+            font-size: 9px !important;
+            font-family: var(--font-mono), monospace !important;
+            color: #fca5a5 !important;
+        }
+
+        .card-popup-content-slot {
+            flex: 1 !important;
+            min-height: 0 !important;
+            height: 100% !important;
+            width: 100% !important;
+            display: flex !important;
+            flex-direction: column !important;
+            overflow: hidden !important;
+            position: relative !important;
+        }
+
+        /* Styling for card when docked inside the popup modal */
+        .card-popup-content-slot > .shadcn-card {
+            flex: 1 !important;
+            height: 100% !important;
+            max-height: 100% !important;
+            min-height: 0 !important;
+            width: 100% !important;
+            border: none !important;
+            box-shadow: none !important;
+            background: transparent !important;
+            padding: 24px 28px !important;
+            overflow: hidden !important;
+            display: flex !important;
+            flex-direction: column !important;
+            cursor: default !important;
+        }
+
+        .card-popup-content-slot > .shadcn-card .card-title-row {
+            padding-right: 140px !important;
+            flex-shrink: 0 !important;
+            margin-bottom: 16px !important;
+        }
+
+        .card-popup-content-slot .geo-threat-card {
+            min-height: 0 !important;
+            height: 100% !important;
+        }
+
+        .card-popup-content-slot .geo-map-container {
+            flex: 1 !important;
+            height: 100% !important;
+            min-height: 0 !important;
+            position: relative !important;
+        }
+
+        .card-popup-content-slot .geo-world-svg {
+            width: 100% !important;
+            height: 100% !important;
+            max-height: calc(88vh - 170px) !important;
+        }
+
+        .card-popup-content-slot .dual-chart-container {
+            flex: 1 !important;
+            height: calc(88vh - 200px) !important;
+            min-height: 0 !important;
+            display: flex !important;
+            gap: 24px !important;
+        }
+
+        .card-popup-content-slot .dual-chart-donut,
+        .card-popup-content-slot .dual-chart-line {
+            flex: 1 !important;
+            height: 100% !important;
+            position: relative !important;
+        }
+
+        .card-popup-content-slot .chart-box {
+            flex: 1 !important;
+            height: calc(88vh - 160px) !important;
+            min-height: 0 !important;
+            position: relative !important;
+        }
+
+        .card-popup-content-slot .ranking-list {
+            flex: 1 !important;
+            max-height: calc(88vh - 160px) !important;
+            overflow-y: auto !important;
+            overscroll-behavior: contain !important;
+        }
+
+        .card-popup-content-slot.table-wrapper-card .table-container,
+        .card-popup-content-slot .table-container {
+            flex: 1 !important;
+            max-height: calc(88vh - 170px) !important;
+            overflow-y: auto !important;
+            overscroll-behavior: contain !important;
+        }
+
+        /* Hover indication for resting cards that can be opened */
+        .popup-eligible-card {
+            cursor: pointer;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+        }
+
+        .popup-eligible-card:hover {
+            border-color: rgba(56, 189, 248, 0.45) !important;
+            box-shadow: 0 6px 22px rgba(0, 0, 0, 0.55), 0 0 14px rgba(56, 189, 248, 0.14) !important;
+            transform: translateY(-1px);
+        }
     </style>
 </head>
 <body class="bg-background text-foreground antialiased selection:bg-primary/20">
@@ -781,13 +996,18 @@
         </main>
     </div>
 
-    <!-- Global Card Popup Window Elements -->
-    <div id="global-popup-backdrop" class="global-popup-backdrop hidden"></div>
-    <button id="global-popup-close-btn" class="global-popup-close-btn hidden" type="button" title="Close Popup (ESC)">
-        <span style="font-size: 14px; line-height: 1;">✕</span>
-        <span>Close</span>
-        <span class="esc-tag">ESC</span>
-    </button>
+    <!-- Dedicated Card Popup Window Modal -->
+    <div id="card-popup-overlay" class="card-popup-overlay hidden">
+        <div class="card-popup-backdrop" id="card-popup-backdrop"></div>
+        <div class="card-popup-window" id="card-popup-window">
+            <button id="card-popup-close-btn" class="card-popup-close-btn" type="button" title="Close Popup (ESC)">
+                <span class="close-x">✕</span>
+                <span>Close</span>
+                <kbd class="close-esc-kbd">ESC</kbd>
+            </button>
+            <div id="card-popup-content-slot" class="card-popup-content-slot"></div>
+        </div>
+    </div>
 
     <!-- ==================================================== -->
     <!-- RECORD DETAILS MODAL -->
@@ -886,6 +1106,6 @@
         </div>
     </div>
 
-    <script src="app.js?v=2.2.7"></script>
+    <script src="app.js?v=2.2.8"></script>
 </body>
 </html>

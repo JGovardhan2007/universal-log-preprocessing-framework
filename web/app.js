@@ -175,20 +175,23 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // -------------------------------------------------------------
-// CLEAN CARD POPUP WINDOW ARCHITECTURE
+// DEDICATED CARD POPUP WINDOW MODAL ARCHITECTURE
 // -------------------------------------------------------------
 let activePopupCard = null;
+let activePopupPlaceholder = null;
 
 function handlePopupWheelScroll(e) {
     if (!activePopupCard) return;
-    if (!activePopupCard.contains(e.target)) {
+    const win = document.getElementById('card-popup-window');
+    if (win && !win.contains(e.target)) {
         e.preventDefault();
     }
 }
 
 function initCardPopupSystem() {
-    const backdrop = document.getElementById('global-popup-backdrop');
-    const closeBtn = document.getElementById('global-popup-close-btn');
+    const overlay = document.getElementById('card-popup-overlay');
+    const backdrop = document.getElementById('card-popup-backdrop');
+    const closeBtn = document.getElementById('card-popup-close-btn');
 
     if (backdrop) {
         backdrop.addEventListener('click', closeCardPopup);
@@ -243,7 +246,7 @@ function initCardPopupSystem() {
         // Clicking anywhere on the card when resting opens up the popup modal window
         card.addEventListener('click', (e) => {
             // If already open in modal popup mode, let interactions proceed normally inside
-            if (card.classList.contains('is-card-popup')) return;
+            if (activePopupCard === card || card.classList.contains('is-popped-up')) return;
 
             // In resting mode, do not trigger popup if user clicked an explicit action button or link
             const actionElement = e.target.closest('button, a, input, select, textarea');
@@ -261,17 +264,25 @@ function openCardPopup(card) {
         closeCardPopup();
     }
 
+    const overlay = document.getElementById('card-popup-overlay');
+    const slot = document.getElementById('card-popup-content-slot');
+    if (!overlay || !slot) return;
+
     activePopupCard = card;
-    card.classList.add('is-card-popup');
 
-    const backdrop = document.getElementById('global-popup-backdrop');
-    const closeBtn = document.getElementById('global-popup-close-btn');
+    // Create a placeholder DOM node in the original parent so we can restore the exact position
+    activePopupPlaceholder = document.createElement('div');
+    activePopupPlaceholder.className = 'card-popup-placeholder';
+    activePopupPlaceholder.style.display = 'none';
+    card.parentNode.insertBefore(activePopupPlaceholder, card);
 
-    if (backdrop) backdrop.classList.remove('hidden');
-    if (closeBtn) {
-        closeBtn.classList.remove('hidden');
-        card.appendChild(closeBtn);
-    }
+    // Move card into popup modal slot
+    slot.innerHTML = '';
+    slot.appendChild(card);
+    card.classList.add('is-popped-up');
+
+    // Show overlay
+    overlay.classList.remove('hidden');
 
     // Lock page background scrolling completely
     document.documentElement.classList.add('card-popup-open');
@@ -289,17 +300,24 @@ function openCardPopup(card) {
 function closeCardPopup() {
     if (!activePopupCard) return;
 
-    const closeBtn = document.getElementById('global-popup-close-btn');
-    if (closeBtn) {
-        closeBtn.classList.add('hidden');
-        document.body.appendChild(closeBtn);
+    const overlay = document.getElementById('card-popup-overlay');
+    const slot = document.getElementById('card-popup-content-slot');
+
+    const card = activePopupCard;
+    const placeholder = activePopupPlaceholder;
+
+    // Return card to its exact original slot in the grid
+    if (placeholder && placeholder.parentNode) {
+        card.classList.remove('is-popped-up');
+        placeholder.parentNode.insertBefore(card, placeholder);
+        placeholder.remove();
     }
 
-    activePopupCard.classList.remove('is-card-popup');
-    activePopupCard = null;
+    if (slot) slot.innerHTML = '';
+    if (overlay) overlay.classList.add('hidden');
 
-    const backdrop = document.getElementById('global-popup-backdrop');
-    if (backdrop) backdrop.classList.add('hidden');
+    activePopupCard = null;
+    activePopupPlaceholder = null;
 
     // Restore page background scrolling
     document.documentElement.classList.remove('card-popup-open');
