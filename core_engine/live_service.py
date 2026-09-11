@@ -46,15 +46,15 @@ def generate_diverse_cyber_telemetry() -> str:
     # Realistic global IP pools with genuine Autonomous Systems & Coordinates
     origin_profiles = [
         {"city": "St. Petersburg, RU", "ip_prefix": "95.173.136.", "asn": "AS9009 (M247 Europe)"},
-        {"city": "Beijing, CN", "ip_prefix": "45.33.", "asn": "AS4134 (Chinanet)"},
+        {"city": "Beijing, CN", "ip_prefix": "45.33.32.", "asn": "AS4134 (Chinanet)"},
         {"city": "Amsterdam, NL", "ip_prefix": "185.220.100.", "asn": "AS60729 (Tor Exit)"},
         {"city": "Ashburn, US", "ip_prefix": "192.0.2.", "asn": "AS15169 (Google Cloud)"},
         {"city": "Frankfurt, DE", "ip_prefix": "198.51.100.", "asn": "AS3320 (Deutsche Telekom)"},
-        {"city": "Tokyo, JP", "ip_prefix": "210.140.", "asn": "AS2516 (KDDI Japan)"},
-        {"city": "London, UK", "ip_prefix": "151.224.", "asn": "AS2856 (BT Group UK)"},
-        {"city": "São Paulo, BR", "ip_prefix": "177.18.", "asn": "AS28573 (Claro Brazil)"},
+        {"city": "Tokyo, JP", "ip_prefix": "210.140.10.", "asn": "AS2516 (KDDI Japan)"},
+        {"city": "London, UK", "ip_prefix": "151.224.12.", "asn": "AS2856 (BT Group UK)"},
+        {"city": "São Paulo, BR", "ip_prefix": "177.18.44.", "asn": "AS28573 (Claro Brazil)"},
         {"city": "Dallas, US", "ip_prefix": "203.0.113.", "asn": "AS13335 (Cloudflare US)"},
-        {"city": "Tel Aviv, IL", "ip_prefix": "185.190.", "asn": "AS12849 (Hot Telecom)"}
+        {"city": "Tel Aviv, IL", "ip_prefix": "185.190.22.", "asn": "AS12849 (Hot Telecom)"}
     ]
     origin = random.choice(origin_profiles)
     src_ip = f"{origin['ip_prefix']}{random.randint(2, 254)}"
@@ -634,30 +634,35 @@ class LiveLogPipelineService:
             time_str = datetime.now(timezone.utc).strftime("%H:%M:%S")
 
             # Live dynamic attack entry for Check Point style projectile laser stream
-            attack_entry = {
-                "id": f"atk-{time.time()}-{random.randint(1000, 9999)}",
-                "time": time_str,
-                "src_ip": threat["src_ip"],
-                "src_port": threat["src_port"],
-                "src_city": src_g.get("city", "Unknown City"),
-                "src_country": src_g.get("country", "Unknown Country"),
-                "src_country_code": src_g.get("country_code", "UNK"),
-                "src_lat": src_g.get("lat", 48.8566),
-                "src_lng": src_g.get("lng", 2.3522),
-                "src_asn": threat["asn_key"],
-                "dst_ip": threat["dst_ip"],
-                "dst_port": threat["dst_port"],
-                "dst_city": dst_g.get("city", "New Delhi"),
-                "dst_country": dst_g.get("country", "India"),
-                "dst_country_code": dst_g.get("country_code", "IN"),
-                "dst_lat": dst_g.get("lat", 28.6139),
-                "dst_lng": dst_g.get("lng", 77.2090),
-                "dst_target": tgt_sector,
-                "threat_name": threat["alert_name"],
-                "severity": threat["severity"],
-                "tactic": threat["tactic_name"]
-            }
-            self.analytics["live_attack_stream"].append(attack_entry)
+            # Only record attacks with genuine, resolved geographic coordinates (no 0.0 UNKNOWN coordinates)
+            s_lat = src_g.get("lat", 0.0)
+            s_lng = src_g.get("lng", 0.0)
+            s_cc = src_g.get("country_code", "UNK")
+            if s_lat != 0.0 and s_lng != 0.0 and s_cc not in ("UNK", "ERR"):
+                attack_entry = {
+                    "id": f"atk-{time.time()}-{random.randint(1000, 9999)}",
+                    "time": time_str,
+                    "src_ip": threat["src_ip"],
+                    "src_port": threat["src_port"],
+                    "src_city": src_g.get("city", "St. Petersburg"),
+                    "src_country": src_g.get("country", "Russia"),
+                    "src_country_code": s_cc,
+                    "src_lat": s_lat,
+                    "src_lng": s_lng,
+                    "src_asn": threat["asn_key"],
+                    "dst_ip": threat["dst_ip"],
+                    "dst_port": threat["dst_port"],
+                    "dst_city": dst_g.get("city", "New Delhi"),
+                    "dst_country": dst_g.get("country", "India"),
+                    "dst_country_code": dst_g.get("country_code", "IN"),
+                    "dst_lat": dst_g.get("lat", 28.6139) if dst_g.get("lat") != 0.0 else 28.6139,
+                    "dst_lng": dst_g.get("lng", 77.2090) if dst_g.get("lng") != 0.0 else 77.2090,
+                    "dst_target": tgt_sector,
+                    "threat_name": threat["alert_name"],
+                    "severity": threat["severity"],
+                    "tactic": threat["tactic_name"]
+                }
+                self.analytics["live_attack_stream"].append(attack_entry)
 
             # Active Alerts (for Critical / High)
             if threat["severity"] in ("Critical", "High") or threat["anomaly_score"] > 0.65:

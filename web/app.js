@@ -479,6 +479,9 @@ function formatGeoCoords(lat, lng) {
 
 function triggerAttackLaser(attack) {
     if (!attack) return;
+    if ((!attack.src_lat && !attack.src_lng) || (attack.src_lat === 0 && attack.src_lng === 0)) return;
+    if (attack.src_country_code === 'UNK' || attack.src_country_code === 'ERR') return;
+
     const laserGroup = document.getElementById('dynamic-laser-arcs');
     if (!laserGroup) return;
 
@@ -557,6 +560,8 @@ function triggerAttackLaser(attack) {
 
 function updateGeolocationHud(attack) {
     if (!attack) return;
+    if ((!attack.src_lat && !attack.src_lng) || (attack.src_lat === 0 && attack.src_lng === 0)) return;
+    if (attack.src_country_code === 'UNK' || attack.src_country_code === 'ERR') return;
 
     const originCityEl = document.getElementById('hud-origin-city');
     const originMetaEl = document.getElementById('hud-origin-meta');
@@ -600,13 +605,18 @@ function renderDynamicGeoThreatMap(geoThreats, liveAttacks) {
         nodesGroup.innerHTML = '';
     }
 
-    const activeThreats = geoThreats.filter(g => g.lat != null && g.lng != null && g.count > 0).slice(0, 8);
+    const activeThreats = geoThreats.filter(g => g.lat != null && g.lng != null && (g.lat !== 0 || g.lng !== 0) && g.count > 0).slice(0, 8);
 
     // 2. Queue live packet attack events for ballistic laser firing
     if (liveAttacks && Array.isArray(liveAttacks) && liveAttacks.length > 0) {
         let newAttacksEnqueued = 0;
         liveAttacks.forEach(atk => {
             if (atk && atk.id && !threatMapState.processedAttackIds.has(atk.id)) {
+                // Reject invalid or unresolved 0.0, 0.0 coords
+                if (!atk.src_lat && !atk.src_lng) return;
+                if (atk.src_lat === 0 && atk.src_lng === 0) return;
+                if (atk.src_country_code === 'UNK' || atk.src_country_code === 'ERR') return;
+
                 threatMapState.processedAttackIds.add(atk.id);
                 threatMapState.animationQueue.push(atk);
                 newAttacksEnqueued++;
@@ -636,18 +646,18 @@ function renderDynamicGeoThreatMap(geoThreats, liveAttacks) {
         threatMapState.animationQueue.push({
             id: `init-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
             src_city: sampleOrigin.city,
-            src_country: sampleOrigin.country || "Global",
-            src_country_code: sampleOrigin.country_code || "UNK",
+            src_country: sampleOrigin.country || "Russia",
+            src_country_code: sampleOrigin.country_code || "RU",
             src_lat: sampleOrigin.lat,
             src_lng: sampleOrigin.lng,
-            src_asn: sampleOrigin.asn,
-            src_ip: "198.51.100.45",
+            src_asn: sampleOrigin.asn || "AS9009 (M247 Europe)",
+            src_ip: "95.173.136.45",
             dst_target: sampleTgt.name,
             dst_city: sampleTgt.city,
             dst_country_code: sampleTgt.country_code,
             dst_lat: sampleTgt.lat,
             dst_lng: sampleTgt.lng,
-            threat_name: sampleOrigin.top_vector || "Network Reconnaissance",
+            threat_name: sampleOrigin.top_vector || "SSH Password Spraying (T1110)",
             severity: "High"
         });
         processAttackQueue();
