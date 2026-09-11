@@ -295,143 +295,274 @@ function updateVelocitySparkline(newEps) {
 }
 
 // -------------------------------------------------------------
-// 2. ACETERNITY DYNAMIC WORLD MAP TELEMETRY
+// 2. CHECK POINT THREAT MAP ENGINE & DYNAMIC GEOLOCATION HUD
 // -------------------------------------------------------------
-function renderDynamicGeoThreatMap(geoThreats) {
+const threatMapState = {
+    processedAttackIds: new Set(),
+    animationQueue: [],
+    isQueueRunning: false,
+    rollingGeoLocations: [],
+    activeOriginNodes: []
+};
+
+function formatGeoCoords(lat, lng) {
+    if (lat == null || lng == null) return '0.00° N, 0.00° E';
+    const latDir = lat >= 0 ? 'N' : 'S';
+    const lngDir = lng >= 0 ? 'E' : 'W';
+    return `${Math.abs(lat).toFixed(2)}° ${latDir}, ${Math.abs(lng).toFixed(2)}° ${lngDir}`;
+}
+
+function triggerAttackLaser(attack) {
+    if (!attack) return;
+    const laserGroup = document.getElementById('dynamic-laser-arcs');
+    if (!laserGroup) return;
+
+    // Convert exact geographic coordinates to equirectangular SVG space (800x400)
+    const srcLat = attack.src_lat != null ? attack.src_lat : 48.8566;
+    const srcLng = attack.src_lng != null ? attack.src_lng : 2.3522;
+    const dstLat = attack.dst_lat != null ? attack.dst_lat : 28.6139;
+    const dstLng = attack.dst_lng != null ? attack.dst_lng : 77.2090;
+
+    const srcX = (srcLng + 180) * (800 / 360);
+    const srcY = (90 - srcLat) * (400 / 180);
+    const dstX = (dstLng + 180) * (800 / 360);
+    const dstY = (90 - dstLat) * (400 / 180);
+
+    // Ballistic Parabolic Arc (Check Point ThreatCloud curve calculation)
+    const midX = (srcX + dstX) / 2;
+    const dist = Math.hypot(dstX - srcX, dstY - srcY);
+    const archHeight = Math.max(30, Math.min(90, dist * 0.22));
+    const midY = Math.min(srcY, dstY) - archHeight;
+    const pathD = `M ${srcX.toFixed(1)} ${srcY.toFixed(1)} Q ${midX.toFixed(1)} ${midY.toFixed(1)} ${dstX.toFixed(1)} ${dstY.toFixed(1)}`;
+
+    const sev = (attack.severity || 'medium').toLowerCase();
+    const sevClass = sev === 'critical' ? 'crit' : (sev === 'high' ? 'high' : (sev === 'low' ? 'low' : 'med'));
+
+    // Create unique group for this projectile event
+    const groupId = `atk-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+    const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    group.setAttribute('id', groupId);
+    group.setAttribute('class', 'active-attack-projectile');
+
+    // 1. Dynamic laser trail path
+    const pathEl = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    pathEl.setAttribute('d', pathD);
+    pathEl.setAttribute('class', `attack-laser-trail ${sevClass}`);
+    group.appendChild(pathEl);
+
+    // 2. Glowing projectile comet head traversing ballistic arc
+    const headEl = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    headEl.setAttribute('r', '3');
+    headEl.setAttribute('class', `attack-projectile-head ${sevClass}`);
+    const animMotion = document.createElementNS('http://www.w3.org/2000/svg', 'animateMotion');
+    animMotion.setAttribute('dur', '1.3s');
+    animMotion.setAttribute('path', pathD);
+    animMotion.setAttribute('fill', 'freeze');
+    headEl.appendChild(animMotion);
+    group.appendChild(headEl);
+
+    // 3. Origin blast ring
+    const originRing = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    originRing.setAttribute('cx', srcX.toFixed(1));
+    originRing.setAttribute('cy', srcY.toFixed(1));
+    originRing.setAttribute('r', '3');
+    originRing.setAttribute('class', `origin-blast-ring ${sevClass}`);
+    group.appendChild(originRing);
+
+    laserGroup.appendChild(group);
+
+    // 4. Target impact shockwave when projectile lands (~1.25s)
+    setTimeout(() => {
+        if (!laserGroup.contains(group)) return;
+        const impactRing = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        impactRing.setAttribute('cx', dstX.toFixed(1));
+        impactRing.setAttribute('cy', dstY.toFixed(1));
+        impactRing.setAttribute('r', '3');
+        impactRing.setAttribute('class', 'impact-shockwave');
+        group.appendChild(impactRing);
+    }, 1250);
+
+    // 5. Line and projectile disappear completely after sometime (decay out after 2.3s)
+    setTimeout(() => {
+        if (group && group.parentNode) {
+            group.remove();
+        }
+    }, 2300);
+
+    // 6. Update Bottom Geolocation HUD Box with Active Geolocation Details
+    updateGeolocationHud(attack);
+}
+
+function updateGeolocationHud(attack) {
+    if (!attack) return;
+
+    const originCityEl = document.getElementById('hud-origin-city');
+    const originMetaEl = document.getElementById('hud-origin-meta');
+    const vectorPillEl = document.getElementById('hud-vector-pill');
+    const targetEnclaveEl = document.getElementById('hud-target-enclave');
+    const targetMetaEl = document.getElementById('hud-target-meta');
+    const streamFeedEl = document.getElementById('hud-stream-feed');
+
+    const srcCity = (attack.src_city || 'Unknown Origin').toUpperCase();
+    const srcCountry = (attack.src_country || 'Unknown Country').toUpperCase();
+    const srcCode = (attack.src_country_code || 'UNK').toUpperCase();
+    const coordsStr = formatGeoCoords(attack.src_lat, attack.src_lng);
+    const asnStr = attack.src_asn ? attack.src_asn.split(' ')[0] : 'AS13335';
+    const targetName = (attack.dst_target || 'CENTRAL DEFENSE HQ').toUpperCase();
+    const dstCoordsStr = formatGeoCoords(attack.dst_lat, attack.dst_lng);
+
+    if (originCityEl) originCityEl.textContent = `${srcCity}, ${srcCountry} (${srcCode})`;
+    if (originMetaEl) originMetaEl.textContent = `${coordsStr} • ${asnStr} (${attack.src_ip || 'Ingress'})`;
+    if (vectorPillEl) {
+        vectorPillEl.textContent = attack.threat_name || 'Threat Ingress';
+        const sev = (attack.severity || 'medium').toLowerCase();
+        vectorPillEl.className = `geo-hud-threat-pill ${sev === 'critical' ? 'badge-crit' : (sev === 'high' ? 'badge-high' : 'badge-med')}`;
+    }
+    if (targetEnclaveEl) targetEnclaveEl.textContent = targetName;
+    if (targetMetaEl) targetMetaEl.textContent = `${(attack.dst_city || 'NEW DELHI').toUpperCase()}, ${(attack.dst_country_code || 'IN').toUpperCase()} • ${dstCoordsStr}`;
+
+    // Update Rolling Geolocation Stream (names of geolocations, coordinates, and target enclaves)
+    if (streamFeedEl) {
+        threatMapState.rollingGeoLocations.unshift({
+            origin: `${srcCity}, ${srcCode}`,
+            coords: coordsStr,
+            target: targetName,
+            asn: asnStr
+        });
+        if (threatMapState.rollingGeoLocations.length > 3) {
+            threatMapState.rollingGeoLocations.pop();
+        }
+
+        streamFeedEl.innerHTML = threatMapState.rollingGeoLocations.map(item => `
+            <div class="geo-hud-feed-row" data-asn="${item.asn}" title="Click to filter dashboard to ${item.origin}">
+                <span class="geo-hud-feed-loc">
+                    <span>${item.origin}</span>
+                    <span class="geo-hud-feed-coords">${item.coords}</span>
+                </span>
+                <span class="geo-hud-feed-arrow">──►</span>
+                <span class="geo-hud-feed-target">${item.target}</span>
+            </div>
+        `).join('');
+
+        streamFeedEl.querySelectorAll('.geo-hud-feed-row').forEach(row => {
+            row.addEventListener('click', () => {
+                const asn = row.getAttribute('data-asn');
+                if (asn) toggleFilter('geo_asn', asn, `Origin ASN: ${asn}`);
+            });
+        });
+    }
+}
+
+function processAttackQueue() {
+    if (threatMapState.animationQueue.length === 0) {
+        threatMapState.isQueueRunning = false;
+        return;
+    }
+    threatMapState.isQueueRunning = true;
+    const nextAttack = threatMapState.animationQueue.shift();
+    triggerAttackLaser(nextAttack);
+
+    // Check Point Threat Map pacing: fire next laser projectile smoothly every 200-320ms
+    const delay = Math.max(180, Math.min(320, 2400 / (threatMapState.animationQueue.length + 1)));
+    setTimeout(processAttackQueue, delay);
+}
+
+function renderDynamicGeoThreatMap(geoThreats, liveAttacks) {
     if (!geoThreats || !Array.isArray(geoThreats)) return;
 
-    // 1. Update in-canvas HUD Overlay smoothly without DOM thrashing
-    const overlay = document.querySelector('.geo-asn-overlay');
-    if (overlay) {
-        const top4 = geoThreats.slice(0, 4);
-        const overlaySig = top4.map(g => (g.asn || '').split(' ')[0]).join('|');
-        if (overlay.dataset.signature === overlaySig) {
-            // Update counts in place without wiping DOM
-            top4.forEach(g => {
-                const asnCode = (g.asn || '').split(' ')[0];
-                const row = overlay.querySelector(`.asn-row[data-asn="${asnCode}"]`);
-                if (row) {
-                    const countEl = row.querySelector('.asn-count');
-                    if (countEl) countEl.textContent = `${g.count.toLocaleString()} Attacks`;
-                }
-            });
-        } else {
-            overlay.dataset.signature = overlaySig;
-            overlay.innerHTML = top4.map((g, idx) => {
-                const badgeClass = idx === 0 ? 'badge-crit' : (idx === 1 ? 'badge-high' : 'badge-med');
-                const asnCode = (g.asn || '').split(' ')[0];
-                return `
-                    <div class="asn-row" data-asn="${asnCode}" data-full-asn="${g.asn}" data-loc="${g.location}">
-                        <span class="asn-pill ${badgeClass}">${asnCode}</span>
-                        <span class="asn-location">${g.location}</span>
-                        <span class="asn-count">${g.count.toLocaleString()} Attacks</span>
-                    </div>
-                `;
-            }).join('');
+    // 1. Render persistent Threat Origin Nodes (Top 8 active global staging hubs)
+    const nodesGroup = document.getElementById('dynamic-threat-nodes');
+    const activeThreats = geoThreats.filter(g => g.lat != null && g.lng != null && g.count > 0).slice(0, 8);
 
-            overlay.querySelectorAll('.asn-row').forEach(row => {
-                row.addEventListener('click', () => {
-                    const asn = row.getAttribute('data-asn');
-                    const loc = row.getAttribute('data-loc');
-                    toggleFilter('geo_asn', asn, `Origin ASN: ${asn} (${loc})`);
+    if (nodesGroup && activeThreats.length > 0) {
+        const threatsSig = activeThreats.map(g => `${(g.asn || '').split(' ')[0]}_${g.lat}_${g.lng}`).join('|');
+        if (nodesGroup.dataset.signature !== threatsSig) {
+            nodesGroup.dataset.signature = threatsSig;
+            let nodesHtml = '';
+            activeThreats.forEach((g, idx) => {
+                const x = (g.lng + 180) * (800 / 360);
+                const y = (90 - g.lat) * (400 / 180);
+                const asnCode = (g.asn || '').split(' ')[0];
+                const cityName = g.city || (g.location ? g.location.split(',')[0] : 'Remote Staging');
+                const nodeColor = idx === 0 ? 'red' : (idx <= 2 ? 'orange' : 'amber');
+                const pulseRadius = Math.min(22, Math.max(12, 10 + Math.round(Math.log10(g.count + 1) * 3)));
+                const coreRadius = idx === 0 ? 4.5 : (idx <= 2 ? 4 : 3.5);
+                const labelY = y < 55 ? 14 : -5;
+
+                nodesHtml += `
+                    <g class="threat-node" data-city="${escapeHtml(cityName)}" data-asn="${asnCode}" style="cursor: pointer;" transform="translate(${x.toFixed(1)}, ${y.toFixed(1)})">
+                        <circle class="pulse-ring ${nodeColor}" r="${pulseRadius}"></circle>
+                        <circle class="core-dot ${nodeColor}" r="${coreRadius}"></circle>
+                        <text x="8" y="${labelY}" class="node-map-label">${escapeHtml(cityName.toUpperCase())} (${g.count.toLocaleString()})</text>
+                    </g>
+                `;
+            });
+            nodesGroup.innerHTML = nodesHtml;
+
+            nodesGroup.querySelectorAll('.threat-node').forEach(node => {
+                node.addEventListener('click', () => {
+                    const city = node.getAttribute('data-city');
+                    const asn = node.getAttribute('data-asn');
+                    if (asn) toggleFilter('geo_asn', asn, `Origin ASN: ${asn} (${city})`);
                 });
             });
         }
     }
 
-    // 2. Dynamically project SVG laser arcs & threat origin nodes
-    const laserGroup = document.getElementById('dynamic-laser-arcs');
-    const nodesGroup = document.getElementById('dynamic-threat-nodes');
-    if (!laserGroup || !nodesGroup) return;
-
-    // Destination target: New Delhi HQ (Lat: 28.6139, Lng: 77.2090) -> (571.6, 136.4)
-    const targetX = 572;
-    const targetY = 136;
-
-    const activeThreats = geoThreats.filter(g => g.lat != null && g.lng != null && g.count > 0).slice(0, 8);
-    if (activeThreats.length === 0) return;
-
-    // Check if the set of active threat ASNs and positions has changed
-    const threatsSig = activeThreats.map(g => `${(g.asn || '').split(' ')[0]}_${g.lat}_${g.lng}`).join('|');
-    if (laserGroup.dataset.signature === threatsSig) {
-        // Topology is unchanged: do NOT touch laserGroup at all!
-        // This preserves the CSS dashLaser animation running continuously without frame resets or flickering.
-        activeThreats.forEach(g => {
-            const asnCode = (g.asn || '').split(' ')[0];
-            const cityName = g.city || (g.location ? g.location.split(',')[0] : 'Remote Staging');
-            const node = nodesGroup.querySelector(`.threat-node[data-asn="${asnCode}"]`);
-            if (node) {
-                const label = node.querySelector('.node-map-label');
-                if (label) {
-                    label.textContent = `${cityName.toUpperCase()} (${g.count.toLocaleString()})`;
-                }
-                const pulseRing = node.querySelector('.pulse-ring');
-                if (pulseRing) {
-                    const pulseRadius = Math.min(22, Math.max(12, 10 + Math.round(Math.log10(g.count + 1) * 3)));
-                    pulseRing.setAttribute('r', pulseRadius);
-                }
+    // 2. Queue live packet attack events for ballistic laser firing
+    if (liveAttacks && Array.isArray(liveAttacks) && liveAttacks.length > 0) {
+        let newAttacksEnqueued = 0;
+        liveAttacks.forEach(atk => {
+            if (atk && atk.id && !threatMapState.processedAttackIds.has(atk.id)) {
+                threatMapState.processedAttackIds.add(atk.id);
+                threatMapState.animationQueue.push(atk);
+                newAttacksEnqueued++;
             }
         });
-        return;
+
+        // Limit memory of processed attack IDs
+        if (threatMapState.processedAttackIds.size > 200) {
+            const arr = Array.from(threatMapState.processedAttackIds);
+            threatMapState.processedAttackIds = new Set(arr.slice(arr.length - 100));
+        }
+
+        if (newAttacksEnqueued > 0 && !threatMapState.isQueueRunning) {
+            processAttackQueue();
+        }
+    } else if (threatMapState.animationQueue.length === 0 && !threatMapState.isQueueRunning && activeThreats.length > 0) {
+        // Initial / baseline state: sample an active threat origin to ensure dynamic animation is visible immediately
+        const sampleOrigin = activeThreats[Math.floor(Math.random() * activeThreats.length)];
+        const targetEnclaves = [
+            { name: "Central Defense HQ", city: "New Delhi", country_code: "IN", lat: 28.6139, lng: 77.2090 },
+            { name: "Western Maritime Enclave", city: "Mumbai", country_code: "IN", lat: 19.0760, lng: 72.8777 },
+            { name: "Southern Cyber Command", city: "Bengaluru", country_code: "IN", lat: 12.9716, lng: 77.5946 },
+            { name: "Northern Perimeter Gateway", city: "Chandigarh", country_code: "IN", lat: 30.7333, lng: 76.7794 }
+        ];
+        const sampleTgt = targetEnclaves[Math.floor(Math.random() * targetEnclaves.length)];
+
+        threatMapState.animationQueue.push({
+            id: `init-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+            src_city: sampleOrigin.city,
+            src_country: sampleOrigin.country || "Global",
+            src_country_code: sampleOrigin.country_code || "UNK",
+            src_lat: sampleOrigin.lat,
+            src_lng: sampleOrigin.lng,
+            src_asn: sampleOrigin.asn,
+            src_ip: "198.51.100.45",
+            dst_target: sampleTgt.name,
+            dst_city: sampleTgt.city,
+            dst_country_code: sampleTgt.country_code,
+            dst_lat: sampleTgt.lat,
+            dst_lng: sampleTgt.lng,
+            threat_name: sampleOrigin.top_vector || "Network Reconnaissance",
+            severity: "High"
+        });
+        processAttackQueue();
     }
-
-    // Otherwise, rebuild SVG arcs and threat nodes for the new topology
-    laserGroup.dataset.signature = threatsSig;
-
-    let laserHtml = '';
-    let nodesHtml = '';
-
-    activeThreats.forEach((g, idx) => {
-        // Standard Equirectangular Projection to 800x400
-        const x = (g.lng + 180) * (800 / 360);
-        const y = (90 - g.lat) * (400 / 180);
-
-        const asnCode = (g.asn || '').split(' ')[0];
-        const cityName = g.city || (g.location ? g.location.split(',')[0] : 'Remote Staging');
-
-        // Dynamic Parabolic Arch (quadratic bezier curve)
-        const midX = (x + targetX) / 2;
-        const archHeight = Math.max(35, Math.min(85, Math.abs(x - targetX) * 0.18));
-        const midY = Math.min(y, targetY) - archHeight;
-
-        // Color coding by rank / severity
-        const colorClass = idx === 0 ? 'laser-line-crit' : (idx <= 2 ? 'laser-line-orange' : 'laser-line-amber');
-        const nodeColor = idx === 0 ? 'red' : (idx <= 2 ? 'orange' : 'amber');
-
-        const pulseRadius = Math.min(22, Math.max(12, 10 + Math.round(Math.log10(g.count + 1) * 3)));
-        const coreRadius = idx === 0 ? 4.5 : (idx <= 2 ? 4 : 3.5);
-
-        laserHtml += `
-            <path d="M ${x.toFixed(1)} ${y.toFixed(1)} Q ${midX.toFixed(1)} ${midY.toFixed(1)} ${targetX} ${targetY}" class="${colorClass}" data-asn="${asnCode}" />
-        `;
-
-        const labelY = y < 55 ? 14 : -5;
-        nodesHtml += `
-            <g class="threat-node" data-city="${escapeHtml(cityName)}" data-asn="${asnCode}" style="cursor: pointer;" transform="translate(${x.toFixed(1)}, ${y.toFixed(1)})">
-                <circle class="pulse-ring ${nodeColor}" r="${pulseRadius}"></circle>
-                <circle class="core-dot ${nodeColor}" r="${coreRadius}"></circle>
-                <text x="8" y="${labelY}" class="node-map-label">${escapeHtml(cityName.toUpperCase())} (${g.count.toLocaleString()})</text>
-            </g>
-        `;
-    });
-
-    laserGroup.innerHTML = laserHtml;
-    nodesGroup.innerHTML = nodesHtml;
-
-    // Attach dynamic click listeners
-    nodesGroup.querySelectorAll('.threat-node').forEach(node => {
-        node.addEventListener('click', () => {
-            const city = node.getAttribute('data-city');
-            const asn = node.getAttribute('data-asn');
-            if (asn) {
-                toggleFilter('geo_asn', asn, `Origin ASN: ${asn} (${city})`);
-            }
-        });
-    });
 }
 
 function initGeoThreatMapInteractivity() {
-    // Interactivity is dynamically bound on every telemetry ingest in renderDynamicGeoThreatMap()
+    // Interactivity is dynamically handled via SVG event listeners in renderDynamicGeoThreatMap()
 }
 
 // -------------------------------------------------------------
@@ -693,7 +824,7 @@ function updateDashboardRealData(analytics) {
 
     // 3. Dynamic Geo-Threat Map & Live ASN Telemetry (100% Data-Driven)
     if (analytics.geo_threats && Array.isArray(analytics.geo_threats)) {
-        renderDynamicGeoThreatMap(analytics.geo_threats);
+        renderDynamicGeoThreatMap(analytics.geo_threats, analytics.live_attacks);
     }
 
     // 4. Entity Profiling Panels (Interactive)
