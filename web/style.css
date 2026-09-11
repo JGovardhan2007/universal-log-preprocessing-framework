@@ -2245,6 +2245,7 @@ body {
         flex-direction: column;
         height: auto;
         padding: 12px 16px;
+    }
 }
 
 mark.search-highlight {
