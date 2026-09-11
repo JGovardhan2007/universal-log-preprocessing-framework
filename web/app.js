@@ -766,12 +766,24 @@ function initCharts() {
                 legend: {
                     position: 'top',
                     align: 'end',
-                    labels: { color: '#71717a', font: { family: 'Inter', size: 10 } }
+                    labels: { color: '#71717a', font: { family: 'Inter', size: 9 }, boxWidth: 10, padding: 6 }
                 }
             },
             scales: {
-                x: { grid: { color: '#18181b' }, ticks: { color: '#71717a' } },
-                y: { grid: { color: '#18181b' }, ticks: { color: '#71717a' } }
+                x: {
+                    grid: { color: '#18181b' },
+                    ticks: {
+                        color: '#71717a',
+                        font: { family: 'Inter', size: 8.5 },
+                        maxTicksLimit: 5,
+                        autoSkip: true,
+                        maxRotation: 0
+                    }
+                },
+                y: {
+                    grid: { color: '#18181b' },
+                    ticks: { color: '#71717a', font: { family: 'Inter', size: 8.5 } }
+                }
             }
         }
     });
@@ -1057,16 +1069,16 @@ function updateDashboardRealData(analytics) {
         const labels = severityTrendChart.data.labels;
         if (labels.length === 0 || labels[labels.length - 1] !== timeLabel) {
             labels.push(timeLabel);
-            if (labels.length > 10) labels.shift();
+            if (labels.length > 7) labels.shift();
 
             severityTrendChart.data.datasets[0].data.push(state.sevCritical);
-            if (severityTrendChart.data.datasets[0].data.length > 10) severityTrendChart.data.datasets[0].data.shift();
+            if (severityTrendChart.data.datasets[0].data.length > 7) severityTrendChart.data.datasets[0].data.shift();
 
             severityTrendChart.data.datasets[1].data.push(state.sevHigh);
-            if (severityTrendChart.data.datasets[1].data.length > 10) severityTrendChart.data.datasets[1].data.shift();
+            if (severityTrendChart.data.datasets[1].data.length > 7) severityTrendChart.data.datasets[1].data.shift();
 
             severityTrendChart.data.datasets[2].data.push(state.sevMedium);
-            if (severityTrendChart.data.datasets[2].data.length > 10) severityTrendChart.data.datasets[2].data.shift();
+            if (severityTrendChart.data.datasets[2].data.length > 7) severityTrendChart.data.datasets[2].data.shift();
 
             severityTrendChart.update('none');
         }

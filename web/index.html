@@ -11,7 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="style.css?v=2.3.1">
+    <link rel="stylesheet" href="style.css?v=2.3.2">
     <style>
         /* Force robust styling for World Map and Geolocation HUD even if browser aggressively caches external CSS */
         .geo-threat-card {
@@ -43,6 +43,77 @@
             width: 100% !important;
             height: 100% !important;
             display: block !important;
+        }
+        /* Strict Containment & Grid Symmetry for Row 2 & Row 3 */
+        .chart-card-fill {
+            min-height: 480px !important;
+            height: 480px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: space-between !important;
+            overflow: hidden !important;
+            min-width: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+        .dual-chart-container {
+            display: flex !important;
+            height: 290px !important;
+            gap: 12px !important;
+            align-items: center !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            min-width: 0 !important;
+            overflow: hidden !important;
+        }
+        .dual-chart-donut {
+            width: 190px !important;
+            max-width: 190px !important;
+            height: 290px !important;
+            position: relative !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            flex-shrink: 0 !important;
+            min-width: 0 !important;
+        }
+        .dual-chart-line {
+            flex: 1 1 0% !important;
+            min-width: 0 !important;
+            max-width: 100% !important;
+            height: 290px !important;
+            position: relative !important;
+            overflow: hidden !important;
+        }
+        .dual-chart-line canvas {
+            max-width: 100% !important;
+        }
+        .analytics-row {
+            display: grid !important;
+            grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr) !important;
+            gap: 16px !important;
+            margin-bottom: 20px !important;
+            align-items: stretch !important;
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+        .analytics-row > .flex-2,
+        .analytics-row > .flex-1 {
+            min-width: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            overflow: hidden !important;
+        }
+        .chart-box {
+            position: relative !important;
+            height: 290px !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            min-width: 0 !important;
+            overflow: hidden !important;
+        }
+        .chart-box canvas {
+            max-width: 100% !important;
         }
         .geo-hud-bar {
             position: absolute !important;
@@ -1112,6 +1183,6 @@
         </div>
     </div>
 
-    <script src="app.js?v=2.3.1"></script>
+    <script src="app.js?v=2.3.2"></script>
 </body>
 </html>
