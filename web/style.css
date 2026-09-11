@@ -650,9 +650,10 @@ body {
    ========================================================================== */
 .analytics-double-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 16px;
     margin-bottom: 20px;
+    width: 100%;
 }
 
 /* ==========================================================================
@@ -663,6 +664,8 @@ body {
     height: 480px;
     display: flex;
     flex-direction: column;
+    min-width: 0;
+    width: 100%;
 }
 
 .geo-map-container {
@@ -916,6 +919,8 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    min-width: 0;
+    width: 100%;
 }
 
 .dual-chart-container {
