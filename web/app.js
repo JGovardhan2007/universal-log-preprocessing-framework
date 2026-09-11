@@ -1852,30 +1852,40 @@ function initStudioDrawer() {
 }
 
 // -------------------------------------------------------------
-// CARD POP-UP MODAL / LIGHTBOX FOCUS VIEW
+// FULLSCREEN COMPONENT COVER VIEW (ONE SCREEN COVERS ENTIRE VIEWPORT)
 // -------------------------------------------------------------
-let currentlyPoppedCard = null;
+let currentlyFullscreenCard = null;
 
 function initCardMaximizer() {
-    // 1. Create or ensure backdrop element
-    let backdrop = document.querySelector('.card-popout-backdrop');
-    if (!backdrop) {
-        backdrop = document.createElement('div');
-        backdrop.className = 'card-popout-backdrop';
-        document.body.appendChild(backdrop);
+    // 1. Create single global floating close button attached directly to body
+    let closeBtn = document.getElementById('fullscreen-close-btn');
+    if (!closeBtn) {
+        closeBtn = document.createElement('button');
+        closeBtn.id = 'fullscreen-close-btn';
+        closeBtn.type = 'button';
+        closeBtn.title = 'Close Fullscreen (Esc)';
+        closeBtn.setAttribute('aria-label', 'Close Fullscreen');
+        closeBtn.innerHTML = `
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+            <span>Close Fullscreen [Esc]</span>
+        `;
+        closeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (currentlyFullscreenCard) {
+                closeFullscreen(currentlyFullscreenCard);
+            }
+        });
+        document.body.appendChild(closeBtn);
     }
-
-    backdrop.addEventListener('click', () => {
-        if (currentlyPoppedCard) {
-            closeCardPopup(currentlyPoppedCard);
-        }
-    });
 
     // 2. Global Escape key listener
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
-            if (currentlyPoppedCard) {
-                closeCardPopup(currentlyPoppedCard);
+            if (currentlyFullscreenCard) {
+                closeFullscreen(currentlyFullscreenCard);
             }
         }
     });
@@ -1895,25 +1905,23 @@ function setupMaximizableCards() {
             return;
         }
 
+        // Clean up any stray popout buttons if present
+        card.querySelectorAll('.popout-close-btn, .btn-card-maximize, .btn-exit-fullscreen').forEach(el => el.remove());
+
         // Check if already processed
-        if (card.dataset.popoutBound === 'true') return;
-        card.dataset.popoutBound = 'true';
+        if (card.dataset.fullscreenBound === 'true') return;
+        card.dataset.fullscreenBound = 'true';
 
-        card.classList.add('clickable-card');
+        card.classList.add('fullscreen-trigger-card');
 
-        // Clicking anywhere on the card pops it up
+        // Clicking anywhere on the card covers the whole screen
         card.addEventListener('click', (e) => {
-            // Ignore if already popped up
-            if (card.classList.contains('card-popped-up')) {
-                // If clicked on close button inside popped-up card
-                if (e.target.closest('.popout-close-btn')) {
-                    e.stopPropagation();
-                    closeCardPopup(card);
-                }
+            // Ignore if already fullscreen
+            if (card.classList.contains('is-fullscreen-view')) {
                 return;
             }
 
-            // Ignore if clicked on specific action buttons, links, selects, or table inspect buttons
+            // Ignore if clicked on specific buttons, inputs, selects, links, or table inspect buttons
             if (e.target.closest('button') || 
                 e.target.closest('input') || 
                 e.target.closest('select') || 
@@ -1924,66 +1932,37 @@ function setupMaximizableCards() {
                 return;
             }
 
-            // Also check text selection (don't pop up if user is highlighting text)
+            // Don't trigger if user is selecting text
             const selection = window.getSelection();
             if (selection && selection.toString().length > 0) {
                 return;
             }
 
-            openCardPopup(card);
+            openFullscreen(card);
         });
     });
 }
 
-function openCardPopup(card) {
-    if (currentlyPoppedCard && currentlyPoppedCard !== card) {
-        closeCardPopup(currentlyPoppedCard);
+function openFullscreen(card) {
+    if (currentlyFullscreenCard && currentlyFullscreenCard !== card) {
+        closeFullscreen(currentlyFullscreenCard);
     }
 
-    currentlyPoppedCard = card;
-    card.classList.add('card-popped-up');
-    document.body.classList.add('has-popped-up-card');
-
-    const backdrop = document.querySelector('.card-popout-backdrop');
-    if (backdrop) backdrop.classList.add('active');
-
-    // Add minimal ✕ close button in top right if not already present
-    let closeBtn = card.querySelector('.popout-close-btn');
-    if (!closeBtn) {
-        closeBtn = document.createElement('button');
-        closeBtn.className = 'popout-close-btn';
-        closeBtn.type = 'button';
-        closeBtn.title = 'Close [Esc]';
-        closeBtn.setAttribute('aria-label', 'Close');
-        closeBtn.innerHTML = '✕';
-        closeBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            closeCardPopup(card);
-        });
-        card.appendChild(closeBtn);
-    } else {
-        closeBtn.classList.remove('hidden');
-    }
+    currentlyFullscreenCard = card;
+    card.classList.add('is-fullscreen-view');
+    document.body.classList.add('has-fullscreen-component');
 
     // Trigger responsive chart/map re-renders
     triggerChartResizes();
 }
 
-function closeCardPopup(card) {
+function closeFullscreen(card) {
     if (!card) return;
-    card.classList.remove('card-popped-up');
-    document.body.classList.remove('has-popped-up-card');
+    card.classList.remove('is-fullscreen-view');
+    document.body.classList.remove('has-fullscreen-component');
 
-    const backdrop = document.querySelector('.card-popout-backdrop');
-    if (backdrop) backdrop.classList.remove('active');
-
-    const closeBtn = card.querySelector('.popout-close-btn');
-    if (closeBtn) {
-        closeBtn.classList.add('hidden');
-    }
-
-    if (currentlyPoppedCard === card) {
-        currentlyPoppedCard = null;
+    if (currentlyFullscreenCard === card) {
+        currentlyFullscreenCard = null;
     }
 
     triggerChartResizes();
@@ -2004,5 +1983,6 @@ function triggerChartResizes() {
         if (typeof renderVelocitySparkline === 'function') renderVelocitySparkline();
     }, 220);
 }
+
 
 
