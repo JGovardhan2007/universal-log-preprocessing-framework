@@ -6,6 +6,7 @@ OCSF v1.1.0 Standard Schema Normalizer (Class 4001 Network Activity)
 from typing import Dict, Any, Optional
 from core_engine.parser_loader import CompiledParser
 from core_engine.geoip_resolver import GeoIPResolver
+from core_engine.narrative_generator import TacticalNarrativeGenerator
 
 
 
@@ -193,7 +194,8 @@ class OCSFNormalizer:
                 "ingest_timestamp": ingest_timestamp,
                 "hash": sha256_hash
             },
-            "raw_data": raw_data
+            "raw_data": raw_data,
+            "narrative": ""
         }
 
         if bytes_count is not None or packets_count is not None:
@@ -201,5 +203,8 @@ class OCSFNormalizer:
                 "bytes": bytes_count or 0,
                 "packets": packets_count or 0
             }
+
+        # Generate tactical plain-English narrative
+        ocsf_record["narrative"] = TacticalNarrativeGenerator.generate(ocsf_record, raw_data)
 
         return ocsf_record

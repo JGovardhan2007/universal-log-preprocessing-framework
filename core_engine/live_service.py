@@ -947,6 +947,7 @@ class LiveLogPipelineService:
                         "sha256": sha256_key,
                         "sha256_key": sha256_key,
                         "formatted_json": formatted_record,
+                        "narrative": formatted_record.get("narrative", ""),
                         "vendor": threat.get("vendor", formatted_record.get("vendor", "Generic")),
                         "disposition": threat.get("disposition", formatted_record.get("disposition", "Unknown")),
                         "entropy": threat.get("entropy", 3.5),

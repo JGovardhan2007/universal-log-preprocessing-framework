@@ -86,7 +86,9 @@ const DOM = {
     rawStreamViewport: document.getElementById('raw-stream-viewport'),
     shaStreamViewport: document.getElementById('sha-stream-viewport'),
     jsonStreamViewport: document.getElementById('json-stream-viewport'),
+    narrativeStreamViewport: document.getElementById('narrative-stream-viewport'),
     processedCounterBadge: document.getElementById('processed-counter-badge'),
+    narrativeCounterBadge: document.getElementById('narrative-counter-badge'),
     
     // Studio Drawer
     toggleStudioBtn: document.getElementById('toggle-studio-btn'),
@@ -1676,8 +1678,45 @@ async function fetchAndRenderLiveStream() {
             `).join('');
         }
 
+        // Section 4: Tactical Plain-English Narrative Render
+        if (DOM.narrativeStreamViewport) {
+            DOM.narrativeStreamViewport.innerHTML = recentJson.map(r => {
+                const f = r.formatted_json || {};
+                const narrative = r.narrative || f.narrative || 'Recorded perimeter network telemetry.';
+                const disp = (r.disposition || f.disposition || 'Unknown').toLowerCase();
+                const dispClass = disp === 'blocked' ? 'disposition-blocked' : (disp === 'alert' ? 'disposition-alert' : '');
+                const badgeClass = disp === 'blocked' ? 'badge-blocked' : (disp === 'allowed' ? 'badge-allowed' : (disp === 'alert' ? 'badge-alert' : 'badge-unknown'));
+                const vendor = r.vendor || (f.metadata && f.metadata.product ? f.metadata.product.vendor_name : 'Generic');
+                const src = (f.src_endpoint && f.src_endpoint.ip) ? `${f.src_endpoint.ip}:${f.src_endpoint.port || 0}` : '0.0.0.0';
+                const dst = (f.dst_endpoint && f.dst_endpoint.ip) ? `${f.dst_endpoint.ip}:${f.dst_endpoint.port || 0}` : '0.0.0.0';
+                const proto = (f.connection_info && f.connection_info.protocol_name) || 'TCP';
+
+                return `
+                    <div class="narrative-record-card ${dispClass}">
+                        <div class="narrative-header-row">
+                            <div class="narrative-tags">
+                                <span class="narrative-badge ${badgeClass}">${escapeHtml((r.disposition || f.disposition || 'EVENT').toUpperCase())}</span>
+                                <span class="narrative-vendor">${escapeHtml(vendor)}</span>
+                            </div>
+                            <span class="narrative-timestamp">${escapeHtml(r.timestamp || '')}</span>
+                        </div>
+                        <div class="narrative-text">${escapeHtml(narrative)}</div>
+                        <div class="narrative-meta-footer">
+                            <span class="narrative-endpoint-pill">SRC: ${escapeHtml(src)}</span>
+                            <span>&rarr;</span>
+                            <span class="narrative-endpoint-pill">DST: ${escapeHtml(dst)}</span>
+                            <span style="margin-left: auto; color: #38bdf8;">${escapeHtml(proto)}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
         if (DOM.processedCounterBadge) {
             DOM.processedCounterBadge.innerText = `EVENTS COMMITTED: ${records.length}`;
+        }
+        if (DOM.narrativeCounterBadge) {
+            DOM.narrativeCounterBadge.innerText = `SITUATIONAL INTEL: ${records.length} ACTIVE`;
         }
     } catch (e) {}
 }

@@ -73,6 +73,7 @@ class ParquetSinkWriter:
             "hash": str(meta.get("hash", "")),
             "tier": int(meta.get("tier", 1)),
             "raw_data": str(record.get("raw_data", "")),
+            "narrative": str(record.get("narrative", "")),
             "anomaly_score": float(record.get("anomaly_score", 0.1)),
             "is_anomaly": bool(record.get("is_anomaly", False))
         }
