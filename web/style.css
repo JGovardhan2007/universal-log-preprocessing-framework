@@ -2529,6 +2529,10 @@ body.component-modal-open {
 }
 
 .component-placeholder-slot {
-    display: none;
+    visibility: hidden !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 100% !important;
+    pointer-events: none !important;
 }
 

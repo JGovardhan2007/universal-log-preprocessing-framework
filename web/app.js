@@ -1860,6 +1860,7 @@ let activeModalPlaceholder = null;
 function initComponentPopoutModal() {
     const closeBtn = document.getElementById('component-popout-close-btn');
     const backdrop = document.getElementById('component-popout-backdrop');
+    const container = document.querySelector('.component-popout-container');
 
     if (closeBtn) {
         closeBtn.addEventListener('click', (e) => {
@@ -1872,6 +1873,12 @@ function initComponentPopoutModal() {
         backdrop.addEventListener('click', (e) => {
             e.stopPropagation();
             closeComponentModal();
+        });
+    }
+
+    if (container) {
+        container.addEventListener('click', (e) => {
+            e.stopPropagation();
         });
     }
 
@@ -1939,6 +1946,7 @@ function setupClickableCards() {
                 return;
             }
 
+            e.stopPropagation();
             openComponentModal(card);
         });
     });
@@ -1959,14 +1967,9 @@ function openComponentModal(card) {
 
     activeModalCard = card;
 
-    // Preserve height & width of the slot in original grid
-    const rect = card.getBoundingClientRect();
+    // Fluid invisible placeholder maintaining the original grid/flex cell
     activeModalPlaceholder = document.createElement('div');
     activeModalPlaceholder.className = 'component-placeholder-slot';
-    activeModalPlaceholder.style.width = `${rect.width}px`;
-    activeModalPlaceholder.style.height = `${rect.height}px`;
-    activeModalPlaceholder.style.display = 'block';
-    activeModalPlaceholder.style.visibility = 'hidden';
     card.parentNode.insertBefore(activeModalPlaceholder, card);
 
     // Extract title, subtitle and badge from the card
