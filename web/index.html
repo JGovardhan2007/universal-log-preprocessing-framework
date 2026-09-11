@@ -11,7 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="style.css?v=2.2.5">
+    <link rel="stylesheet" href="style.css?v=2.2.6">
     <style>
         /* Force robust styling for World Map and Geolocation HUD even if browser aggressively caches external CSS */
         .geo-threat-card {
@@ -781,8 +781,13 @@
         </main>
     </div>
 
-    <!-- Card Fullscreen / Popup Modal Backdrop -->
-    <div id="card-fullscreen-backdrop" class="card-fullscreen-backdrop hidden"></div>
+    <!-- Global Card Popup Window Elements -->
+    <div id="global-popup-backdrop" class="global-popup-backdrop hidden"></div>
+    <button id="global-popup-close-btn" class="global-popup-close-btn hidden" type="button" title="Close Popup (ESC)">
+        <span style="font-size: 14px; line-height: 1;">✕</span>
+        <span>Close</span>
+        <span class="esc-tag">ESC</span>
+    </button>
 
     <!-- ==================================================== -->
     <!-- RECORD DETAILS MODAL -->
@@ -881,6 +886,6 @@
         </div>
     </div>
 
-    <script src="app.js?v=2.2.5"></script>
+    <script src="app.js?v=2.2.6"></script>
 </body>
 </html>

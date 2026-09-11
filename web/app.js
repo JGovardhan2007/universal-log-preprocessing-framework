@@ -168,112 +168,81 @@ document.addEventListener('DOMContentLoaded', () => {
     initDatabaseSearch();
     initStudioDrawer();
     initForensicModal();
-    initCardFullscreen();
+    initCardPopupSystem();
     
     fetchLiveTelemetry();
     setInterval(fetchLiveTelemetry, 2500);
 });
 
 // -------------------------------------------------------------
-// CARD FULLSCREEN & POPUP MODAL ARCHITECTURE
+// CLEAN CARD POPUP WINDOW ARCHITECTURE
 // -------------------------------------------------------------
-let activeFullscreenCard = null;
+let activePopupCard = null;
 
-function initCardFullscreen() {
-    let backdrop = document.getElementById('card-fullscreen-backdrop');
-    if (!backdrop) {
-        backdrop = document.createElement('div');
-        backdrop.id = 'card-fullscreen-backdrop';
-        backdrop.className = 'card-fullscreen-backdrop hidden';
-        document.body.appendChild(backdrop);
+function initCardPopupSystem() {
+    const backdrop = document.getElementById('global-popup-backdrop');
+    const closeBtn = document.getElementById('global-popup-close-btn');
+
+    if (backdrop) {
+        backdrop.addEventListener('click', closeCardPopup);
+    }
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closeCardPopup);
     }
 
-    backdrop.addEventListener('click', closeCardFullscreen);
-
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && activeFullscreenCard) {
-            closeCardFullscreen();
+        if (e.key === 'Escape' && activePopupCard) {
+            closeCardPopup();
         }
     });
 
+    // Eligible cards for popup mode (Exclude executive top strip: Critical, High, Medium, Low, Velocity)
     const cards = document.querySelectorAll('.shadcn-card');
     cards.forEach(card => {
-        // Exclude inline controls toolbars, filter bars, and the onboarding studio drawer
-        if (card.classList.contains('controls-card') || 
+        // Explicitly exclude first bar & toolbars:
+        if (card.closest('.executive-kpi-strip') ||
+            card.classList.contains('sev-card') ||
+            card.classList.contains('velocity-card') ||
+            card.classList.contains('controls-card') || 
             card.classList.contains('filter-bar-card') || 
+            card.classList.contains('vault-summary-card') ||
             card.id === 'parser-studio-drawer') {
             return;
         }
 
-        // Add close button if not already present
-        if (!card.querySelector('.card-fullscreen-close-btn')) {
-            const closeBtn = document.createElement('button');
-            closeBtn.className = 'card-fullscreen-close-btn';
-            closeBtn.type = 'button';
-            closeBtn.innerHTML = `
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-                <span>Exit Full Mode</span>
-                <kbd class="esc-kbd">ESC</kbd>
-            `;
-            closeBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                closeCardFullscreen();
-            });
-            card.appendChild(closeBtn);
-        }
+        // Add class indicating eligible card
+        card.classList.add('popup-eligible-card');
 
-        // Add expand button if not already present
-        if (!card.querySelector('.card-expand-btn')) {
-            const expandBtn = document.createElement('button');
-            expandBtn.className = 'card-expand-btn';
-            expandBtn.type = 'button';
-            expandBtn.title = 'Open in Full Mode';
-            expandBtn.innerHTML = `
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="15 3 21 3 21 9"></polyline>
-                    <polyline points="9 21 3 21 3 15"></polyline>
-                    <line x1="21" y1="3" x2="14" y2="10"></line>
-                    <line x1="3" y1="21" x2="10" y2="14"></line>
-                </svg>
-            `;
-            expandBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                openCardFullscreen(card);
-            });
-            card.appendChild(expandBtn);
-        }
-
-        // Clicking anywhere on the card header or background opens full mode
+        // Clicking anywhere on the card header or background opens the popup window
         card.addEventListener('click', (e) => {
-            if (card.classList.contains('card-fullscreen')) return;
+            if (card.classList.contains('is-card-popup')) return;
 
             // Don't intercept clicks on interactive sub-elements!
             const interactive = e.target.closest(
-                'button, input, select, textarea, a, tr, td, th, canvas, svg, .pill-chip, .ranking-item, [data-db-filter], .geo-hud-bar, .win-dot, .card-expand-btn, .card-fullscreen-close-btn'
+                'button, input, select, textarea, a, tr, td, th, canvas, svg, .pill-chip, .ranking-item, [data-db-filter], .geo-hud-bar, .win-dot, .filter-chip, .btn-copy-mini'
             );
             if (interactive) return;
 
-            openCardFullscreen(card);
+            openCardPopup(card);
         });
     });
 }
 
-function openCardFullscreen(card) {
-    if (!card || activeFullscreenCard === card) return;
+function openCardPopup(card) {
+    if (!card || activePopupCard === card) return;
 
-    if (activeFullscreenCard) {
-        closeCardFullscreen();
+    if (activePopupCard) {
+        closeCardPopup();
     }
 
-    activeFullscreenCard = card;
-    card.classList.add('card-fullscreen');
+    activePopupCard = card;
+    card.classList.add('is-card-popup');
 
-    const backdrop = document.getElementById('card-fullscreen-backdrop');
+    const backdrop = document.getElementById('global-popup-backdrop');
+    const closeBtn = document.getElementById('global-popup-close-btn');
     if (backdrop) backdrop.classList.remove('hidden');
-    document.body.classList.add('card-modal-open');
+    if (closeBtn) closeBtn.classList.remove('hidden');
+    document.body.classList.add('card-popup-open');
 
     // Trigger chart resize & DOM redraw
     setTimeout(() => {
@@ -284,15 +253,17 @@ function openCardFullscreen(card) {
     }, 60);
 }
 
-function closeCardFullscreen() {
-    if (!activeFullscreenCard) return;
+function closeCardPopup() {
+    if (!activePopupCard) return;
 
-    activeFullscreenCard.classList.remove('card-fullscreen');
-    activeFullscreenCard = null;
+    activePopupCard.classList.remove('is-card-popup');
+    activePopupCard = null;
 
-    const backdrop = document.getElementById('card-fullscreen-backdrop');
+    const backdrop = document.getElementById('global-popup-backdrop');
+    const closeBtn = document.getElementById('global-popup-close-btn');
     if (backdrop) backdrop.classList.add('hidden');
-    document.body.classList.remove('card-modal-open');
+    if (closeBtn) closeBtn.classList.add('hidden');
+    document.body.classList.remove('card-popup-open');
 
     setTimeout(() => {
         window.dispatchEvent(new Event('resize'));
@@ -311,8 +282,8 @@ function initTabs() {
             const targetTab = btn.getAttribute('data-tab');
             if (state.currentTab === targetTab) return;
 
-            if (activeFullscreenCard) {
-                closeCardFullscreen();
+            if (activePopupCard) {
+                closeCardPopup();
             }
 
             DOM.navBtns.forEach(b => b.classList.remove('active'));

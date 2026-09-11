@@ -2357,100 +2357,114 @@ mark.search-highlight {
 }
 
 /* ==========================================================================
-   CARD FULLSCREEN / POPUP MODAL ARCHITECTURE
+   CLEAN CARD POPUP WINDOW ARCHITECTURE
    ========================================================================== */
-body.card-modal-open {
+body.card-popup-open {
     overflow: hidden !important;
 }
 
-.card-fullscreen-backdrop {
+.global-popup-backdrop {
     position: fixed !important;
     top: 0 !important;
     left: 0 !important;
     right: 0 !important;
     bottom: 0 !important;
-    background: rgba(4, 7, 12, 0.88) !important;
-    backdrop-filter: blur(10px) !important;
-    -webkit-backdrop-filter: blur(10px) !important;
+    background: rgba(3, 6, 12, 0.85) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
     z-index: 1000 !important;
-    opacity: 1 !important;
-    transition: opacity 0.2s ease !important;
+    animation: popupFadeIn 0.2s ease !important;
 }
 
-.card-fullscreen-backdrop.hidden {
+.global-popup-backdrop.hidden {
     display: none !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
 }
 
-/* Base Card Expand Button */
-.shadcn-card {
-    position: relative;
-    cursor: default;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.card-expand-btn {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    width: 26px;
-    height: 26px;
-    border-radius: 6px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: #a1a1aa;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    opacity: 0.55;
-    transition: all 0.2s ease;
-    z-index: 15;
-}
-
-.shadcn-card:hover .card-expand-btn {
-    opacity: 1;
-    color: #ffffff;
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(56, 189, 248, 0.4);
-    box-shadow: 0 0 8px rgba(56, 189, 248, 0.2);
-}
-
-.card-expand-btn:hover {
-    transform: scale(1.08);
-    background: rgba(56, 189, 248, 0.2) !important;
-    color: #38bdf8 !important;
-    border-color: #38bdf8 !important;
-}
-
-/* Card in Fullscreen Modal Mode */
-.shadcn-card.card-fullscreen {
+.global-popup-close-btn {
     position: fixed !important;
-    top: 24px !important;
-    left: 24px !important;
+    top: 14px !important;
     right: 24px !important;
-    bottom: 24px !important;
+    z-index: 1002 !important;
+    background: rgba(239, 68, 68, 0.25) !important;
+    border: 1px solid rgba(239, 68, 68, 0.6) !important;
+    color: #ffffff !important;
+    font-family: var(--font-sans), sans-serif !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    padding: 6px 14px !important;
+    border-radius: 6px !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    box-shadow: 0 4px 16px rgba(239, 68, 68, 0.35) !important;
+    transition: all 0.15s ease !important;
+}
+
+.global-popup-close-btn:hover {
+    background: rgba(239, 68, 68, 0.45) !important;
+    border-color: #ef4444 !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.5) !important;
+}
+
+.global-popup-close-btn .esc-tag {
+    background: rgba(0, 0, 0, 0.5) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 3px !important;
+    padding: 1px 4px !important;
+    font-size: 9px !important;
+    font-family: var(--font-mono), monospace !important;
+    color: #fca5a5 !important;
+}
+
+.global-popup-close-btn.hidden {
+    display: none !important;
+}
+
+/* Eligible cards hover indication */
+.popup-eligible-card {
+    cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+}
+
+.popup-eligible-card:hover {
+    border-color: rgba(56, 189, 248, 0.4) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 12px rgba(56, 189, 248, 0.15) !important;
+}
+
+.popup-eligible-card.is-card-popup {
+    cursor: default;
+}
+
+/* Card in Popup Mode */
+.shadcn-card.is-card-popup {
+    position: fixed !important;
+    top: 30px !important;
+    left: 40px !important;
+    right: 40px !important;
+    bottom: 30px !important;
     width: auto !important;
     height: auto !important;
-    max-width: 1680px !important;
+    max-width: 1560px !important;
     margin: 0 auto !important;
     z-index: 1001 !important;
-    background: #0b0f19 !important;
-    border: 1px solid rgba(56, 189, 248, 0.35) !important;
+    background: #090d16 !important;
+    border: 1px solid rgba(56, 189, 248, 0.5) !important;
     border-radius: 12px !important;
-    box-shadow: 0 25px 70px rgba(0, 0, 0, 0.95), 0 0 35px rgba(56, 189, 248, 0.2) !important;
+    box-shadow: 0 25px 70px rgba(0, 0, 0, 0.95), 0 0 40px rgba(56, 189, 248, 0.2) !important;
     display: flex !important;
     flex-direction: column !important;
     overflow: hidden !important;
     padding: 24px !important;
-    animation: cardModalEnter 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    cursor: default !important;
+    animation: popupScaleIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
-@keyframes cardModalEnter {
+@keyframes popupScaleIn {
     0% {
         opacity: 0;
-        transform: scale(0.96) translateY(10px);
+        transform: scale(0.95) translateY(12px);
     }
     100% {
         opacity: 1;
@@ -2458,68 +2472,23 @@ body.card-modal-open {
     }
 }
 
-/* Hide expand button when already in fullscreen */
-.shadcn-card.card-fullscreen .card-expand-btn {
-    display: none !important;
+@keyframes popupFadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
 }
 
-/* Fullscreen Close Button */
-.card-fullscreen-close-btn {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    display: none;
-    align-items: center;
-    gap: 8px;
-    background: rgba(239, 68, 68, 0.15);
-    border: 1px solid rgba(239, 68, 68, 0.4);
-    color: #fca5a5;
-    font-family: var(--font-sans), sans-serif;
-    font-size: 11px;
-    font-weight: 600;
-    padding: 6px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    z-index: 100;
-    transition: all 0.15s ease;
-}
-
-.card-fullscreen-close-btn:hover {
-    background: rgba(239, 68, 68, 0.3);
-    border-color: #ef4444;
-    color: #ffffff;
-    box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
-    transform: translateY(-1px);
-}
-
-.card-fullscreen-close-btn .esc-kbd {
-    background: rgba(0, 0, 0, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 3px;
-    padding: 1px 5px;
-    font-size: 9px;
-    font-family: var(--font-mono), monospace;
-    color: #a1a1aa;
-}
-
-.shadcn-card.card-fullscreen .card-fullscreen-close-btn {
-    display: inline-flex !important;
-}
-
-/* Specific component adjustments in fullscreen mode */
-.shadcn-card.card-fullscreen .card-title-row {
+/* Specific layout adjustments inside popup */
+.shadcn-card.is-card-popup .card-title-row {
     margin-bottom: 16px !important;
-    padding-right: 140px !important;
     flex-shrink: 0 !important;
 }
 
-/* Threat map in fullscreen */
-.shadcn-card.card-fullscreen.geo-threat-card {
+.shadcn-card.is-card-popup.geo-threat-card {
     padding: 20px !important;
 }
 
-.shadcn-card.card-fullscreen.geo-threat-card .geo-threat-map-container,
-.shadcn-card.card-fullscreen.geo-threat-card .geo-map-container {
+.shadcn-card.is-card-popup.geo-threat-card .geo-threat-map-container,
+.shadcn-card.is-card-popup.geo-threat-card .geo-map-container {
     flex: 1 !important;
     min-height: 0 !important;
     height: 100% !important;
@@ -2530,84 +2499,84 @@ body.card-modal-open {
     position: relative !important;
 }
 
-.shadcn-card.card-fullscreen.geo-threat-card .geo-threat-svg,
-.shadcn-card.card-fullscreen.geo-threat-card .geo-world-svg {
+.shadcn-card.is-card-popup.geo-threat-card .geo-threat-svg,
+.shadcn-card.is-card-popup.geo-threat-card .geo-world-svg {
     max-height: calc(100vh - 180px) !important;
     width: 100% !important;
     height: 100% !important;
 }
 
-/* Charts in fullscreen */
-.shadcn-card.card-fullscreen .dual-chart-container {
+.shadcn-card.is-card-popup .dual-chart-container {
     flex: 1 !important;
     min-height: 0 !important;
-    height: calc(100vh - 220px) !important;
+    height: calc(100vh - 200px) !important;
     max-height: none !important;
 }
 
-.shadcn-card.card-fullscreen .chart-wrapper,
-.shadcn-card.card-fullscreen #scatterChart {
+.shadcn-card.is-card-popup .chart-wrapper,
+.shadcn-card.is-card-popup #scatterChart {
     flex: 1 !important;
     min-height: 0 !important;
     height: 100% !important;
 }
 
-/* Tables in fullscreen */
-.shadcn-card.card-fullscreen.table-wrapper-card .table-scroll {
-    flex: 1 !important;
-    min-height: 0 !important;
-    max-height: calc(100vh - 220px) !important;
-    overflow-y: auto !important;
-}
-
-/* Profile rankings in fullscreen */
-.shadcn-card.card-fullscreen.profile-panel .ranking-list {
+.shadcn-card.is-card-popup.table-wrapper-card .table-scroll {
     flex: 1 !important;
     min-height: 0 !important;
     max-height: calc(100vh - 200px) !important;
     overflow-y: auto !important;
 }
 
-/* Live stream terminal in fullscreen */
-.shadcn-card.card-fullscreen.terminal-card {
+.shadcn-card.is-card-popup.profile-panel .ranking-list {
+    flex: 1 !important;
+    min-height: 0 !important;
+    max-height: calc(100vh - 180px) !important;
+    overflow-y: auto !important;
+}
+
+.shadcn-card.is-card-popup.terminal-card {
     padding: 16px !important;
 }
 
-.shadcn-card.card-fullscreen.terminal-card .terminal-top-split {
+.shadcn-card.is-card-popup.terminal-card .terminal-top-split {
     flex: 1 !important;
     min-height: 220px !important;
 }
 
-.shadcn-card.card-fullscreen.terminal-card .terminal-bottom-section {
+.shadcn-card.is-card-popup.terminal-card .terminal-bottom-section {
     flex: 1.2 !important;
     min-height: 240px !important;
 }
 
-.shadcn-card.card-fullscreen.terminal-card .stream-viewport,
-.shadcn-card.card-fullscreen.terminal-card .json-viewport {
+.shadcn-card.is-card-popup.terminal-card .stream-viewport,
+.shadcn-card.is-card-popup.terminal-card .json-viewport {
     max-height: calc(50vh - 120px) !important;
     height: 100% !important;
 }
 
-/* Stored file inspector in fullscreen */
-.shadcn-card.card-fullscreen.inspector-card .batch-dual-view {
+.shadcn-card.is-card-popup.inspector-card .batch-dual-view {
     flex: 1 !important;
     min-height: 0 !important;
-    height: calc(100vh - 230px) !important;
+    height: calc(100vh - 220px) !important;
 }
 
-.shadcn-card.card-fullscreen.inspector-card .inspect-box pre {
-    max-height: calc(100vh - 280px) !important;
+.shadcn-card.is-card-popup.inspector-card .inspect-box pre {
+    max-height: calc(100vh - 270px) !important;
     height: 100% !important;
 }
 
 @media (max-width: 768px) {
-    .shadcn-card.card-fullscreen {
+    .shadcn-card.is-card-popup {
         top: 10px !important;
         left: 10px !important;
         right: 10px !important;
         bottom: 10px !important;
         padding: 14px !important;
+    }
+    .global-popup-close-btn {
+        top: 12px !important;
+        right: 14px !important;
+        padding: 5px 10px !important;
     }
 }
 
