@@ -11,7 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="style.css?v=2.2.0">
+    <link rel="stylesheet" href="style.css?v=2.2.1">
     <style>
         /* Force robust styling for World Map and Geolocation HUD even if browser aggressively caches external CSS */
         .geo-threat-card {
@@ -350,42 +350,6 @@
 
                                 <!-- Dynamic Threat Origin Radar Nodes -->
                                 <g id="dynamic-threat-nodes"></g>
-
-                                <!-- Target Defense Enclaves (Air-Gapped RFC 1918 Gateways) -->
-                                <g id="target-enclaves-group">
-                                    <!-- 1. Central Defense HQ (New Delhi: 28.6139, 77.2090 -> 571.6, 136.4) -->
-                                    <g class="target-enclave" id="target-enclave-delhi" transform="translate(571.6, 136.4)">
-                                        <circle class="enclave-radar" r="16"/>
-                                        <circle class="enclave-ring" r="7"/>
-                                        <circle class="enclave-core" r="3"/>
-                                        <line x1="-10" y1="0" x2="10" y2="0" stroke="#10b981" stroke-width="1" opacity="0.8"/>
-                                        <line x1="0" y1="-10" x2="0" y2="10" stroke="#10b981" stroke-width="1" opacity="0.8"/>
-                                        <text x="12" y="-4" class="enclave-text">CENTRAL HQ (NEW DELHI)</text>
-                                    </g>
-
-                                    <!-- 2. Western Maritime Enclave (Mumbai: 19.0760, 72.8777 -> 561.9, 157.6) -->
-                                    <g class="target-enclave" id="target-enclave-mumbai" transform="translate(561.9, 157.6)">
-                                        <circle class="enclave-radar" r="12"/>
-                                        <circle class="enclave-ring" r="5"/>
-                                        <circle class="enclave-core" r="2.5"/>
-                                        <text x="-76" y="3" class="enclave-text">WEST MARITIME</text>
-                                    </g>
-
-                                    <!-- 3. Southern Cyber Command (Bengaluru: 12.9716, 77.5946 -> 572.4, 171.2) -->
-                                    <g class="target-enclave" id="target-enclave-blr" transform="translate(572.4, 171.2)">
-                                        <circle class="enclave-radar" r="12"/>
-                                        <circle class="enclave-ring" r="5"/>
-                                        <circle class="enclave-core" r="2.5"/>
-                                        <text x="9" y="8" class="enclave-text">SOUTH CYBER</text>
-                                    </g>
-
-                                    <!-- 4. Northern Perimeter (Chandigarh: 30.7333, 76.7794 -> 570.6, 131.7) -->
-                                    <g class="target-enclave" id="target-enclave-chd" transform="translate(570.6, 131.7)">
-                                        <circle class="enclave-radar" r="9"/>
-                                        <circle class="enclave-ring" r="4"/>
-                                        <circle class="enclave-core" r="2"/>
-                                    </g>
-                                </g>
                             </svg>
 
                             <!-- Sleek Floating Geolocation HUD Bar (Check Point Threat Map Style) -->
@@ -995,6 +959,6 @@
         </div>
     </div>
 
-    <script src="app.js?v=2.2.0"></script>
+    <script src="app.js?v=2.2.1"></script>
 </body>
 </html>
