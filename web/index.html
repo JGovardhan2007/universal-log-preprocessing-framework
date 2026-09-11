@@ -11,7 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="style.css?v=2.0.8">
+    <link rel="stylesheet" href="style.css?v=2.2.0">
 </head>
 <body class="bg-background text-foreground antialiased selection:bg-primary/20">
 
@@ -765,6 +765,29 @@
         </div>
     </div>
 
-    <script src="app.js?v=2.0.8"></script>
+    <!-- ==================================================== -->
+    <!-- DEDICATED COMPONENT POPUP / MODAL WINDOW -->
+    <!-- ==================================================== -->
+    <div id="component-popout-modal" class="component-popout-modal hidden">
+        <div class="component-popout-backdrop" id="component-popout-backdrop"></div>
+        <div class="component-popout-container">
+            <div class="component-popout-header">
+                <div class="component-popout-title-wrap">
+                    <h3 class="component-popout-title" id="popout-title">Component View</h3>
+                    <p class="component-popout-subtitle" id="popout-subtitle">Real-time telemetry stream</p>
+                </div>
+                <div class="component-popout-actions">
+                    <span class="badge-secondary" id="popout-badge">EXPANDED VIEW</span>
+                    <button id="component-popout-close-btn" class="btn-popout-close" title="Close [Esc]">✕ Close [Esc]</button>
+                </div>
+            </div>
+            <div class="component-popout-body" id="component-popout-body">
+                <!-- Dynamically houses the card content -->
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js?v=2.2.0"></script>
 </body>
 </html>
+

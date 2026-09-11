@@ -168,7 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initDatabaseSearch();
     initStudioDrawer();
     initForensicModal();
-    initCardMaximizer();
+    initComponentPopoutModal();
     
     fetchLiveTelemetry();
     setInterval(fetchLiveTelemetry, 2500);
@@ -183,9 +183,9 @@ function initTabs() {
             const targetTab = btn.getAttribute('data-tab');
             if (state.currentTab === targetTab) return;
 
-            // If a card is maximized, minimize before tab switch
-            if (currentlyMaximizedCard) {
-                minimizeCard(currentlyMaximizedCard);
+            // If a card modal is open, close before tab switch
+            if (activeModalCard) {
+                closeComponentModal();
             }
 
             DOM.navBtns.forEach(b => b.classList.remove('active'));
@@ -199,8 +199,8 @@ function initTabs() {
                 fetchStoredFiles();
             }
 
-            // Re-check maximizable cards on tab switch
-            setTimeout(setupMaximizableCards, 50);
+            // Re-check clickable cards on tab switch
+            setTimeout(setupClickableCards, 50);
         });
     });
 }
@@ -1852,56 +1852,51 @@ function initStudioDrawer() {
 }
 
 // -------------------------------------------------------------
-// FULLSCREEN COMPONENT COVER VIEW (ONE SCREEN COVERS ENTIRE VIEWPORT)
+// DEDICATED COMPONENT POPUP / MODAL WINDOW
 // -------------------------------------------------------------
-let currentlyFullscreenCard = null;
+let activeModalCard = null;
+let activeModalPlaceholder = null;
 
-function initCardMaximizer() {
-    // 1. Create single global floating close button attached directly to body
-    let closeBtn = document.getElementById('fullscreen-close-btn');
-    if (!closeBtn) {
-        closeBtn = document.createElement('button');
-        closeBtn.id = 'fullscreen-close-btn';
-        closeBtn.type = 'button';
-        closeBtn.title = 'Close Fullscreen (Esc)';
-        closeBtn.setAttribute('aria-label', 'Close Fullscreen');
-        closeBtn.innerHTML = `
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-            <span>Close Fullscreen [Esc]</span>
-        `;
+function initComponentPopoutModal() {
+    const closeBtn = document.getElementById('component-popout-close-btn');
+    const backdrop = document.getElementById('component-popout-backdrop');
+
+    if (closeBtn) {
         closeBtn.addEventListener('click', (e) => {
             e.stopPropagation();
-            if (currentlyFullscreenCard) {
-                closeFullscreen(currentlyFullscreenCard);
-            }
+            closeComponentModal();
         });
-        document.body.appendChild(closeBtn);
     }
 
-    // 2. Global Escape key listener
+    if (backdrop) {
+        backdrop.addEventListener('click', (e) => {
+            e.stopPropagation();
+            closeComponentModal();
+        });
+    }
+
+    // Global Escape key listener
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-            if (currentlyFullscreenCard) {
-                closeFullscreen(currentlyFullscreenCard);
-            }
+        if (e.key === 'Escape' && activeModalCard) {
+            closeComponentModal();
         }
     });
 
-    // 3. Scan and setup cards
-    setupMaximizableCards();
+    // Scan and setup clickable cards
+    setupClickableCards();
 }
 
-function setupMaximizableCards() {
+function setupClickableCards() {
     const cards = document.querySelectorAll('.shadcn-card');
     cards.forEach(card => {
         // Skip utility forms, drawers, and modal overlays
         if (card.classList.contains('studio-card') || 
             card.classList.contains('vault-summary-card') || 
             card.classList.contains('controls-card') ||
-            card.closest('.modal-overlay')) {
+            card.classList.contains('filter-bar-card') ||
+            card.classList.contains('sev-card') ||
+            card.closest('.modal-overlay') ||
+            card.closest('.component-popout-modal')) {
             return;
         }
 
@@ -1909,19 +1904,19 @@ function setupMaximizableCards() {
         card.querySelectorAll('.popout-close-btn, .btn-card-maximize, .btn-exit-fullscreen').forEach(el => el.remove());
 
         // Check if already processed
-        if (card.dataset.fullscreenBound === 'true') return;
-        card.dataset.fullscreenBound = 'true';
+        if (card.dataset.popoutBound === 'true') return;
+        card.dataset.popoutBound = 'true';
 
-        card.classList.add('fullscreen-trigger-card');
+        card.classList.add('clickable-popout-card');
 
-        // Clicking anywhere on the card covers the whole screen
+        // Clicking anywhere on the card opens the component popout modal
         card.addEventListener('click', (e) => {
-            // Ignore if already fullscreen
-            if (card.classList.contains('is-fullscreen-view')) {
+            // Ignore if card is currently inside the modal
+            if (card.closest('#component-popout-body')) {
                 return;
             }
 
-            // Ignore if clicked on specific interactive controls (buttons, inputs, selects, links)
+            // Ignore if clicked on specific interactive controls (buttons, inputs, selects, links, triage buttons)
             if (e.target.closest('button') || 
                 e.target.closest('input') || 
                 e.target.closest('select') || 
@@ -1929,6 +1924,9 @@ function setupMaximizableCards() {
                 e.target.closest('.btn-inspect-mini') ||
                 e.target.closest('.btn-download-mini') ||
                 e.target.closest('.btn-copy-mini') ||
+                e.target.closest('.btn-inspect-sm') ||
+                e.target.closest('.triage-status-btn') ||
+                e.target.closest('.btn-download-sm') ||
                 e.target.closest('.asn-row') ||
                 e.target.closest('.threat-node') ||
                 e.target.closest('.ranking-item')) {
@@ -1941,32 +1939,74 @@ function setupMaximizableCards() {
                 return;
             }
 
-            openFullscreen(card);
+            openComponentModal(card);
         });
     });
 }
 
-function openFullscreen(card) {
-    if (currentlyFullscreenCard && currentlyFullscreenCard !== card) {
-        closeFullscreen(currentlyFullscreenCard);
+function openComponentModal(card) {
+    if (activeModalCard) {
+        closeComponentModal();
     }
 
-    currentlyFullscreenCard = card;
-    card.classList.add('is-fullscreen-view');
-    document.body.classList.add('has-fullscreen-component');
+    const modal = document.getElementById('component-popout-modal');
+    const popoutBody = document.getElementById('component-popout-body');
+    const titleEl = document.getElementById('popout-title');
+    const subtitleEl = document.getElementById('popout-subtitle');
+    const badgeEl = document.getElementById('popout-badge');
 
-    // Trigger responsive chart/map re-renders
+    if (!modal || !popoutBody) return;
+
+    activeModalCard = card;
+
+    // Create lightweight placeholder slot to hold position in DOM
+    activeModalPlaceholder = document.createElement('div');
+    activeModalPlaceholder.className = 'component-placeholder-slot';
+    card.parentNode.insertBefore(activeModalPlaceholder, card);
+
+    // Extract title, subtitle and badge from the card
+    const cardTitle = card.querySelector('.card-title, .win-title, .pane-heading');
+    const cardSubtitle = card.querySelector('.card-subtitle, .pane-subtag');
+    const cardBadge = card.querySelector('.badge-secondary, .badge-outline, .badge-destructive, .col-type-tag, .meta-tag, .table-badge');
+
+    if (titleEl) {
+        titleEl.textContent = cardTitle ? cardTitle.textContent.trim() : 'Component Telemetry View';
+    }
+    if (subtitleEl) {
+        subtitleEl.textContent = cardSubtitle ? cardSubtitle.textContent.trim() : 'Real-time telemetry stream & forensic diagnostics';
+    }
+    if (badgeEl) {
+        badgeEl.textContent = cardBadge ? cardBadge.textContent.trim() : 'FOCUSED COMPONENT VIEW';
+    }
+
+    // Move card into modal body
+    popoutBody.appendChild(card);
+
+    modal.classList.remove('hidden');
+    document.body.classList.add('component-modal-open');
+
     triggerChartResizes();
 }
 
-function closeFullscreen(card) {
-    if (!card) return;
-    card.classList.remove('is-fullscreen-view');
-    document.body.classList.remove('has-fullscreen-component');
-
-    if (currentlyFullscreenCard === card) {
-        currentlyFullscreenCard = null;
+function closeComponentModal() {
+    if (!activeModalCard || !activeModalPlaceholder) {
+        const modal = document.getElementById('component-popout-modal');
+        if (modal) modal.classList.add('hidden');
+        document.body.classList.remove('component-modal-open');
+        return;
     }
+
+    const modal = document.getElementById('component-popout-modal');
+
+    // Move card back to its original slot
+    activeModalPlaceholder.parentNode.insertBefore(activeModalCard, activeModalPlaceholder);
+    activeModalPlaceholder.remove();
+
+    activeModalCard = null;
+    activeModalPlaceholder = null;
+
+    if (modal) modal.classList.add('hidden');
+    document.body.classList.remove('component-modal-open');
 
     triggerChartResizes();
 }
@@ -1984,7 +2024,7 @@ function triggerChartResizes() {
         if (severityTrendChart) severityTrendChart.resize();
         if (scatterChart) scatterChart.resize();
         if (typeof renderVelocitySparkline === 'function') renderVelocitySparkline();
-    }, 220);
+    }, 250);
 }
 
 
