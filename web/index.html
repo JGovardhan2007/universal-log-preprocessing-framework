@@ -11,7 +11,185 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="style.css?v=2.0.3">
+    <link rel="stylesheet" href="style.css?v=2.2.0">
+    <style>
+        /* Force robust styling for World Map and Geolocation HUD even if browser aggressively caches external CSS */
+        .geo-threat-card {
+            min-height: 480px !important;
+            height: 480px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            position: relative !important;
+        }
+        .geo-map-container {
+            flex: 1 !important;
+            position: relative !important;
+            width: 100% !important;
+            height: 100% !important;
+            border-radius: 8px !important;
+            overflow: hidden !important;
+            background: #050608 !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+        .geo-world-svg {
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            display: block !important;
+        }
+        .geo-hud-bar {
+            position: absolute !important;
+            bottom: 10px !important;
+            left: 10px !important;
+            right: 10px !important;
+            background: rgba(8, 10, 15, 0.88) !important;
+            backdrop-filter: blur(14px) !important;
+            -webkit-backdrop-filter: blur(14px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.12) !important;
+            border-radius: 6px !important;
+            padding: 8px 12px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 6px !important;
+            z-index: 20 !important;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7) !important;
+            pointer-events: auto !important;
+        }
+        .geo-hud-main-line {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            gap: 12px !important;
+        }
+        .geo-hud-endpoint-col {
+            display: flex !important;
+            flex-direction: column !important;
+            min-width: 0 !important;
+            flex: 1 !important;
+        }
+        .geo-hud-col-tag {
+            font-family: var(--font-mono), monospace !important;
+            font-size: 8px !important;
+            font-weight: 700 !important;
+            color: #71717a !important;
+            letter-spacing: 0.5px !important;
+            margin-bottom: 1px !important;
+        }
+        .geo-hud-col-tag.target {
+            color: #059669 !important;
+        }
+        .geo-hud-col-name {
+            font-family: var(--font-mono), monospace !important;
+            font-size: 11px !important;
+            font-weight: 700 !important;
+            color: #ffffff !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+        }
+        .geo-hud-col-name.target {
+            color: #34d399 !important;
+        }
+        .geo-hud-col-meta {
+            font-family: var(--font-mono), monospace !important;
+            font-size: 8.5px !important;
+            color: #a1a1aa !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+        }
+        .geo-hud-vector-col {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            gap: 3px !important;
+            flex-shrink: 0 !important;
+            padding: 0 4px !important;
+        }
+        .geo-hud-vector-beam-wrap {
+            position: relative !important;
+            width: 60px !important;
+            height: 2px !important;
+            background: linear-gradient(90deg, #ef4444, #10b981) !important;
+            border-radius: 2px !important;
+            overflow: hidden !important;
+        }
+        .geo-hud-vector-beam {
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            height: 100% !important;
+            width: 18px !important;
+            background: #ffffff !important;
+            box-shadow: 0 0 6px #ffffff !important;
+            animation: vectorPulseMove 1.2s infinite linear !important;
+        }
+        @keyframes vectorPulseMove {
+            0% { transform: translateX(-18px); }
+            100% { transform: translateX(65px); }
+        }
+        .geo-hud-threat-pill {
+            font-family: var(--font-mono), monospace !important;
+            font-size: 8px !important;
+            font-weight: 700 !important;
+            padding: 1px 5px !important;
+            border-radius: 3px !important;
+            white-space: nowrap !important;
+            max-width: 140px !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+        }
+        .geo-hud-ticker-row {
+            display: flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
+            padding-top: 4px !important;
+            font-family: var(--font-mono), monospace !important;
+            font-size: 8.5px !important;
+            overflow: hidden !important;
+        }
+        .geo-hud-ticker-label {
+            color: #71717a !important;
+            font-weight: 700 !important;
+            white-space: nowrap !important;
+            font-size: 8px !important;
+        }
+        .geo-hud-ticker-feed {
+            display: flex !important;
+            align-items: center !important;
+            gap: 12px !important;
+            overflow-x: auto !important;
+            white-space: nowrap !important;
+        }
+        .geo-hud-ticker-feed::-webkit-scrollbar {
+            display: none !important;
+        }
+        .ticker-loc-chip {
+            color: #e4e4e7 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 4px !important;
+            cursor: pointer !important;
+            padding: 1px 4px !important;
+            border-radius: 2px !important;
+            background: rgba(255, 255, 255, 0.03) !important;
+            transition: background 0.15s ease !important;
+        }
+        .ticker-loc-chip:hover {
+            background: rgba(255, 255, 255, 0.1) !important;
+            color: #ffffff !important;
+        }
+        .ticker-dot {
+            width: 4px !important;
+            height: 4px !important;
+            border-radius: 50% !important;
+            background: #f97316 !important;
+            display: inline-block !important;
+        }
+    </style>
 </head>
 <body class="bg-background text-foreground antialiased selection:bg-primary/20">
 
@@ -210,39 +388,34 @@
                                 </g>
                             </svg>
 
-                            <!-- Interactive Geolocation HUD Overlay (Check Point Threat Map Style) -->
-                            <div class="geo-hud-overlay" id="geo-hud-overlay">
-                                <div class="geo-hud-header">
-                                    <div class="geo-hud-title-wrap">
-                                        <span class="geo-hud-beacon-dot"></span>
-                                        <span class="geo-hud-header-title">LIVE GEOLOCATION TELEMETRY</span>
+                            <!-- Sleek Floating Geolocation HUD Bar (Check Point Threat Map Style) -->
+                            <div class="geo-hud-bar" id="geo-hud-overlay">
+                                <div class="geo-hud-main-line">
+                                    <div class="geo-hud-endpoint-col">
+                                        <span class="geo-hud-col-tag">ORIGIN</span>
+                                        <span class="geo-hud-col-name" id="hud-origin-city">ST. PETERSBURG, RU</span>
+                                        <span class="geo-hud-col-meta" id="hud-origin-meta">59.93° N, 30.36° E &bull; AS9009</span>
                                     </div>
-                                    <div class="geo-hud-status-tag" id="geo-hud-status-tag">TRACKING ACTIVE VECTORS</div>
-                                </div>
 
-                                <!-- Current Active Trajectory Card -->
-                                <div class="geo-hud-active-card">
-                                    <div class="geo-hud-endpoint geo-hud-origin">
-                                        <div class="geo-hud-field-label">ORIGIN GEOLOCATION</div>
-                                        <div class="geo-hud-val" id="hud-origin-city">ST. PETERSBURG, RUSSIA</div>
-                                        <div class="geo-hud-sub" id="hud-origin-meta">59.9311° N, 30.3609° E &bull; AS9009 (M247)</div>
-                                    </div>
-                                    <div class="geo-hud-vector-arrow">
-                                        <div class="geo-hud-arrow-line">
-                                            <span class="geo-hud-pulse-dash"></span>
+                                    <div class="geo-hud-vector-col">
+                                        <div class="geo-hud-vector-beam-wrap">
+                                            <span class="geo-hud-vector-beam"></span>
                                         </div>
                                         <span class="geo-hud-threat-pill badge-crit" id="hud-vector-pill">SSH Password Spraying</span>
                                     </div>
-                                    <div class="geo-hud-endpoint geo-hud-target">
-                                        <div class="geo-hud-field-label">DESTINATION TARGET</div>
-                                        <div class="geo-hud-val text-emerald" id="hud-target-enclave">CENTRAL DEFENSE HQ</div>
-                                        <div class="geo-hud-sub" id="hud-target-meta">NEW DELHI, IN &bull; 28.6139° N, 77.2090° E</div>
+
+                                    <div class="geo-hud-endpoint-col target">
+                                        <span class="geo-hud-col-tag target">DESTINATION</span>
+                                        <span class="geo-hud-col-name target" id="hud-target-enclave">CENTRAL DEFENSE HQ</span>
+                                        <span class="geo-hud-col-meta" id="hud-target-meta">NEW DELHI, IN &bull; 28.61° N, 77.21° E</span>
                                     </div>
                                 </div>
 
-                                <!-- Dynamic Rolling Geolocation Feed -->
-                                <div class="geo-hud-stream-feed" id="hud-stream-feed">
-                                    <!-- Populated in real-time with incoming geolocation vector names -->
+                                <div class="geo-hud-ticker-row">
+                                    <span class="geo-hud-ticker-label">ACTIVE LOCATIONS:</span>
+                                    <div class="geo-hud-ticker-feed" id="hud-stream-feed">
+                                        <!-- Dynamically populated with active geolocation names -->
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -822,6 +995,6 @@
         </div>
     </div>
 
-    <script src="app.js?v=2.0.4"></script>
+    <script src="app.js?v=2.2.0"></script>
 </body>
 </html>

@@ -429,24 +429,22 @@ function updateGeolocationHud(attack) {
             target: targetName,
             asn: asnStr
         });
-        if (threatMapState.rollingGeoLocations.length > 3) {
+        if (threatMapState.rollingGeoLocations.length > 4) {
             threatMapState.rollingGeoLocations.pop();
         }
 
         streamFeedEl.innerHTML = threatMapState.rollingGeoLocations.map(item => `
-            <div class="geo-hud-feed-row" data-asn="${item.asn}" title="Click to filter dashboard to ${item.origin}">
-                <span class="geo-hud-feed-loc">
-                    <span>${item.origin}</span>
-                    <span class="geo-hud-feed-coords">${item.coords}</span>
-                </span>
-                <span class="geo-hud-feed-arrow">──►</span>
-                <span class="geo-hud-feed-target">${item.target}</span>
-            </div>
+            <span class="ticker-loc-chip" data-asn="${item.asn}" title="Click to filter to ${item.origin}">
+                <span class="ticker-dot"></span>
+                <span>${item.origin} (${item.coords})</span>
+                <span style="color: #71717a; margin: 0 2px;">──►</span>
+                <span style="color: #34d399; font-weight: 700;">${item.target}</span>
+            </span>
         `).join('');
 
-        streamFeedEl.querySelectorAll('.geo-hud-feed-row').forEach(row => {
-            row.addEventListener('click', () => {
-                const asn = row.getAttribute('data-asn');
+        streamFeedEl.querySelectorAll('.ticker-loc-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                const asn = chip.getAttribute('data-asn');
                 if (asn) toggleFilter('geo_asn', asn, `Origin ASN: ${asn}`);
             });
         });
