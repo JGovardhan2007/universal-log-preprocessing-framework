@@ -2128,11 +2128,12 @@ function initStudioDrawer() {
                     DOM.studioPreviewFile.innerText = data.filename;
                     DOM.studioYamlPreview.innerText = data.yaml_content;
                 } else {
-                    DOM.studioStatusMsg.innerText = `Error: ${data.detail}`;
+                    const detail = typeof data.detail === 'string' ? data.detail : (JSON.stringify(data.detail) || 'Generation failed');
+                    DOM.studioStatusMsg.innerText = `Error: ${detail}`;
                     DOM.studioStatusMsg.style.color = '#f87171';
                 }
             } catch (err) {
-                DOM.studioStatusMsg.innerText = 'Failed to generate parser.';
+                DOM.studioStatusMsg.innerText = `Failed: ${err.message || 'Connection error'}`;
                 DOM.studioStatusMsg.style.color = '#f87171';
             }
         });

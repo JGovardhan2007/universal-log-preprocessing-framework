@@ -196,8 +196,10 @@ def download_file(filename: str):
 
 
 class AutoParserRequest(BaseModel):
-    vendor: str
-    product: str
+    vendor: Optional[str] = None
+    vendor_name: Optional[str] = None
+    product: Optional[str] = None
+    product_name: Optional[str] = None
     sample_log: str
 
 
@@ -209,18 +211,20 @@ def auto_generate_parser(req: AutoParserRequest):
     if not raw:
         raise HTTPException(status_code=400, detail="Sample log cannot be empty")
 
-    safe_vendor = re.sub(r'[^a-zA-Z0-9_]', '_', req.vendor.lower()).strip('_')
-    safe_product = re.sub(r'[^a-zA-Z0-9_]', '_', req.product.lower()).strip('_')
+    vendor = (req.vendor or req.vendor_name or "Generic").strip()
+    product = (req.product or req.product_name or "Gateway").strip()
+    safe_vendor = re.sub(r'[^a-zA-Z0-9_]', '_', vendor.lower()).strip('_')
+    safe_product = re.sub(r'[^a-zA-Z0-9_]', '_', product.lower()).strip('_')
     filename = f"{safe_vendor}_{safe_product}.yaml"
     parsers_dir = os.path.join(PROJECT_ROOT, "parsers")
     target_yaml_path = os.path.join(parsers_dir, filename)
 
     # Auto-detect signature token: prefer vendor, product, or distinct uppercase/keyword token
     tokens = [t for t in re.split(r'[\s:,\(\)\[\]]+', raw) if len(t) > 2 and not re.match(r'^\d{4}[-/]\d{2}', t) and not re.match(r'^\d{1,3}\.\d{1,3}', t)]
-    match_token = req.vendor
-    vendor_prefix = req.vendor.lower()[:4]
+    match_token = vendor
+    vendor_prefix = vendor.lower()[:4]
     for t in tokens:
-        if vendor_prefix in t.lower() or req.product.lower() in t.lower():
+        if vendor_prefix in t.lower() or product.lower() in t.lower():
             match_token = t
             break
         elif t.isupper() and len(t) >= 4 and t not in ("DENY", "DROP", "ALLOW", "PERMIT", "FROM", "PROTO", "DENIED", "DROPPED", "ALLOWED", "BLOCKED", "TCP", "UDP"):
@@ -248,10 +252,10 @@ def auto_generate_parser(req: AutoParserRequest):
         field_mapping["disposition"] = "$action"
 
     parser_def = {
-        "vendor": req.vendor,
-        "product": req.product,
+        "vendor": vendor,
+        "product": product,
         "version": "1.0.0",
-        "description": f"Automated OCSF Parser for {req.vendor} {req.product}",
+        "description": f"Automated OCSF Parser for {vendor} {product}",
         "signature_match": {
             "type": "contains",
             "patterns": [match_token]
