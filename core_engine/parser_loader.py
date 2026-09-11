@@ -186,6 +186,8 @@ class ParserLoader:
         self.last_reload_time = time.time()
         return loaded_count
 
+    load_parsers = load_all_parsers
+
     def check_and_hot_reload(self) -> bool:
         """
         Check for added, modified, or deleted YAML parser rules and reload them in <15ms.

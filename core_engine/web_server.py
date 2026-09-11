@@ -8,6 +8,7 @@ Serves the High-Performance Obsidian & Neon Ember Cyber Web App
 import os
 import sys
 import json
+import yaml
 from typing import Optional
 import uvicorn
 from fastapi import FastAPI, HTTPException
@@ -214,11 +215,37 @@ def auto_generate_parser(req: AutoParserRequest):
     parsers_dir = os.path.join(PROJECT_ROOT, "parsers")
     target_yaml_path = os.path.join(parsers_dir, filename)
 
-    # Auto-detect signature token (first word or identifier)
-    first_token = raw.split()[0] if raw.split() else req.vendor
+    # Auto-detect signature token: prefer vendor, product, or distinct uppercase/keyword token
+    tokens = [t for t in re.split(r'[\s:,\(\)\[\]]+', raw) if len(t) > 2 and not re.match(r'^\d{4}[-/]\d{2}', t) and not re.match(r'^\d{1,3}\.\d{1,3}', t)]
+    match_token = req.vendor
+    vendor_prefix = req.vendor.lower()[:4]
+    for t in tokens:
+        if vendor_prefix in t.lower() or req.product.lower() in t.lower():
+            match_token = t
+            break
+        elif t.isupper() and len(t) >= 4 and t not in ("DENY", "DROP", "ALLOW", "PERMIT", "FROM", "PROTO", "DENIED", "DROPPED", "ALLOWED", "BLOCKED", "TCP", "UDP"):
+            match_token = t
 
-    # Generate general extraction regex
-    regex_pattern = r"(?P<src_ip>\d{1,3}(?:\.\d{1,3}){3})[^\d]+(?P<src_port>\d{1,5})[^\d]+(?P<dst_ip>\d{1,3}(?:\.\d{1,3}){3})[^\d]+(?P<dst_port>\d{1,5})"
+    # Detect if action token is present to map disposition
+    action_match = re.search(r'\b(allow(?:ed)?|permit(?:ted)?|deny|denied|drop(?:ped)?|block(?:ed)?)\b', raw, re.I)
+    has_action = bool(action_match)
+    if has_action:
+        regex_pattern = r"(?P<action>ALLOW|ALLOWED|PERMIT|DENY|DENIED|DROP|DROPPED|BLOCK|BLOCKED).*?(?P<src_ip>\d{1,3}(?:\.\d{1,3}){3})[^\d]+(?P<src_port>\d{1,5})[^\d]+(?P<dst_ip>\d{1,3}(?:\.\d{1,3}){3})[^\d]+(?P<dst_port>\d{1,5})"
+    else:
+        regex_pattern = r"(?P<src_ip>\d{1,3}(?:\.\d{1,3}){3})[^\d]+(?P<src_port>\d{1,5})[^\d]+(?P<dst_ip>\d{1,3}(?:\.\d{1,3}){3})[^\d]+(?P<dst_port>\d{1,5})"
+
+    field_mapping = {
+        "class_uid": 4001,
+        "category_uid": 4,
+        "activity_id": 1,
+        "src_endpoint.ip": "$src_ip",
+        "src_endpoint.port": "$src_port:integer",
+        "dst_endpoint.ip": "$dst_ip",
+        "dst_endpoint.port": "$dst_port:integer",
+        "connection_info.protocol_name": "TCP"
+    }
+    if has_action:
+        field_mapping["disposition"] = "$action"
 
     parser_def = {
         "vendor": req.vendor,
@@ -227,23 +254,23 @@ def auto_generate_parser(req: AutoParserRequest):
         "description": f"Automated OCSF Parser for {req.vendor} {req.product}",
         "signature_match": {
             "type": "contains",
-            "patterns": [first_token]
+            "patterns": [match_token]
         },
         "extraction": {
             "type": "regex",
             "patterns": [regex_pattern]
         },
-        "field_mapping": {
-            "src_endpoint.ip": "$src_ip",
-            "src_endpoint.port": "$src_port:integer",
-            "dst_endpoint.ip": "$dst_ip",
-            "dst_endpoint.port": "$dst_port:integer",
-            "connection_info.protocol_name": "TCP"
-        },
+        "field_mapping": field_mapping,
         "disposition_map": {
             "allow": "Allowed",
+            "allowed": "Allowed",
+            "permit": "Allowed",
             "deny": "Blocked",
-            "drop": "Blocked"
+            "denied": "Blocked",
+            "drop": "Blocked",
+            "dropped": "Blocked",
+            "block": "Blocked",
+            "blocked": "Blocked"
         }
     }
 
@@ -251,7 +278,7 @@ def auto_generate_parser(req: AutoParserRequest):
         yaml.dump(parser_def, f, default_flow_style=False, sort_keys=False)
 
     # Hot-reload engine parsers
-    service.engine.parser_loader.load_parsers()
+    service.engine.parser_loader.load_all_parsers()
 
     # Process test parse
     test_result = service.engine.process_single(raw.encode("utf-8"))
