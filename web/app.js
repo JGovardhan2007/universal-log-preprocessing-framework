@@ -270,11 +270,28 @@ function openCardPopup(card) {
 
     activePopupCard = card;
 
-    // Create a placeholder DOM node in the original parent so we can restore the exact position
+    // Capture dimensions before moving the card so the grid NEVER collapses or shifts
+    const rect = card.getBoundingClientRect();
+    const computed = window.getComputedStyle(card);
+
     activePopupPlaceholder = document.createElement('div');
     activePopupPlaceholder.className = 'card-popup-placeholder';
-    activePopupPlaceholder.style.display = 'none';
+    activePopupPlaceholder.style.width = '100%';
+    activePopupPlaceholder.style.height = (rect.height || 480) + 'px';
+    activePopupPlaceholder.style.minHeight = computed.minHeight || '480px';
+    activePopupPlaceholder.style.maxHeight = computed.maxHeight || '480px';
+    activePopupPlaceholder.style.minWidth = '0';
+    activePopupPlaceholder.style.visibility = 'hidden';
+    activePopupPlaceholder.style.pointerEvents = 'none';
+    activePopupPlaceholder.style.margin = computed.margin;
+    activePopupPlaceholder.style.padding = '0';
     card.parentNode.insertBefore(activePopupPlaceholder, card);
+
+    // Compensate for scrollbar lock so background never shifts width
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+    if (scrollbarWidth > 0) {
+        document.body.style.paddingRight = `${scrollbarWidth}px`;
+    }
 
     // Move card into popup modal slot
     slot.innerHTML = '';
@@ -285,7 +302,6 @@ function openCardPopup(card) {
     overlay.classList.remove('hidden');
 
     // Lock page background scrolling completely
-    document.documentElement.classList.add('card-popup-open');
     document.body.classList.add('card-popup-open');
 
     // Trigger chart resize & DOM redraw
@@ -319,9 +335,10 @@ function closeCardPopup() {
     activePopupCard = null;
     activePopupPlaceholder = null;
 
-    // Restore page background scrolling
+    // Restore page background scrolling and scrollbar padding
     document.documentElement.classList.remove('card-popup-open');
     document.body.classList.remove('card-popup-open');
+    document.body.style.paddingRight = '';
 
     setTimeout(() => {
         window.dispatchEvent(new Event('resize'));

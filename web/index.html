@@ -11,21 +11,24 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="style.css?v=2.2.9">
+    <link rel="stylesheet" href="style.css?v=2.3.1">
     <style>
         /* Force robust styling for World Map and Geolocation HUD even if browser aggressively caches external CSS */
         .geo-threat-card {
             min-height: 480px !important;
             height: 480px !important;
+            max-height: 480px !important;
             display: flex !important;
             flex-direction: column !important;
             position: relative !important;
+            overflow: hidden !important;
         }
         .geo-map-container {
             flex: 1 !important;
             position: relative !important;
             width: 100% !important;
             height: 100% !important;
+            min-height: 0 !important;
             border-radius: 8px !important;
             overflow: hidden !important;
             background: #050608 !important;
@@ -35,6 +38,8 @@
             position: absolute !important;
             top: 0 !important;
             left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
             width: 100% !important;
             height: 100% !important;
             display: block !important;
@@ -122,11 +127,8 @@
         /* ==========================================================================
            DEDICATED CARD POPUP WINDOW MODAL (BULLETPROOF INLINE STYLES)
            ========================================================================== */
-        html.card-popup-open,
         body.card-popup-open {
             overflow: hidden !important;
-            height: 100vh !important;
-            touch-action: none !important;
         }
 
         .card-popup-overlay {
@@ -280,9 +282,13 @@
         }
 
         .card-popup-content-slot .geo-world-svg {
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
             width: 100% !important;
             height: 100% !important;
-            max-height: calc(88vh - 170px) !important;
         }
 
         .card-popup-content-slot .dual-chart-container {
@@ -450,7 +456,7 @@
                         </div>
 
                         <div class="geo-map-container">
-                            <svg class="geo-world-svg" id="geo-world-svg" viewBox="0 0 800 400">
+                            <svg class="geo-world-svg" id="geo-world-svg" viewBox="0 0 800 400" preserveAspectRatio="none">
                                 <defs>
                                     <linearGradient id="laser-crit-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
                                         <stop offset="0%" stop-color="#ffffff" stop-opacity="0"/>
@@ -473,7 +479,7 @@
                                 </defs>
 
                                 <!-- Dotted World Map Base -->
-                                <image href="world_dots.svg" x="0" y="0" width="800" height="400" preserveAspectRatio="none" />
+                                <image href="world_dots.svg?v=2.3.1" x="0" y="0" width="800" height="400" preserveAspectRatio="none" />
 
                                 <!-- Tactical Lat/Long Graticule Lines -->
                                 <g class="tactical-graticule" stroke="rgba(255, 255, 255, 0.04)" stroke-width="0.75" stroke-dasharray="3 4">
@@ -1106,6 +1112,6 @@
         </div>
     </div>
 
-    <script src="app.js?v=2.2.9"></script>
+    <script src="app.js?v=2.3.1"></script>
 </body>
 </html>
