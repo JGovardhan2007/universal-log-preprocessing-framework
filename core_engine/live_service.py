@@ -829,6 +829,19 @@ class LiveLogPipelineService:
     def stop(self):
         """Stops the generator and receiver threads and flushes pending buffers."""
         self.is_running = False
+        self.stats["current_eps"] = 0.0
+        if hasattr(self, "receiver_sock") and self.receiver_sock:
+            try:
+                self.receiver_sock.close()
+            except Exception:
+                pass
+            self.receiver_sock = None
+
+        if self.generator_thread and self.generator_thread.is_alive():
+            self.generator_thread.join(timeout=0.3)
+        if self.receiver_thread and self.receiver_thread.is_alive():
+            self.receiver_thread.join(timeout=0.3)
+
         self._flush_batch_to_files(force=True)
 
     def set_speed(self, eps: int):
@@ -848,117 +861,138 @@ class LiveLogPipelineService:
         last_tick = time.perf_counter()
         accumulated = 0.0
 
-        while self.is_running:
+        try:
+            while self.is_running:
+                try:
+                    now = time.perf_counter()
+                    dt = now - last_tick
+                    last_tick = now
+
+                    # Guard against huge bursts if thread was paused or delayed
+                    if dt > 0.5:
+                        dt = 0.05
+
+                    accumulated += dt * self.logs_per_second
+
+                    logs_to_send = int(accumulated)
+                    if logs_to_send > 0:
+                        accumulated -= logs_to_send
+                        for _ in range(logs_to_send):
+                            if not self.is_running:
+                                break
+                            raw_log = generate_diverse_cyber_telemetry()
+                            sock.sendto(raw_log.encode("utf-8"), ("127.0.0.1", self.port))
+                            self.stats["total_generated"] += 1
+
+                    # Yield CPU with brief sleep (5ms for tighter precision)
+                    time.sleep(0.005)
+                except Exception:
+                    time.sleep(0.02)
+        finally:
             try:
-                now = time.perf_counter()
-                dt = now - last_tick
-                last_tick = now
-
-                # Guard against huge bursts if thread was paused or delayed
-                if dt > 0.5:
-                    dt = 0.05
-
-                accumulated += dt * self.logs_per_second
-
-                logs_to_send = int(accumulated)
-                if logs_to_send > 0:
-                    accumulated -= logs_to_send
-                    for _ in range(logs_to_send):
-                        if not self.is_running:
-                            break
-                        raw_log = generate_diverse_cyber_telemetry()
-                        sock.sendto(raw_log.encode("utf-8"), ("127.0.0.1", self.port))
-                        self.stats["total_generated"] += 1
-
-                # Yield CPU with brief sleep (5ms for tighter precision)
-                time.sleep(0.005)
+                sock.close()
             except Exception:
-                time.sleep(0.02)
-
-        sock.close()
+                pass
 
     def _receiver_worker(self):
         """Listens on UDP 5140, hashes, formats to JSON, and updates real analytics."""
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         try:
+            sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             sock.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, 2 * 1024 * 1024)
         except Exception:
             pass
 
+        try:
+            sock.bind(("0.0.0.0", self.port))
+        except Exception as e:
+            logger.error(f"Failed to bind UDP socket to port {self.port}: {e}")
+            try:
+                sock.close()
+            except Exception:
+                pass
+            return
+
+        self.receiver_sock = sock
         sock.settimeout(0.5)
         eps_counter = 0
         eps_timer = time.time()
 
-        while self.is_running:
-            try:
-                data, addr = sock.recvfrom(65535)
-                raw_str = data.decode("utf-8", errors="ignore").strip()
-                if not raw_str:
+        try:
+            while self.is_running:
+                try:
+                    data, addr = sock.recvfrom(65535)
+                    raw_str = data.decode("utf-8", errors="ignore").strip()
+                    if not raw_str:
+                        continue
+
+                    # Step 1: Compute Section 65B SHA-256 Hash immediately
+                    sha256_key = hashlib.sha256(raw_str.encode("utf-8")).hexdigest()
+
+                    # Step 2: Format & Normalize into JSON (OCSF)
+                    formatted_record = self.engine.process_single(raw_str.encode("utf-8"))
+
+                    # Step 3: Ingest into Real-Time SOC Threat Analytics
+                    threat = self._ingest_analytics_record(raw_str, formatted_record, sha256_key, is_historical=False) or {}
+
+                    # Step 4: Append to Live Stream Queue for Page 2
+                    stream_item = {
+                        "timestamp": datetime.now(timezone.utc).strftime("%H:%M:%S.%f")[:-3],
+                        "raw_string": raw_str,
+                        "sha256": sha256_key,
+                        "sha256_key": sha256_key,
+                        "formatted_json": formatted_record,
+                        "vendor": threat.get("vendor", formatted_record.get("vendor", "Generic")),
+                        "disposition": threat.get("disposition", formatted_record.get("disposition", "Unknown")),
+                        "entropy": threat.get("entropy", 3.5),
+                        "xai_tags": threat.get("xai_tags", []),
+                        "primary_tag": threat.get("primary_tag", ""),
+                        "ai_breakdown": threat.get("ai_breakdown", {})
+                    }
+                    self.live_stream_queue.append(stream_item)
+
+                    # Step 5: Add to Batch Buffer for Dual-File Storage
+                    with self.batch_lock:
+                        self.raw_batch_buffer.append(raw_str)
+                        self.formatted_batch_buffer.append(formatted_record)
+
+                        if len(self.raw_batch_buffer) >= self.batch_size_threshold or (time.time() - self.last_flush_time > 60.0):
+                            self._flush_batch_to_files()
+
+                    self.stats["total_received"] += 1
+                    self.stats["total_formatted"] += 1
+                    eps_counter += 1
+
+                    # Calculate live EPS with precision tracking
+                    now = time.time()
+                    dt = now - eps_timer
+                    if dt >= 1.0:
+                        measured = eps_counter / dt
+                        target = float(self.logs_per_second)
+                        # If measured throughput is within 15% tolerance of target, sync to target for clean display
+                        if abs(measured - target) <= max(2.0, target * 0.18):
+                            self.stats["current_eps"] = target
+                        else:
+                            self.stats["current_eps"] = round(measured, 1)
+                        eps_counter = 0
+                        eps_timer = now
+
+                except socket.timeout:
+                    now = time.time()
+                    if now - eps_timer >= 2.0:
+                        self.stats["current_eps"] = 0.0
+                    with self.batch_lock:
+                        if self.raw_batch_buffer and (time.time() - self.last_flush_time > 30.0):
+                            self._flush_batch_to_files()
                     continue
-
-                # Step 1: Compute Section 65B SHA-256 Hash immediately
-                sha256_key = hashlib.sha256(raw_str.encode("utf-8")).hexdigest()
-
-                # Step 2: Format & Normalize into JSON (OCSF)
-                formatted_record = self.engine.process_single(raw_str.encode("utf-8"))
-
-                # Step 3: Ingest into Real-Time SOC Threat Analytics
-                threat = self._ingest_analytics_record(raw_str, formatted_record, sha256_key, is_historical=False) or {}
-
-                # Step 4: Append to Live Stream Queue for Page 2
-                stream_item = {
-                    "timestamp": datetime.now(timezone.utc).strftime("%H:%M:%S.%f")[:-3],
-                    "raw_string": raw_str,
-                    "sha256": sha256_key,
-                    "sha256_key": sha256_key,
-                    "formatted_json": formatted_record,
-                    "vendor": threat.get("vendor", formatted_record.get("vendor", "Generic")),
-                    "disposition": threat.get("disposition", formatted_record.get("disposition", "Unknown")),
-                    "entropy": threat.get("entropy", 3.5),
-                    "xai_tags": threat.get("xai_tags", []),
-                    "primary_tag": threat.get("primary_tag", ""),
-                    "ai_breakdown": threat.get("ai_breakdown", {})
-                }
-                self.live_stream_queue.append(stream_item)
-
-                # Step 5: Add to Batch Buffer for Dual-File Storage
-                with self.batch_lock:
-                    self.raw_batch_buffer.append(raw_str)
-                    self.formatted_batch_buffer.append(formatted_record)
-
-                    if len(self.raw_batch_buffer) >= self.batch_size_threshold or (time.time() - self.last_flush_time > 60.0):
-                        self._flush_batch_to_files()
-
-                self.stats["total_received"] += 1
-                self.stats["total_formatted"] += 1
-                eps_counter += 1
-
-                # Calculate live EPS with precision tracking
-                now = time.time()
-                dt = now - eps_timer
-                if dt >= 1.0:
-                    measured = eps_counter / dt
-                    target = float(self.logs_per_second)
-                    # If measured throughput is within 15% tolerance of target, sync to target for clean display
-                    if abs(measured - target) <= max(2.0, target * 0.18):
-                        self.stats["current_eps"] = target
-                    else:
-                        self.stats["current_eps"] = round(measured, 1)
-                    eps_counter = 0
-                    eps_timer = now
-
-            except socket.timeout:
-                now = time.time()
-                if now - eps_timer >= 2.0:
-                    self.stats["current_eps"] = 0.0
-                with self.batch_lock:
-                    if self.raw_batch_buffer and (time.time() - self.last_flush_time > 30.0):
-                        self._flush_batch_to_files()
-                continue
+                except Exception:
+                    time.sleep(0.05)
+        finally:
+            try:
+                sock.close()
             except Exception:
-                time.sleep(0.05)
-
-        sock.close()
+                pass
+            self.receiver_sock = None
 
     def set_batch_threshold(self, threshold: int):
         """Sets the batch constraint limit."""

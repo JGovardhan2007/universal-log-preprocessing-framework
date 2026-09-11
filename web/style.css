@@ -894,10 +894,10 @@ body {
     -webkit-backdrop-filter: blur(14px);
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 6px;
-    padding: 8px 12px;
+    padding: 8px 14px;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    justify-content: center;
     z-index: 20;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
     pointer-events: auto;
@@ -907,7 +907,17 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
+    gap: 16px;
+}
+
+.geo-hud-arrow-sep {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 14px;
+    flex-shrink: 0;
+    user-select: none;
 }
 
 .geo-hud-endpoint-col {
@@ -951,93 +961,15 @@ body {
     text-overflow: ellipsis;
 }
 
-.geo-hud-vector-col {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 3px;
-    flex-shrink: 0;
-    padding: 0 4px;
+/* Dynamic attack endpoint dots (appear on packet arrival and disappear on completion) */
+.attack-point-dot {
+    transition: opacity 0.3s ease;
 }
-
-.geo-hud-vector-beam-wrap {
-    position: relative;
-    width: 60px;
-    height: 2px;
-    background: linear-gradient(90deg, #ef4444, #10b981);
-    border-radius: 2px;
-    overflow: hidden;
-}
-
-.geo-hud-vector-beam {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 18px;
-    background: #ffffff;
-    box-shadow: 0 0 6px #ffffff;
-    animation: vectorPulseMove 1.2s infinite linear;
-}
-
-@keyframes vectorPulseMove {
-    0% { transform: translateX(-18px); }
-    100% { transform: translateX(65px); }
-}
-
-.geo-hud-threat-pill {
-    font-family: var(--font-mono), monospace;
-    font-size: 8px;
-    font-weight: 700;
-    padding: 1px 5px;
-    border-radius: 3px;
-    white-space: nowrap;
-    max-width: 140px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.geo-hud-ticker-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    border-top: 1px solid rgba(255, 255, 255, 0.06);
-    padding-top: 4px;
-    font-family: var(--font-mono), monospace;
-    font-size: 8.5px;
-    overflow: hidden;
-}
-
-.geo-hud-ticker-label {
-    color: #71717a;
-    font-weight: 700;
-    white-space: nowrap;
-    font-size: 8px;
-}
-
-.geo-hud-ticker-feed {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    overflow-x: auto;
-    white-space: nowrap;
-}
-
-.geo-hud-ticker-feed::-webkit-scrollbar {
-    display: none;
-}
-
-.ticker-loc-chip {
-    color: #e4e4e7;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    cursor: pointer;
-    padding: 1px 4px;
-    border-radius: 2px;
-    background: rgba(255, 255, 255, 0.03);
-    transition: background 0.15s ease;
-}
+.attack-point-dot.src.crit { fill: #ef4444; filter: drop-shadow(0 0 6px #ef4444); }
+.attack-point-dot.src.high { fill: #f97316; filter: drop-shadow(0 0 6px #f97316); }
+.attack-point-dot.src.med { fill: #f59e0b; filter: drop-shadow(0 0 6px #f59e0b); }
+.attack-point-dot.src.low { fill: #38bdf8; filter: drop-shadow(0 0 6px #38bdf8); }
+.attack-point-dot.dst { fill: #10b981; filter: drop-shadow(0 0 6px #10b981); }
 .ticker-loc-chip:hover {
     background: rgba(255, 255, 255, 0.1);
     color: #ffffff;

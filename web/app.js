@@ -189,6 +189,9 @@ function initTabs() {
             document.getElementById(`tab-${targetTab}`).classList.add('active');
             state.currentTab = targetTab;
 
+            if (targetTab === 'streamer') {
+                fetchAndRenderLiveStream();
+            }
             if (targetTab === 'database') {
                 fetchStoredFiles();
             }
@@ -344,13 +347,29 @@ function triggerAttackLaser(attack) {
     group.setAttribute('id', groupId);
     group.setAttribute('class', 'active-attack-projectile');
 
-    // 1. Dynamic laser trail path
+    // 1. Origin Source Point (glowing dot)
+    const srcDot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    srcDot.setAttribute('cx', srcX.toFixed(1));
+    srcDot.setAttribute('cy', srcY.toFixed(1));
+    srcDot.setAttribute('r', '3.5');
+    srcDot.setAttribute('class', `attack-point-dot src ${sevClass}`);
+    group.appendChild(srcDot);
+
+    // 2. Destination Target Point (glowing dot)
+    const dstDot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    dstDot.setAttribute('cx', dstX.toFixed(1));
+    dstDot.setAttribute('cy', dstY.toFixed(1));
+    dstDot.setAttribute('r', '3.5');
+    dstDot.setAttribute('class', 'attack-point-dot dst');
+    group.appendChild(dstDot);
+
+    // 3. Dynamic laser trail path
     const pathEl = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     pathEl.setAttribute('d', pathD);
     pathEl.setAttribute('class', `attack-laser-trail ${sevClass}`);
     group.appendChild(pathEl);
 
-    // 2. Glowing projectile comet head traversing ballistic arc
+    // 4. Glowing projectile comet head traversing ballistic arc
     const headEl = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
     headEl.setAttribute('r', '3');
     headEl.setAttribute('class', `attack-projectile-head ${sevClass}`);
@@ -363,14 +382,14 @@ function triggerAttackLaser(attack) {
 
     laserGroup.appendChild(group);
 
-    // Line and projectile disappear completely after arrival (decay out after 2.0s)
+    // Line and both points disappear completely after arrival (decay out after 1.8s)
     setTimeout(() => {
         if (group && group.parentNode) {
             group.remove();
         }
-    }, 2000);
+    }, 1800);
 
-    // 6. Update Bottom Geolocation HUD Box with Active Geolocation Details
+    // 5. Update Bottom Geolocation HUD Box with Active Geolocation Details
     updateGeolocationHud(attack);
 }
 
@@ -379,10 +398,8 @@ function updateGeolocationHud(attack) {
 
     const originCityEl = document.getElementById('hud-origin-city');
     const originMetaEl = document.getElementById('hud-origin-meta');
-    const vectorPillEl = document.getElementById('hud-vector-pill');
     const targetEnclaveEl = document.getElementById('hud-target-enclave');
     const targetMetaEl = document.getElementById('hud-target-meta');
-    const streamFeedEl = document.getElementById('hud-stream-feed');
 
     const srcCity = (attack.src_city || 'Unknown Origin').toUpperCase();
     const srcCountry = (attack.src_country || 'Unknown Country').toUpperCase();
@@ -394,42 +411,8 @@ function updateGeolocationHud(attack) {
 
     if (originCityEl) originCityEl.textContent = `${srcCity}, ${srcCountry} (${srcCode})`;
     if (originMetaEl) originMetaEl.textContent = `${coordsStr} • ${asnStr} (${attack.src_ip || 'Ingress'})`;
-    if (vectorPillEl) {
-        vectorPillEl.textContent = attack.threat_name || 'Threat Ingress';
-        const sev = (attack.severity || 'medium').toLowerCase();
-        vectorPillEl.className = `geo-hud-threat-pill ${sev === 'critical' ? 'badge-crit' : (sev === 'high' ? 'badge-high' : 'badge-med')}`;
-    }
     if (targetEnclaveEl) targetEnclaveEl.textContent = targetName;
     if (targetMetaEl) targetMetaEl.textContent = `${(attack.dst_city || 'NEW DELHI').toUpperCase()}, ${(attack.dst_country_code || 'IN').toUpperCase()} • ${dstCoordsStr}`;
-
-    // Update Rolling Geolocation Stream (names of geolocations, coordinates, and target enclaves)
-    if (streamFeedEl) {
-        threatMapState.rollingGeoLocations.unshift({
-            origin: `${srcCity}, ${srcCode}`,
-            coords: coordsStr,
-            target: targetName,
-            asn: asnStr
-        });
-        if (threatMapState.rollingGeoLocations.length > 4) {
-            threatMapState.rollingGeoLocations.pop();
-        }
-
-        streamFeedEl.innerHTML = threatMapState.rollingGeoLocations.map(item => `
-            <span class="ticker-loc-chip" data-asn="${item.asn}" title="Click to filter to ${item.origin}">
-                <span class="ticker-dot"></span>
-                <span>${item.origin} (${item.coords})</span>
-                <span style="color: #71717a; margin: 0 2px;">──►</span>
-                <span style="color: #34d399; font-weight: 700;">${item.target}</span>
-            </span>
-        `).join('');
-
-        streamFeedEl.querySelectorAll('.ticker-loc-chip').forEach(chip => {
-            chip.addEventListener('click', () => {
-                const asn = chip.getAttribute('data-asn');
-                if (asn) toggleFilter('geo_asn', asn, `Origin ASN: ${asn}`);
-            });
-        });
-    }
 }
 
 function processAttackQueue() {
@@ -441,7 +424,7 @@ function processAttackQueue() {
     const nextAttack = threatMapState.animationQueue.shift();
     triggerAttackLaser(nextAttack);
 
-    // Check Point Threat Map pacing: fire next laser projectile smoothly every 200-320ms
+    // Pacing: fire next laser projectile smoothly every 200-320ms
     const delay = Math.max(180, Math.min(320, 2400 / (threatMapState.animationQueue.length + 1)));
     setTimeout(processAttackQueue, delay);
 }
@@ -449,41 +432,13 @@ function processAttackQueue() {
 function renderDynamicGeoThreatMap(geoThreats, liveAttacks) {
     if (!geoThreats || !Array.isArray(geoThreats)) return;
 
-    // 1. Render persistent Threat Origin Nodes (Top 8 active global staging hubs)
+    // Keep map completely plain: ensure no persistent static nodes
     const nodesGroup = document.getElementById('dynamic-threat-nodes');
-    const activeThreats = geoThreats.filter(g => g.lat != null && g.lng != null && g.count > 0).slice(0, 8);
-
-    if (nodesGroup && activeThreats.length > 0) {
-        const threatsSig = activeThreats.map(g => `${(g.asn || '').split(' ')[0]}_${g.lat}_${g.lng}`).join('|');
-        if (nodesGroup.dataset.signature !== threatsSig) {
-            nodesGroup.dataset.signature = threatsSig;
-            let nodesHtml = '';
-            activeThreats.forEach((g, idx) => {
-                const x = (g.lng + 180) * (800 / 360);
-                const y = (90 - g.lat) * (400 / 180);
-                const asnCode = (g.asn || '').split(' ')[0];
-                const cityName = g.city || (g.location ? g.location.split(',')[0] : 'Remote Staging');
-                const nodeColor = idx === 0 ? 'red' : (idx <= 2 ? 'orange' : 'amber');
-                const coreRadius = idx === 0 ? 3.5 : (idx <= 2 ? 3 : 2.5);
-
-                nodesHtml += `
-                    <g class="threat-node" data-city="${escapeHtml(cityName)}" data-asn="${asnCode}" style="cursor: pointer;" transform="translate(${x.toFixed(1)}, ${y.toFixed(1)})">
-                        <title>${escapeHtml(cityName)} (${escapeHtml(asnCode)}) - ${g.count.toLocaleString()} Events</title>
-                        <circle class="core-dot ${nodeColor}" r="${coreRadius}"></circle>
-                    </g>
-                `;
-            });
-            nodesGroup.innerHTML = nodesHtml;
-
-            nodesGroup.querySelectorAll('.threat-node').forEach(node => {
-                node.addEventListener('click', () => {
-                    const city = node.getAttribute('data-city');
-                    const asn = node.getAttribute('data-asn');
-                    if (asn) toggleFilter('geo_asn', asn, `Origin ASN: ${asn} (${city})`);
-                });
-            });
-        }
+    if (nodesGroup && nodesGroup.children.length > 0) {
+        nodesGroup.innerHTML = '';
     }
+
+    const activeThreats = geoThreats.filter(g => g.lat != null && g.lng != null && g.count > 0).slice(0, 8);
 
     // 2. Queue live packet attack events for ballistic laser firing
     if (liveAttacks && Array.isArray(liveAttacks) && liveAttacks.length > 0) {
@@ -1419,33 +1374,57 @@ function initControls() {
     }
 }
 
-function toggleStream() {
-    state.isStreaming = !state.isStreaming;
-
-    if (state.isStreaming) {
-        DOM.streamBtnIcon.innerText = '■';
-        DOM.streamBtnLabel.innerText = 'Stop Live Stream';
-        DOM.streamToggleBtn.classList.add('running');
-        startStreamTimer();
-
-        if (DOM.streamSpeedSelect) {
-            state.speed = parseInt(DOM.streamSpeedSelect.value, 10) || 10;
+function setStreamRunningState(isRunning) {
+    state.isStreaming = isRunning;
+    if (DOM.streamBtnIcon) {
+        DOM.streamBtnIcon.innerText = isRunning ? '■' : '▶';
+    }
+    if (DOM.streamBtnLabel) {
+        DOM.streamBtnLabel.innerText = isRunning ? 'Stop Live Stream' : 'Start Live Stream';
+    }
+    if (DOM.streamToggleBtn) {
+        if (isRunning) {
+            DOM.streamToggleBtn.classList.add('running');
+        } else {
+            DOM.streamToggleBtn.classList.remove('running');
         }
-
-        fetch('/api/v1/stream/start', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ eps: state.speed })
-        }).catch(() => {});
-        updateKpisUI();
+    }
+    if (isRunning) {
+        startStreamTimer();
     } else {
-        DOM.streamBtnIcon.innerText = '▶';
-        DOM.streamBtnLabel.innerText = 'Start Live Stream';
-        DOM.streamToggleBtn.classList.remove('running');
         clearInterval(state.streamTimer);
+    }
+    updateKpisUI();
+}
 
-        fetch('/api/v1/stream/stop', { method: 'POST' }).catch(() => {});
-        updateKpisUI();
+async function toggleStream() {
+    if (DOM.streamToggleBtn) DOM.streamToggleBtn.disabled = true;
+    const willStart = !state.isStreaming;
+
+    try {
+        if (willStart) {
+            if (DOM.streamSpeedSelect) {
+                state.speed = parseInt(DOM.streamSpeedSelect.value, 10) || 10;
+            }
+            const res = await fetch('/api/v1/stream/start', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ eps: state.speed })
+            });
+            if (res.ok) {
+                setStreamRunningState(true);
+                fetchAndRenderLiveStream();
+            }
+        } else {
+            const res = await fetch('/api/v1/stream/stop', { method: 'POST' });
+            if (res.ok) {
+                setStreamRunningState(false);
+            }
+        }
+    } catch (e) {
+        console.error("Stream toggle failed:", e);
+    } finally {
+        if (DOM.streamToggleBtn) DOM.streamToggleBtn.disabled = false;
     }
 }
 
@@ -1455,7 +1434,7 @@ function startStreamTimer() {
 }
 
 async function fetchAndRenderLiveStream() {
-    if (!state.isStreaming || state.currentTab !== 'streamer') return;
+    if (state.currentTab !== 'streamer') return;
     try {
         const res = await fetch('/api/v1/stream/live');
         if (!res.ok) return;
@@ -1477,20 +1456,28 @@ async function fetchAndRenderLiveStream() {
 
         // Render latest 8 wire logs from socket receiver
         const recent = records.slice(-8).reverse();
-        DOM.rawStreamViewport.innerHTML = recent.map(r => `
-            <div class="stream-item-raw">[${r.timestamp}] ${escapeHtml(r.raw_string)}</div>
-        `).join('');
+        if (DOM.rawStreamViewport) {
+            DOM.rawStreamViewport.innerHTML = recent.map(r => `
+                <div class="stream-item-raw">[${r.timestamp}] ${escapeHtml(r.raw_string)}</div>
+            `).join('');
+        }
 
-        DOM.shaStreamViewport.innerHTML = recent.map(r => `
-            <div class="stream-item-sha">SHA-256: ${r.sha256_key}</div>
-        `).join('');
+        if (DOM.shaStreamViewport) {
+            DOM.shaStreamViewport.innerHTML = recent.map(r => `
+                <div class="stream-item-sha">SHA-256: ${r.sha256_key || r.sha256}</div>
+            `).join('');
+        }
 
         const recentJson = records.slice(-4).reverse();
-        DOM.jsonStreamViewport.innerHTML = recentJson.map(r => `
-            <div class="json-record-card">${escapeHtml(JSON.stringify(r.formatted_json, null, 2))}</div>
-        `).join('');
+        if (DOM.jsonStreamViewport) {
+            DOM.jsonStreamViewport.innerHTML = recentJson.map(r => `
+                <div class="json-record-card">${escapeHtml(JSON.stringify(r.formatted_json, null, 2))}</div>
+            `).join('');
+        }
 
-        DOM.processedCounterBadge.innerText = `EVENTS COMMITTED: ${records.length}`;
+        if (DOM.processedCounterBadge) {
+            DOM.processedCounterBadge.innerText = `EVENTS COMMITTED: ${records.length}`;
+        }
     } catch (e) {}
 }
 
@@ -1571,7 +1558,9 @@ async function fetchLiveTelemetry() {
         }
         state.anomaliesCount = data.anomalies || state.anomaliesCount;
         state.batchesCount = data.total_batches || state.batchesCount;
-        state.isStreaming = data.is_running !== undefined ? data.is_running : state.isStreaming;
+        if (data.is_running !== undefined && data.is_running !== state.isStreaming) {
+            setStreamRunningState(data.is_running);
+        }
 
         if (DOM.healthCpu) DOM.healthCpu.innerText = `${data.cpu_percent || '0.0'}%`;
         if (DOM.healthRam) DOM.healthRam.innerText = `${data.memory_mb || '0'} MB`;
