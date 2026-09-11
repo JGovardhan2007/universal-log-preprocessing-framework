@@ -179,15 +179,26 @@ document.addEventListener('DOMContentLoaded', () => {
 // -------------------------------------------------------------
 let activePopupCard = null;
 
+function handlePopupWheelScroll(e) {
+    if (!activePopupCard) return;
+    if (!activePopupCard.contains(e.target)) {
+        e.preventDefault();
+    }
+}
+
 function initCardPopupSystem() {
     const backdrop = document.getElementById('global-popup-backdrop');
     const closeBtn = document.getElementById('global-popup-close-btn');
 
     if (backdrop) {
         backdrop.addEventListener('click', closeCardPopup);
+        backdrop.addEventListener('wheel', (e) => e.preventDefault(), { passive: false });
     }
     if (closeBtn) {
-        closeBtn.addEventListener('click', closeCardPopup);
+        closeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            closeCardPopup();
+        });
     }
 
     document.addEventListener('keydown', (e) => {
@@ -196,32 +207,47 @@ function initCardPopupSystem() {
         }
     });
 
-    // Eligible cards for popup mode (Exclude executive top strip: Critical, High, Medium, Low, Velocity)
-    const cards = document.querySelectorAll('.shadcn-card');
-    cards.forEach(card => {
-        // Explicitly exclude first bar & toolbars:
+    // Window-level scroll guard to prevent background page from scrolling
+    window.addEventListener('wheel', handlePopupWheelScroll, { passive: false });
+    window.addEventListener('touchmove', handlePopupWheelScroll, { passive: false });
+
+    // Target specific content cards for modal popup (Geographic Threat Map, Alerts & Severity, Port Anomaly, Rankings, Tables)
+    // EXCLUDING the first executive KPI bar (Critical, High, Medium, Low, Ingestion Rate)
+    const cardSelectors = [
+        '.geo-threat-card',
+        '.chart-card-fill',
+        '#threatScatterChart',
+        '#device-ranking-list',
+        '#alerts-table',
+        '#user-ranking-list',
+        '#offense-ranking-list',
+        '#timeline-table'
+    ];
+
+    cardSelectors.forEach(sel => {
+        const el = document.querySelector(sel);
+        if (!el) return;
+        const card = el.closest('.shadcn-card');
+        if (!card) return;
+
+        // Ensure first bar is NEVER touched
         if (card.closest('.executive-kpi-strip') ||
             card.classList.contains('sev-card') ||
-            card.classList.contains('velocity-card') ||
-            card.classList.contains('controls-card') || 
-            card.classList.contains('filter-bar-card') || 
-            card.classList.contains('vault-summary-card') ||
-            card.id === 'parser-studio-drawer') {
+            card.classList.contains('velocity-card')) {
             return;
         }
 
-        // Add class indicating eligible card
+        // Add class indicating this card can be clicked to open in modal
         card.classList.add('popup-eligible-card');
 
-        // Clicking anywhere on the card header or background opens the popup window
+        // Clicking anywhere on the card when resting opens up the popup modal window
         card.addEventListener('click', (e) => {
+            // If already open in modal popup mode, let interactions proceed normally inside
             if (card.classList.contains('is-card-popup')) return;
 
-            // Don't intercept clicks on interactive sub-elements!
-            const interactive = e.target.closest(
-                'button, input, select, textarea, a, tr, td, th, canvas, svg, .pill-chip, .ranking-item, [data-db-filter], .geo-hud-bar, .win-dot, .filter-chip, .btn-copy-mini'
-            );
-            if (interactive) return;
+            // In resting mode, do not trigger popup if user clicked an explicit action button or link
+            const actionElement = e.target.closest('button, a, input, select, textarea');
+            if (actionElement) return;
 
             openCardPopup(card);
         });
@@ -240,37 +266,51 @@ function openCardPopup(card) {
 
     const backdrop = document.getElementById('global-popup-backdrop');
     const closeBtn = document.getElementById('global-popup-close-btn');
+
     if (backdrop) backdrop.classList.remove('hidden');
-    if (closeBtn) closeBtn.classList.remove('hidden');
+    if (closeBtn) {
+        closeBtn.classList.remove('hidden');
+        card.appendChild(closeBtn);
+    }
+
+    // Lock page background scrolling completely
+    document.documentElement.classList.add('card-popup-open');
     document.body.classList.add('card-popup-open');
 
     // Trigger chart resize & DOM redraw
     setTimeout(() => {
         window.dispatchEvent(new Event('resize'));
-        if (severityDonutChart) severityDonutChart.resize();
-        if (severityTrendChart) severityTrendChart.resize();
-        if (scatterChart) scatterChart.resize();
-    }, 60);
+        if (typeof severityDonutChart !== 'undefined' && severityDonutChart) severityDonutChart.resize();
+        if (typeof severityTrendChart !== 'undefined' && severityTrendChart) severityTrendChart.resize();
+        if (typeof scatterChart !== 'undefined' && scatterChart) scatterChart.resize();
+    }, 70);
 }
 
 function closeCardPopup() {
     if (!activePopupCard) return;
 
+    const closeBtn = document.getElementById('global-popup-close-btn');
+    if (closeBtn) {
+        closeBtn.classList.add('hidden');
+        document.body.appendChild(closeBtn);
+    }
+
     activePopupCard.classList.remove('is-card-popup');
     activePopupCard = null;
 
     const backdrop = document.getElementById('global-popup-backdrop');
-    const closeBtn = document.getElementById('global-popup-close-btn');
     if (backdrop) backdrop.classList.add('hidden');
-    if (closeBtn) closeBtn.classList.add('hidden');
+
+    // Restore page background scrolling
+    document.documentElement.classList.remove('card-popup-open');
     document.body.classList.remove('card-popup-open');
 
     setTimeout(() => {
         window.dispatchEvent(new Event('resize'));
-        if (severityDonutChart) severityDonutChart.resize();
-        if (severityTrendChart) severityTrendChart.resize();
-        if (scatterChart) scatterChart.resize();
-    }, 60);
+        if (typeof severityDonutChart !== 'undefined' && severityDonutChart) severityDonutChart.resize();
+        if (typeof severityTrendChart !== 'undefined' && severityTrendChart) severityTrendChart.resize();
+        if (typeof scatterChart !== 'undefined' && scatterChart) scatterChart.resize();
+    }, 70);
 }
 
 // -------------------------------------------------------------

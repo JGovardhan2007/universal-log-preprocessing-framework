@@ -2357,10 +2357,14 @@ mark.search-highlight {
 }
 
 /* ==========================================================================
-   CLEAN CARD POPUP WINDOW ARCHITECTURE
+/* ==========================================================================
+   CLEAN CARD POPUP WINDOW ARCHITECTURE (ENTERPRISE MODAL)
    ========================================================================== */
+html.card-popup-open,
 body.card-popup-open {
     overflow: hidden !important;
+    height: 100vh !important;
+    touch-action: none !important;
 }
 
 .global-popup-backdrop {
@@ -2369,11 +2373,11 @@ body.card-popup-open {
     left: 0 !important;
     right: 0 !important;
     bottom: 0 !important;
-    background: rgba(3, 6, 12, 0.85) !important;
-    backdrop-filter: blur(8px) !important;
-    -webkit-backdrop-filter: blur(8px) !important;
-    z-index: 1000 !important;
-    animation: popupFadeIn 0.2s ease !important;
+    background: rgba(3, 5, 10, 0.82) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    z-index: 1040 !important;
+    animation: popupFadeIn 0.22s ease-out !important;
 }
 
 .global-popup-backdrop.hidden {
@@ -2381,38 +2385,39 @@ body.card-popup-open {
 }
 
 .global-popup-close-btn {
-    position: fixed !important;
-    top: 14px !important;
-    right: 24px !important;
-    z-index: 1002 !important;
-    background: rgba(239, 68, 68, 0.25) !important;
-    border: 1px solid rgba(239, 68, 68, 0.6) !important;
-    color: #ffffff !important;
+    position: absolute !important;
+    top: 18px !important;
+    right: 22px !important;
+    z-index: 50 !important;
+    background: rgba(239, 68, 68, 0.18) !important;
+    border: 1px solid rgba(239, 68, 68, 0.5) !important;
+    color: #fca5a5 !important;
     font-family: var(--font-sans), sans-serif !important;
     font-size: 12px !important;
-    font-weight: 700 !important;
+    font-weight: 600 !important;
     padding: 6px 14px !important;
-    border-radius: 6px !important;
+    border-radius: 8px !important;
     cursor: pointer !important;
     display: flex !important;
     align-items: center !important;
-    gap: 6px !important;
-    box-shadow: 0 4px 16px rgba(239, 68, 68, 0.35) !important;
+    gap: 8px !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6) !important;
     transition: all 0.15s ease !important;
 }
 
 .global-popup-close-btn:hover {
-    background: rgba(239, 68, 68, 0.45) !important;
+    background: rgba(239, 68, 68, 0.38) !important;
     border-color: #ef4444 !important;
+    color: #ffffff !important;
     transform: translateY(-1px) !important;
     box-shadow: 0 6px 20px rgba(239, 68, 68, 0.5) !important;
 }
 
 .global-popup-close-btn .esc-tag {
-    background: rgba(0, 0, 0, 0.5) !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-    border-radius: 3px !important;
-    padding: 1px 4px !important;
+    background: rgba(0, 0, 0, 0.55) !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+    border-radius: 4px !important;
+    padding: 1px 5px !important;
     font-size: 9px !important;
     font-family: var(--font-mono), monospace !important;
     color: #fca5a5 !important;
@@ -2422,53 +2427,54 @@ body.card-popup-open {
     display: none !important;
 }
 
-/* Eligible cards hover indication */
+/* Eligible cards hover indication in resting state */
 .popup-eligible-card {
     cursor: pointer;
     transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
 }
 
 .popup-eligible-card:hover {
-    border-color: rgba(56, 189, 248, 0.4) !important;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 12px rgba(56, 189, 248, 0.15) !important;
+    border-color: rgba(56, 189, 248, 0.45) !important;
+    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.55), 0 0 14px rgba(56, 189, 248, 0.14) !important;
+    transform: translateY(-1px);
 }
 
-.popup-eligible-card.is-card-popup {
-    cursor: default;
-}
-
-/* Card in Popup Mode */
+/* Card in Centered Modal Popup Mode */
 .shadcn-card.is-card-popup {
     position: fixed !important;
-    top: 30px !important;
-    left: 40px !important;
-    right: 40px !important;
-    bottom: 30px !important;
-    width: auto !important;
-    height: auto !important;
-    max-width: 1560px !important;
-    margin: 0 auto !important;
-    z-index: 1001 !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: min(94vw, 1420px) !important;
+    height: min(88vh, 860px) !important;
+    z-index: 1050 !important;
     background: #090d16 !important;
-    border: 1px solid rgba(56, 189, 248, 0.5) !important;
-    border-radius: 12px !important;
-    box-shadow: 0 25px 70px rgba(0, 0, 0, 0.95), 0 0 40px rgba(56, 189, 248, 0.2) !important;
+    border: 1px solid rgba(56, 189, 248, 0.55) !important;
+    border-radius: 14px !important;
+    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.95), 0 0 50px rgba(56, 189, 248, 0.25) !important;
     display: flex !important;
     flex-direction: column !important;
     overflow: hidden !important;
-    padding: 24px !important;
+    padding: 24px 28px !important;
     cursor: default !important;
-    animation: popupScaleIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    overscroll-behavior: contain !important;
+    animation: popupModalEnter 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
-@keyframes popupScaleIn {
+.popup-eligible-card.is-card-popup:hover {
+    transform: translate(-50%, -50%) !important;
+    border-color: rgba(56, 189, 248, 0.55) !important;
+    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.95), 0 0 50px rgba(56, 189, 248, 0.25) !important;
+}
+
+@keyframes popupModalEnter {
     0% {
         opacity: 0;
-        transform: scale(0.95) translateY(12px);
+        transform: translate(-50%, -46%) scale(0.95);
     }
     100% {
         opacity: 1;
-        transform: scale(1) translateY(0);
+        transform: translate(-50%, -50%) scale(1);
     }
 }
 
@@ -2480,14 +2486,15 @@ body.card-popup-open {
 /* Specific layout adjustments inside popup */
 .shadcn-card.is-card-popup .card-title-row {
     margin-bottom: 16px !important;
+    padding-right: 130px !important;
     flex-shrink: 0 !important;
 }
 
+/* Geographic Threat Map inside popup */
 .shadcn-card.is-card-popup.geo-threat-card {
-    padding: 20px !important;
+    padding: 22px !important;
 }
 
-.shadcn-card.is-card-popup.geo-threat-card .geo-threat-map-container,
 .shadcn-card.is-card-popup.geo-threat-card .geo-map-container {
     flex: 1 !important;
     min-height: 0 !important;
@@ -2499,84 +2506,69 @@ body.card-popup-open {
     position: relative !important;
 }
 
-.shadcn-card.is-card-popup.geo-threat-card .geo-threat-svg,
 .shadcn-card.is-card-popup.geo-threat-card .geo-world-svg {
-    max-height: calc(100vh - 180px) !important;
+    max-height: calc(88vh - 170px) !important;
     width: 100% !important;
     height: 100% !important;
 }
 
+/* Charts inside popup */
 .shadcn-card.is-card-popup .dual-chart-container {
     flex: 1 !important;
     min-height: 0 !important;
-    height: calc(100vh - 200px) !important;
+    height: calc(88vh - 200px) !important;
     max-height: none !important;
+    display: flex !important;
+    gap: 24px !important;
 }
 
-.shadcn-card.is-card-popup .chart-wrapper,
-.shadcn-card.is-card-popup #scatterChart {
+.shadcn-card.is-card-popup .dual-chart-donut,
+.shadcn-card.is-card-popup .dual-chart-line {
     flex: 1 !important;
     min-height: 0 !important;
     height: 100% !important;
+    position: relative !important;
 }
 
-.shadcn-card.is-card-popup.table-wrapper-card .table-scroll {
+.shadcn-card.is-card-popup .chart-box {
     flex: 1 !important;
     min-height: 0 !important;
-    max-height: calc(100vh - 200px) !important;
+    height: calc(88vh - 160px) !important;
+    position: relative !important;
+}
+
+/* Ranking lists inside popup */
+.shadcn-card.is-card-popup .ranking-list {
+    flex: 1 !important;
+    min-height: 0 !important;
+    max-height: calc(88vh - 160px) !important;
     overflow-y: auto !important;
+    overscroll-behavior: contain !important;
 }
 
-.shadcn-card.is-card-popup.profile-panel .ranking-list {
+/* Tables inside popup */
+.shadcn-card.is-card-popup.table-wrapper-card .table-container {
     flex: 1 !important;
     min-height: 0 !important;
-    max-height: calc(100vh - 180px) !important;
+    max-height: calc(88vh - 170px) !important;
     overflow-y: auto !important;
-}
-
-.shadcn-card.is-card-popup.terminal-card {
-    padding: 16px !important;
-}
-
-.shadcn-card.is-card-popup.terminal-card .terminal-top-split {
-    flex: 1 !important;
-    min-height: 220px !important;
-}
-
-.shadcn-card.is-card-popup.terminal-card .terminal-bottom-section {
-    flex: 1.2 !important;
-    min-height: 240px !important;
-}
-
-.shadcn-card.is-card-popup.terminal-card .stream-viewport,
-.shadcn-card.is-card-popup.terminal-card .json-viewport {
-    max-height: calc(50vh - 120px) !important;
-    height: 100% !important;
-}
-
-.shadcn-card.is-card-popup.inspector-card .batch-dual-view {
-    flex: 1 !important;
-    min-height: 0 !important;
-    height: calc(100vh - 220px) !important;
-}
-
-.shadcn-card.is-card-popup.inspector-card .inspect-box pre {
-    max-height: calc(100vh - 270px) !important;
-    height: 100% !important;
+    overscroll-behavior: contain !important;
 }
 
 @media (max-width: 768px) {
     .shadcn-card.is-card-popup {
-        top: 10px !important;
-        left: 10px !important;
-        right: 10px !important;
-        bottom: 10px !important;
-        padding: 14px !important;
+        width: 96vw !important;
+        height: 92vh !important;
+        padding: 16px !important;
+        border-radius: 10px !important;
     }
     .global-popup-close-btn {
-        top: 12px !important;
+        top: 14px !important;
         right: 14px !important;
         padding: 5px 10px !important;
+    }
+    .shadcn-card.is-card-popup .card-title-row {
+        padding-right: 100px !important;
     }
 }
 
