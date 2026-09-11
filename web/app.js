@@ -168,6 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initDatabaseSearch();
     initStudioDrawer();
     initForensicModal();
+    initCardMaximizer();
     
     fetchLiveTelemetry();
     setInterval(fetchLiveTelemetry, 2500);
@@ -182,6 +183,11 @@ function initTabs() {
             const targetTab = btn.getAttribute('data-tab');
             if (state.currentTab === targetTab) return;
 
+            // If a card is maximized, minimize before tab switch
+            if (currentlyMaximizedCard) {
+                minimizeCard(currentlyMaximizedCard);
+            }
+
             DOM.navBtns.forEach(b => b.classList.remove('active'));
             DOM.tabPanes.forEach(p => p.classList.remove('active'));
 
@@ -192,6 +198,9 @@ function initTabs() {
             if (targetTab === 'database') {
                 fetchStoredFiles();
             }
+
+            // Re-check maximizable cards on tab switch
+            setTimeout(setupMaximizableCards, 50);
         });
     });
 }
@@ -1841,3 +1850,217 @@ function initStudioDrawer() {
         });
     }
 }
+
+// -------------------------------------------------------------
+// CARD MAXIMIZER & FULLSCREEN COMPONENT FOCUS MODE
+// -------------------------------------------------------------
+let currentlyMaximizedCard = null;
+
+function initCardMaximizer() {
+    // 1. Create or ensure backdrop element
+    let backdrop = document.querySelector('.card-maximize-backdrop');
+    if (!backdrop) {
+        backdrop = document.createElement('div');
+        backdrop.className = 'card-maximize-backdrop';
+        document.body.appendChild(backdrop);
+    }
+
+    backdrop.addEventListener('click', () => {
+        if (currentlyMaximizedCard) {
+            minimizeCard(currentlyMaximizedCard);
+        }
+    });
+
+    // 2. Global Escape key listener
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            if (currentlyMaximizedCard) {
+                minimizeCard(currentlyMaximizedCard);
+            }
+        }
+    });
+
+    // 3. Scan and setup cards
+    setupMaximizableCards();
+}
+
+function setupMaximizableCards() {
+    const cards = document.querySelectorAll('.shadcn-card');
+    cards.forEach(card => {
+        // Skip utility cards, forms, drawers, and modal popups
+        if (card.classList.contains('studio-card') || 
+            card.classList.contains('vault-summary-card') || 
+            card.classList.contains('controls-card') ||
+            card.closest('.modal-overlay')) {
+            return;
+        }
+
+        // Check if already processed
+        if (card.dataset.maximizable === 'true') return;
+        card.dataset.maximizable = 'true';
+
+        // Find title row or header
+        const titleRow = card.querySelector('.card-title-row') || card.querySelector('.velocity-header');
+        if (!titleRow) return;
+
+        titleRow.classList.add('clickable-header');
+
+        // Look for existing action wrapper or create one
+        let actionWrapper = titleRow.querySelector('.card-header-actions');
+        if (!actionWrapper) {
+            actionWrapper = document.createElement('div');
+            actionWrapper.className = 'card-header-actions';
+            
+            // Move direct badge children or inspectors into actionWrapper for clean layout
+            const directBadges = Array.from(titleRow.children).filter(child => 
+                child.classList.contains('badge-secondary') || 
+                child.classList.contains('badge-outline') || 
+                child.classList.contains('badge-destructive') ||
+                child.classList.contains('sparkline-wrapper') ||
+                child.classList.contains('inspector-select-wrap')
+            );
+            
+            directBadges.forEach(b => actionWrapper.appendChild(b));
+            titleRow.appendChild(actionWrapper);
+        }
+
+        // Create Maximize Button
+        if (!actionWrapper.querySelector('.btn-card-maximize')) {
+            const maxBtn = document.createElement('button');
+            maxBtn.className = 'btn-card-maximize';
+            maxBtn.type = 'button';
+            maxBtn.title = 'Maximize component to full screen';
+            maxBtn.setAttribute('aria-label', 'Maximize component');
+            maxBtn.innerHTML = `
+                <svg class="maximize-icon expand-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
+                </svg>
+                <svg class="maximize-icon compress-icon hidden" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"/>
+                </svg>
+            `;
+
+            maxBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleCardMaximize(card);
+            });
+
+            actionWrapper.appendChild(maxBtn);
+        }
+
+        // Also allow clicking the header row to maximize
+        titleRow.addEventListener('click', (e) => {
+            // Ignore clicks on inner buttons, inputs, selects, links, or sparkline canvas
+            if (e.target.closest('button') || e.target.closest('input') || e.target.closest('select') || e.target.closest('a') || e.target.closest('canvas')) {
+                return;
+            }
+            toggleCardMaximize(card);
+        });
+    });
+}
+
+function toggleCardMaximize(card) {
+    if (card.classList.contains('card-maximized')) {
+        minimizeCard(card);
+    } else {
+        maximizeCard(card);
+    }
+}
+
+function maximizeCard(card) {
+    if (currentlyMaximizedCard && currentlyMaximizedCard !== card) {
+        minimizeCard(currentlyMaximizedCard);
+    }
+
+    currentlyMaximizedCard = card;
+    card.classList.add('card-maximized');
+    document.body.classList.add('has-maximized-card');
+
+    const backdrop = document.querySelector('.card-maximize-backdrop');
+    if (backdrop) backdrop.classList.add('active');
+
+    // Update Maximize Button UI
+    const maxBtn = card.querySelector('.btn-card-maximize');
+    if (maxBtn) {
+        maxBtn.title = 'Minimize / Exit full screen (Esc)';
+        const exp = maxBtn.querySelector('.expand-icon');
+        const comp = maxBtn.querySelector('.compress-icon');
+        if (exp) exp.classList.add('hidden');
+        if (comp) comp.classList.remove('hidden');
+    }
+
+    // Add prominent Floating Close Button if not already there
+    let exitBtn = card.querySelector('.btn-exit-fullscreen');
+    if (!exitBtn) {
+        exitBtn = document.createElement('button');
+        exitBtn.className = 'btn-exit-fullscreen';
+        exitBtn.type = 'button';
+        exitBtn.title = 'Exit Fullscreen (Esc)';
+        exitBtn.innerHTML = `
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+            <span>Exit Fullscreen [Esc]</span>
+        `;
+        exitBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            minimizeCard(card);
+        });
+        const headerActions = card.querySelector('.card-header-actions');
+        if (headerActions) {
+            headerActions.insertBefore(exitBtn, headerActions.firstChild);
+        }
+    } else {
+        exitBtn.classList.remove('hidden');
+    }
+
+    // Trigger responsive re-renders for Chart.js, canvas, and SVG
+    triggerChartResizes();
+}
+
+function minimizeCard(card) {
+    if (!card) return;
+    card.classList.remove('card-maximized');
+    document.body.classList.remove('has-maximized-card');
+
+    const backdrop = document.querySelector('.card-maximize-backdrop');
+    if (backdrop) backdrop.classList.remove('active');
+
+    const maxBtn = card.querySelector('.btn-card-maximize');
+    if (maxBtn) {
+        maxBtn.title = 'Maximize component to full screen';
+        const exp = maxBtn.querySelector('.expand-icon');
+        const comp = maxBtn.querySelector('.compress-icon');
+        if (exp) exp.classList.remove('hidden');
+        if (comp) comp.classList.add('hidden');
+    }
+
+    const exitBtn = card.querySelector('.btn-exit-fullscreen');
+    if (exitBtn) {
+        exitBtn.classList.add('hidden');
+    }
+
+    if (currentlyMaximizedCard === card) {
+        currentlyMaximizedCard = null;
+    }
+
+    triggerChartResizes();
+}
+
+function triggerChartResizes() {
+    window.dispatchEvent(new Event('resize'));
+    setTimeout(() => {
+        if (severityDonutChart) severityDonutChart.resize();
+        if (severityTrendChart) severityTrendChart.resize();
+        if (scatterChart) scatterChart.resize();
+        if (typeof renderVelocitySparkline === 'function') renderVelocitySparkline();
+    }, 80);
+    setTimeout(() => {
+        if (severityDonutChart) severityDonutChart.resize();
+        if (severityTrendChart) severityTrendChart.resize();
+        if (scatterChart) scatterChart.resize();
+        if (typeof renderVelocitySparkline === 'function') renderVelocitySparkline();
+    }, 280);
+}
+
