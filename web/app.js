@@ -1921,20 +1921,23 @@ function setupMaximizableCards() {
                 return;
             }
 
-            // Ignore if clicked on specific buttons, inputs, selects, links, or table inspect buttons
+            // Ignore if clicked on specific interactive controls (buttons, inputs, selects, links)
             if (e.target.closest('button') || 
                 e.target.closest('input') || 
                 e.target.closest('select') || 
                 e.target.closest('a') ||
                 e.target.closest('.btn-inspect-mini') ||
                 e.target.closest('.btn-download-mini') ||
-                e.target.closest('.btn-copy-mini')) {
+                e.target.closest('.btn-copy-mini') ||
+                e.target.closest('.asn-row') ||
+                e.target.closest('.threat-node') ||
+                e.target.closest('.ranking-item')) {
                 return;
             }
 
             // Don't trigger if user is selecting text
             const selection = window.getSelection();
-            if (selection && selection.toString().length > 0) {
+            if (selection && selection.toString().trim().length > 0) {
                 return;
             }
 
