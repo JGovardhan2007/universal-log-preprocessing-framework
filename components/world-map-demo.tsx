@@ -1,4 +1,6 @@
+/// <reference path="./declarations.d.ts" />
 "use client";
+import React from "react";
 import WorldMap from "./ui/world-map";
 import { motion } from "motion/react";
 

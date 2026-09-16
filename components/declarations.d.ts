@@ -1,11 +1,9 @@
 // Ambient type declarations for React, JSX, and Aceternity UI component dependencies
 
-declare global {
-  namespace JSX {
-    interface Element {}
-    interface IntrinsicElements {
-      [elemName: string]: any;
-    }
+declare namespace JSX {
+  interface Element {}
+  interface IntrinsicElements {
+    [elemName: string]: any;
   }
 }
 
@@ -22,8 +20,25 @@ declare module "react" {
 }
 
 declare module "react/jsx-runtime" {
+  export namespace JSX {
+    interface Element {}
+    interface IntrinsicElements {
+      [elemName: string]: any;
+    }
+  }
   export const jsx: any;
   export const jsxs: any;
+  export const Fragment: any;
+}
+
+declare module "react/jsx-dev-runtime" {
+  export namespace JSX {
+    interface Element {}
+    interface IntrinsicElements {
+      [elemName: string]: any;
+    }
+  }
+  export const jsxDEV: any;
   export const Fragment: any;
 }
 
@@ -59,5 +74,3 @@ declare module "next-themes" {
     systemTheme?: string;
   };
 }
-
-export {};
