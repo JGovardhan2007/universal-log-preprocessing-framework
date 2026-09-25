@@ -11,11 +11,58 @@ Multi-Model Defense-in-Depth AI/ML Anomaly Engine:
 
 import math
 import time
+import logging
 from collections import deque, Counter
 from typing import Dict, Any, List, Tuple, Optional
 import numpy as np
-from sklearn.ensemble import IsolationForest
-from sklearn.svm import OneClassSVM
+
+logger = logging.getLogger("ulpf.ai_analyzer")
+
+class _PureNumPyIsolationForest:
+    """Lightweight pure-NumPy statistical isolation fallback when scipy/sklearn DLLs are blocked."""
+    def __init__(self, *args, **kwargs):
+        self.mean = None
+        self.std = None
+
+    def fit(self, X):
+        self.mean = np.mean(X, axis=0)
+        self.std = np.std(X, axis=0) + 1e-6
+        return self
+
+    def decision_function(self, X):
+        if self.mean is None:
+            return np.array([0.1])
+        z = np.abs((X - self.mean) / self.std)
+        avg_z = np.mean(z, axis=1)
+        return 0.25 - (avg_z * 0.2)
+
+
+class _PureNumPyOneClassSVM:
+    """Lightweight pure-NumPy RBF kernel density estimator fallback when scipy/sklearn DLLs are blocked."""
+    def __init__(self, *args, **kwargs):
+        self.centroid = None
+
+    def fit(self, X):
+        self.centroid = np.median(X, axis=0)
+        return self
+
+    def decision_function(self, X):
+        if self.centroid is None:
+            return np.array([0.1])
+        dist_sq = np.sum((X - self.centroid) ** 2, axis=1)
+        rbf_response = np.exp(-1.5 * dist_sq)
+        return rbf_response - 0.45
+
+
+try:
+    from sklearn.ensemble import IsolationForest
+    from sklearn.svm import OneClassSVM
+    SKLEARN_AVAILABLE = True
+except Exception as e:
+    logger.warning("Scikit-learn / SciPy native DLLs blocked by Windows Application Control. Using pure-NumPy fallback engine: %s", e)
+    IsolationForest = _PureNumPyIsolationForest
+    OneClassSVM = _PureNumPyOneClassSVM
+    SKLEARN_AVAILABLE = False
 
 
 class AIAnalyzer:
