@@ -1,13 +1,13 @@
 {
-  "benchmark_timestamp_utc": "2026-09-11T04:31:54.731814+00:00",
+  "benchmark_timestamp_utc": "2026-09-11T08:56:56.323056+00:00",
   "total_events_processed": 400,
-  "total_time_seconds": 0.6313,
-  "throughput_eps": 633.63,
+  "total_time_seconds": 0.1101,
+  "throughput_eps": 3632.41,
   "latency_profile_ms": {
-    "average": 0.1911,
-    "p50": 0.1468,
-    "p95": 0.3478,
-    "p99": 1.8212
+    "average": 0.1896,
+    "p50": 0.1794,
+    "p95": 0.3149,
+    "p99": 0.4667
   },
   "supported_vendors_count": 10,
   "air_gapped_verified": true,
