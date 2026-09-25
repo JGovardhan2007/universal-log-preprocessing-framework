@@ -14,9 +14,12 @@ import hashlib
 import random
 import threading
 import glob
+import logging
 from collections import deque
 from datetime import datetime, timezone
 from typing import Dict, Any, List, Optional
+
+logger = logging.getLogger("ulpf.live_service")
 
 # Ensure project root in sys.path
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

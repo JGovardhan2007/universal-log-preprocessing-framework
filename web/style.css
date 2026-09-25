@@ -989,8 +989,6 @@ body {
     background: #f97316;
     display: inline-block;
 }
-    gap: 6px;
-}
 
 .geo-hud-feed-arrow {
     color: #71717a;
@@ -2517,6 +2515,7 @@ body {
         flex-direction: column;
         height: auto;
         padding: 12px 16px;
+    }
 }
 
 mark.search-highlight {
@@ -2529,7 +2528,6 @@ mark.search-highlight {
 }
 
 /* ==========================================================================
-/*/* ==========================================================================
    DEDICATED CARD POPUP WINDOW MODAL (ENTERPRISE WINDOW DIALOG)
    ========================================================================== */
 body.card-popup-open {
